@@ -2,12 +2,17 @@ import { Link } from 'react-router-dom'
 
 export default function BasesYCondiciones() {
   return (
-    <div className="mx-auto max-w-sm px-4 py-6">
-      <Link to="/perfil" className="mb-4 inline-block text-sm text-slate-500 hover:underline">
+    <div>
+      <Link to="/perfil" className="mb-4 inline-block text-sm font-medium" style={{ color: 'var(--pitch-500)' }}>
         ← Volver
       </Link>
-      <h1 className="mb-4 text-xl font-bold text-slate-900">Bases y condiciones</h1>
-      <div className="flex flex-col gap-4 rounded-xl bg-white p-5 text-sm leading-relaxed text-slate-600 shadow-sm">
+      <h1 className="mb-5 text-2xl font-bold" style={{ color: 'var(--pitch-900)' }}>
+        Bases y condiciones
+      </h1>
+      <div
+        className="glass-strong flex flex-col gap-4 rounded-[28px] p-6 text-sm leading-relaxed"
+        style={{ color: 'var(--pitch-700)' }}
+      >
         <p>
           Fulbito Random es un espacio para organizar partidos amateur entre conocidos. Al usarla, aceptás estas
           reglas simples:
@@ -18,7 +23,9 @@ export default function BasesYCondiciones() {
           <li>Las valoraciones son para ayudar al grupo, no para ajustar cuentas — sé justo.</li>
           <li>El admin de cada partido puede editar horario, cancha o cupo, o cancelarlo si hace falta.</li>
         </ul>
-        <p className="text-xs text-slate-400">Última actualización: septiembre 2026.</p>
+        <p className="text-xs" style={{ color: 'var(--pitch-300)' }}>
+          Última actualización: septiembre 2026.
+        </p>
       </div>
     </div>
   )

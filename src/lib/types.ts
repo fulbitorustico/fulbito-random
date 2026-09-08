@@ -18,6 +18,8 @@ export interface Partido {
   admin_id: string
   estado: EstadoPartido
   created_at: string
+  lat: number | null
+  lng: number | null
 }
 
 export interface Participante {

@@ -27,33 +27,53 @@ export default function Jugadores() {
   })
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-6">
-      <h1 className="mb-4 text-xl font-bold text-slate-900">Jugadores</h1>
+    <div>
+      <h1 className="mb-5 text-2xl font-bold" style={{ color: 'var(--pitch-900)' }}>
+        Jugadores
+      </h1>
       <input
         placeholder="Buscar por nombre o apodo..."
         value={busqueda}
         onChange={(e) => setBusqueda(e.target.value)}
-        className="mb-4 w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-green-600"
+        className="mb-4 w-full rounded-2xl border-0 bg-white/70 px-4 py-3.5 text-[15px] outline-none ring-1 ring-black/5 transition focus:ring-2"
+        style={{ color: 'var(--pitch-900)' }}
       />
 
-      {loading && <p className="text-sm text-slate-500">Cargando...</p>}
+      {loading && (
+        <p className="text-sm" style={{ color: 'var(--pitch-300)' }}>
+          Cargando...
+        </p>
+      )}
 
-      <div className="flex flex-col gap-2">
-        {filtrados.map((j) => {
+      <div className="flex flex-col gap-2.5">
+        {filtrados.map((j, i) => {
           const prom = promedios[j.id]
           return (
-            <div key={j.id} className="flex items-center justify-between rounded-xl bg-white p-4 shadow-sm">
+            <div
+              key={j.id}
+              className="glass anim-rise flex items-center justify-between rounded-2xl px-4 py-3.5"
+              style={{ animationDelay: `${i * 35}ms` }}
+            >
               <div>
-                <p className="font-semibold text-slate-900">
-                  {j.nombre} {j.apodo && <span className="font-normal text-slate-400">"{j.apodo}"</span>}
+                <p className="font-semibold" style={{ color: 'var(--pitch-900)' }}>
+                  {j.nombre}{' '}
+                  {j.apodo && (
+                    <span style={{ color: 'var(--pitch-300)', fontWeight: 400 }}>"{j.apodo}"</span>
+                  )}
                 </p>
-                <p className="text-sm text-slate-500">{j.posicion ?? 'Sin posición'}</p>
+                <p className="text-[13px]" style={{ color: 'var(--pitch-300)' }}>
+                  {j.posicion ?? 'Sin posición'}
+                </p>
               </div>
               <div className="text-right">
                 {prom ? (
-                  <p className="text-sm font-semibold text-amber-600">★ {prom.promedio}</p>
+                  <p className="text-sm font-semibold" style={{ color: 'var(--gold-500)' }}>
+                    ★ {prom.promedio}
+                  </p>
                 ) : (
-                  <p className="text-xs text-slate-400">Sin valorar</p>
+                  <p className="text-xs" style={{ color: 'var(--pitch-300)' }}>
+                    Sin valorar
+                  </p>
                 )}
               </div>
             </div>

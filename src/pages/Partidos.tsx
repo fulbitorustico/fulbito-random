@@ -3,42 +3,65 @@ import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import type { Partido } from '../lib/types'
+import { distanciaKm, formatCuentaRegresiva, formatDistancia, pedirUbicacion, type Coords } from '../lib/geo'
 
 interface PartidoConCupo extends Partido {
   anotados: number
   yo_anotado: boolean
+  distanciaKm: number | null
 }
 
 export default function Partidos() {
   const { jugador } = useAuth()
   const [partidos, setPartidos] = useState<PartidoConCupo[]>([])
   const [loading, setLoading] = useState(true)
+  const [miUbicacion, setMiUbicacion] = useState<Coords | null>(null)
+  const [ubicacionNegada, setUbicacionNegada] = useState(false)
 
-  const cargar = useCallback(async () => {
-    setLoading(true)
-    const { data: partidosData } = await supabase
-      .from('partidos')
-      .select('*')
-      .neq('estado', 'cancelado')
-      .order('fecha_hora', { ascending: true })
+  const cargar = useCallback(
+    async (ubicacion: Coords | null) => {
+      setLoading(true)
+      const { data: partidosData } = await supabase
+        .from('partidos')
+        .select('*')
+        .neq('estado', 'cancelado')
+        .order('fecha_hora', { ascending: true })
 
-    const { data: participantesData } = await supabase.from('participantes').select('partido_id, jugador_id')
+      const { data: participantesData } = await supabase.from('participantes').select('partido_id, jugador_id')
 
-    const lista: PartidoConCupo[] = (partidosData ?? []).map((p) => {
-      const deEsePartido = (participantesData ?? []).filter((x) => x.partido_id === p.id)
-      return {
-        ...p,
-        anotados: deEsePartido.length,
-        yo_anotado: deEsePartido.some((x) => x.jugador_id === jugador?.id),
+      let lista: PartidoConCupo[] = (partidosData ?? []).map((p) => {
+        const deEsePartido = (participantesData ?? []).filter((x) => x.partido_id === p.id)
+        return {
+          ...p,
+          anotados: deEsePartido.length,
+          yo_anotado: deEsePartido.some((x) => x.jugador_id === jugador?.id),
+          distanciaKm: ubicacion && p.lat != null && p.lng != null ? distanciaKm(ubicacion, { lat: p.lat, lng: p.lng }) : null,
+        }
+      })
+
+      if (ubicacion) {
+        lista = lista.sort((a, b) => {
+          if (a.distanciaKm == null && b.distanciaKm == null) return 0
+          if (a.distanciaKm == null) return 1
+          if (b.distanciaKm == null) return -1
+          return a.distanciaKm - b.distanciaKm
+        })
       }
-    })
-    setPartidos(lista)
-    setLoading(false)
-  }, [jugador?.id])
+
+      setPartidos(lista)
+      setLoading(false)
+    },
+    [jugador?.id],
+  )
 
   useEffect(() => {
-    cargar()
-  }, [cargar])
+    pedirUbicacion().then((coords) => {
+      setMiUbicacion(coords)
+      setUbicacionNegada(coords === null)
+      cargar(coords)
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   async function toggleAnotarse(p: PartidoConCupo) {
     if (!jugador) return
@@ -47,38 +70,57 @@ export default function Partidos() {
     } else {
       await supabase.from('participantes').insert({ partido_id: p.id, jugador_id: jugador.id })
     }
-    await cargar()
+    await cargar(miUbicacion)
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-6">
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-xl font-bold text-slate-900">Partidos</h1>
+    <div>
+      <div className="mb-5 flex items-center justify-between">
+        <h1 className="text-2xl font-bold" style={{ color: 'var(--pitch-900)' }}>
+          Partidos
+        </h1>
         <Link
           to="/partidos/nuevo"
-          className="rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white hover:bg-green-700"
+          className="tap inline-flex items-center rounded-full px-4 py-2.5 text-sm font-semibold text-white shadow-sm"
+          style={{ background: 'var(--pitch-500)' }}
         >
-          + Nuevo partido
+          + Nuevo
         </Link>
       </div>
 
-      {loading && <p className="text-sm text-slate-500">Cargando...</p>}
-      {!loading && partidos.length === 0 && (
-        <p className="rounded-lg bg-white p-6 text-center text-sm text-slate-500 shadow-sm">
-          No hay partidos todavía. Creá el primero.
+      {ubicacionNegada && (
+        <div className="glass mb-4 rounded-2xl px-4 py-3 text-xs" style={{ color: 'var(--pitch-700)' }}>
+          Activá la ubicación para ver qué partidos tenés más cerca.
+        </div>
+      )}
+
+      {loading && (
+        <p className="text-sm" style={{ color: 'var(--pitch-300)' }}>
+          Buscando partidos...
         </p>
+      )}
+      {!loading && partidos.length === 0 && (
+        <div className="glass rounded-2xl p-8 text-center text-sm" style={{ color: 'var(--pitch-300)' }}>
+          No hay partidos todavía. Creá el primero.
+        </div>
       )}
 
       <div className="flex flex-col gap-3">
-        {partidos.map((p) => {
+        {partidos.map((p, i) => {
           const lugares = p.cupo_total - p.anotados
           const abierto = p.estado === 'abierto' && lugares > 0
           return (
-            <div key={p.id} className="rounded-xl bg-white p-4 shadow-sm">
+            <div
+              key={p.id}
+              className="glass anim-rise rounded-3xl p-4"
+              style={{ animationDelay: `${i * 60}ms` }}
+            >
               <div className="flex items-start justify-between gap-2">
-                <Link to={`/partidos/${p.id}`} className="hover:underline">
-                  <p className="font-semibold text-slate-900">{p.cancha}</p>
-                  <p className="text-sm text-slate-500">
+                <Link to={`/partidos/${p.id}`} className="min-w-0 flex-1">
+                  <p className="truncate font-semibold" style={{ color: 'var(--pitch-900)' }}>
+                    {p.cancha}
+                  </p>
+                  <p className="mt-0.5 text-[13px]" style={{ color: 'var(--pitch-700)', opacity: 0.75 }}>
                     {new Date(p.fecha_hora).toLocaleString('es-AR', {
                       weekday: 'short',
                       day: 'numeric',
@@ -86,28 +128,38 @@ export default function Partidos() {
                       hour: '2-digit',
                       minute: '2-digit',
                     })}
+                    <span style={{ color: 'var(--gold-500)' }}> · {formatCuentaRegresiva(p.fecha_hora)}</span>
                   </p>
+                  {p.distanciaKm != null && (
+                    <p className="mt-0.5 text-[12.5px] font-medium" style={{ color: 'var(--pitch-500)' }}>
+                      📍 {formatDistancia(p.distanciaKm)}
+                    </p>
+                  )}
                 </Link>
                 <span
-                  className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
-                    abierto ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-500'
-                  }`}
+                  className="shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold"
+                  style={
+                    abierto
+                      ? { background: 'rgba(185,121,31,.16)', color: 'var(--gold-500)' }
+                      : { background: 'rgba(18,38,28,.06)', color: 'var(--pitch-300)' }
+                  }
                 >
                   {lugares > 0 ? `Faltan ${lugares}` : 'Completo'}
                 </span>
               </div>
               <div className="mt-3 flex items-center justify-between">
-                <span className="text-sm text-slate-500">
+                <span className="text-[13px]" style={{ color: 'var(--pitch-300)' }}>
                   {p.anotados}/{p.cupo_total} anotados
                 </span>
                 <button
                   onClick={() => toggleAnotarse(p)}
                   disabled={!abierto && !p.yo_anotado}
-                  className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 ${
+                  className="tap rounded-full px-4 py-2 text-[13px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-40"
+                  style={
                     p.yo_anotado
-                      ? 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      : 'bg-green-600 text-white hover:bg-green-700'
-                  }`}
+                      ? { background: 'rgba(18,38,28,.07)', color: 'var(--pitch-700)' }
+                      : { background: 'var(--pitch-500)', color: '#fff' }
+                  }
                 >
                   {p.yo_anotado ? 'Bajarme' : 'Sumarme'}
                 </button>

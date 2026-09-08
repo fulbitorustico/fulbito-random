@@ -28,30 +28,40 @@ export default function CompletarPerfil() {
     else await refreshJugador()
   }
 
-  return (
-    <div className="flex min-h-svh items-center justify-center bg-slate-50 px-4">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-sm">
-        <h1 className="mb-1 text-xl font-bold text-slate-900">Completá tu perfil</h1>
-        <p className="mb-6 text-sm text-slate-500">Así te van a reconocer tus compañeros</p>
+  const inputClass =
+    'rounded-2xl border-0 bg-white/70 px-4 py-3.5 text-[15px] outline-none ring-1 ring-black/5 transition focus:ring-2'
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+  return (
+    <div className="flex min-h-svh items-center justify-center px-5">
+      <div className="glass-strong anim-pop w-full max-w-sm rounded-[28px] p-8">
+        <h1 className="text-xl font-bold" style={{ color: 'var(--pitch-900)' }}>
+          Completá tu perfil
+        </h1>
+        <p className="mt-1 text-sm" style={{ color: 'var(--pitch-700)', opacity: 0.75 }}>
+          Así te van a reconocer tus compañeros
+        </p>
+
+        <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-3">
           <input
             required
             placeholder="Nombre"
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
-            className="rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-green-600"
+            className={inputClass}
+            style={{ color: 'var(--pitch-900)' }}
           />
           <input
             placeholder="Apodo (opcional)"
             value={apodo}
             onChange={(e) => setApodo(e.target.value)}
-            className="rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-green-600"
+            className={inputClass}
+            style={{ color: 'var(--pitch-900)' }}
           />
           <select
             value={posicion}
             onChange={(e) => setPosicion(e.target.value)}
-            className="rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-green-600"
+            className={inputClass}
+            style={{ color: 'var(--pitch-900)' }}
           >
             {POSICIONES.map((p) => (
               <option key={p} value={p}>
@@ -62,11 +72,16 @@ export default function CompletarPerfil() {
           <button
             type="submit"
             disabled={guardando}
-            className="rounded-lg bg-green-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700 disabled:opacity-50"
+            className="tap mt-1 rounded-2xl px-4 py-3.5 text-[15px] font-semibold text-white shadow-sm disabled:opacity-50"
+            style={{ background: 'var(--pitch-500)' }}
           >
             {guardando ? 'Guardando...' : 'Guardar y entrar'}
           </button>
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && (
+            <p className="text-sm" style={{ color: '#b3432f' }}>
+              {error}
+            </p>
+          )}
         </form>
       </div>
     </div>

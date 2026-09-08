@@ -1,15 +1,123 @@
 @import "tailwindcss";
 
+:root {
+  --pitch-900: #12261c;
+  --pitch-700: #1c4432;
+  --pitch-600: #245741;
+  --pitch-500: #2d6a4f;
+  --pitch-400: #4a8a6a;
+  --pitch-300: #8aab97;
+  --gold-500: #b9791f;
+  --gold-400: #d69a3d;
+  --chalk-50: #f5f7f1;
+  --chalk-100: #eaeee2;
+  --chalk-200: #dde3d3;
+  --line: rgba(18, 38, 28, 0.1);
+  --glass-bg: rgba(255, 255, 255, 0.6);
+  --glass-bg-strong: rgba(255, 255, 255, 0.78);
+  --glass-border: rgba(255, 255, 255, 0.65);
+}
+
 html {
   color-scheme: light;
 }
 
 body {
   margin: 0;
-  background: #f8fafc;
   min-height: 100svh;
+  font-family: 'Manrope', system-ui, sans-serif;
+  color: var(--pitch-900);
+  background:
+    radial-gradient(1100px 560px at 12% -8%, rgba(45, 106, 79, 0.18), transparent 60%),
+    radial-gradient(900px 520px at 105% 0%, rgba(185, 121, 31, 0.14), transparent 55%),
+    var(--chalk-50);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
 }
 
 #root {
   min-height: 100svh;
+}
+
+.brand {
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 0.02em;
+}
+
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    0 8px 30px rgba(18, 38, 28, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.glass-strong {
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    0 10px 36px rgba(18, 38, 28, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+::selection {
+  background: rgba(45, 106, 79, 0.25);
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.anim-rise {
+  animation: rise-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.anim-pop {
+  animation: pop-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.tap {
+  transition: transform 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.tap:active {
+  transform: scale(0.96);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-rise,
+  .anim-pop {
+    animation: none;
+  }
+  .tap:active {
+    transform: none;
+  }
 }

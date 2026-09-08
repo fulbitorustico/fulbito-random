@@ -10,6 +10,9 @@ const HORARIOS = Array.from({ length: 48 }, (_, i) => {
   return `${h}:${m}`
 })
 
+const inputClass =
+  'rounded-2xl border-0 bg-white/70 px-4 py-3.5 text-[15px] outline-none ring-1 ring-black/5 transition focus:ring-2'
+
 function aFechaHora(iso: string) {
   const d = new Date(iso)
   const fecha = d.toLocaleDateString('sv-SE')
@@ -66,8 +69,18 @@ export default function DetallePartido() {
     cargar()
   }, [cargar])
 
-  if (loading) return <p className="px-4 py-6 text-sm text-slate-500">Cargando...</p>
-  if (!partido) return <p className="px-4 py-6 text-sm text-slate-500">Este partido no existe.</p>
+  if (loading)
+    return (
+      <p className="text-sm" style={{ color: 'var(--pitch-300)' }}>
+        Cargando...
+      </p>
+    )
+  if (!partido)
+    return (
+      <p className="text-sm" style={{ color: 'var(--pitch-300)' }}>
+        Este partido no existe.
+      </p>
+    )
 
   const esAdmin = jugador?.id === partido.admin_id
   const yoAnotado = anotados.some((a) => a.id === jugador?.id)
@@ -111,21 +124,32 @@ export default function DetallePartido() {
   }
 
   return (
-    <div className="mx-auto max-w-sm px-4 py-6">
-      <Link to="/partidos" className="mb-4 inline-block text-sm text-slate-500 hover:underline">
+    <div>
+      <Link
+        to="/partidos"
+        className="mb-4 inline-block text-sm font-medium"
+        style={{ color: 'var(--pitch-500)' }}
+      >
         ← Volver a partidos
       </Link>
 
       {partido.estado === 'cancelado' && (
-        <p className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">Este partido fue cancelado.</p>
+        <p
+          className="mb-4 rounded-2xl p-3 text-sm"
+          style={{ background: 'rgba(179,67,47,.1)', color: '#b3432f' }}
+        >
+          Este partido fue cancelado.
+        </p>
       )}
 
       {!editando ? (
-        <div className="rounded-xl bg-white p-5 shadow-sm">
+        <div className="glass-strong anim-rise rounded-[28px] p-6">
           <div className="flex items-start justify-between gap-2">
             <div>
-              <h1 className="text-xl font-bold text-slate-900">{partido.cancha}</h1>
-              <p className="text-sm text-slate-500">
+              <h1 className="text-xl font-bold" style={{ color: 'var(--pitch-900)' }}>
+                {partido.cancha}
+              </h1>
+              <p className="text-sm" style={{ color: 'var(--pitch-700)', opacity: 0.75 }}>
                 {new Date(partido.fecha_hora).toLocaleString('es-AR', {
                   weekday: 'long',
                   day: 'numeric',
@@ -136,9 +160,12 @@ export default function DetallePartido() {
               </p>
             </div>
             <span
-              className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
-                abierto ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-500'
-              }`}
+              className="shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold"
+              style={
+                abierto
+                  ? { background: 'rgba(185,121,31,.16)', color: 'var(--gold-500)' }
+                  : { background: 'rgba(18,38,28,.06)', color: 'var(--pitch-300)' }
+              }
             >
               {partido.estado === 'cancelado' ? 'Cancelado' : lugares > 0 ? `Faltan ${lugares}` : 'Completo'}
             </span>
@@ -148,23 +175,28 @@ export default function DetallePartido() {
             <button
               onClick={toggleAnotarse}
               disabled={!abierto && !yoAnotado}
-              className={`mt-4 w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 ${
+              className="tap mt-4 w-full rounded-2xl px-4 py-3 text-[15px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-40"
+              style={
                 yoAnotado
-                  ? 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  : 'bg-green-600 text-white hover:bg-green-700'
-              }`}
+                  ? { background: 'rgba(18,38,28,.07)', color: 'var(--pitch-700)' }
+                  : { background: 'var(--pitch-500)', color: '#fff' }
+              }
             >
               {yoAnotado ? 'Bajarme' : 'Sumarme'}
             </button>
           )}
         </div>
       ) : (
-        <form onSubmit={guardarEdicion} className="flex flex-col gap-3 rounded-xl bg-white p-5 shadow-sm">
+        <form
+          onSubmit={guardarEdicion}
+          className="glass-strong anim-rise flex flex-col gap-3 rounded-[28px] p-6"
+        >
           <input
             required
             value={cancha}
             onChange={(e) => setCancha(e.target.value)}
-            className="rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-green-600"
+            className={inputClass}
+            style={{ color: 'var(--pitch-900)' }}
           />
           <div className="flex gap-3">
             <input
@@ -172,13 +204,15 @@ export default function DetallePartido() {
               type="date"
               value={fecha}
               onChange={(e) => setFecha(e.target.value)}
-              className="flex-1 rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-green-600"
+              className={`flex-1 ${inputClass}`}
+              style={{ color: 'var(--pitch-900)' }}
             />
             <select
               required
               value={hora}
               onChange={(e) => setHora(e.target.value)}
-              className="flex-1 rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-green-600"
+              className={`flex-1 ${inputClass}`}
+              style={{ color: 'var(--pitch-900)' }}
             >
               {HORARIOS.map((h) => (
                 <option key={h} value={h}>
@@ -194,25 +228,32 @@ export default function DetallePartido() {
             max={30}
             value={cupo}
             onChange={(e) => setCupo(Number(e.target.value))}
-            className="rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-green-600"
+            className={inputClass}
+            style={{ color: 'var(--pitch-900)' }}
           />
           <div className="flex gap-2">
             <button
               type="submit"
               disabled={guardando}
-              className="flex-1 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-50"
+              className="tap flex-1 rounded-2xl px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+              style={{ background: 'var(--pitch-500)' }}
             >
               {guardando ? 'Guardando...' : 'Guardar'}
             </button>
             <button
               type="button"
               onClick={() => setEditando(false)}
-              className="rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50"
+              className="tap rounded-2xl px-4 py-3 text-sm font-semibold"
+              style={{ background: 'rgba(18,38,28,.06)', color: 'var(--pitch-700)' }}
             >
               Cancelar
             </button>
           </div>
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && (
+            <p className="text-sm" style={{ color: '#b3432f' }}>
+              {error}
+            </p>
+          )}
         </form>
       )}
 
@@ -220,13 +261,15 @@ export default function DetallePartido() {
         <div className="mt-3 flex gap-2">
           <button
             onClick={() => setEditando(true)}
-            className="flex-1 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50"
+            className="tap glass flex-1 rounded-2xl px-4 py-2.5 text-sm font-semibold"
+            style={{ color: 'var(--pitch-700)' }}
           >
             Editar partido
           </button>
           <button
             onClick={cancelarPartido}
-            className="flex-1 rounded-lg border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50"
+            className="tap glass flex-1 rounded-2xl px-4 py-2.5 text-sm font-semibold"
+            style={{ color: '#b3432f' }}
           >
             Cancelar partido
           </button>
@@ -234,17 +277,23 @@ export default function DetallePartido() {
       )}
 
       <div className="mt-6">
-        <h2 className="mb-2 text-sm font-semibold text-slate-700">
+        <h2 className="mb-2 text-sm font-semibold" style={{ color: 'var(--pitch-700)' }}>
           Anotados ({anotados.length}/{partido.cupo_total})
         </h2>
         <div className="flex flex-col gap-2">
-          {anotados.length === 0 && <p className="text-sm text-slate-400">Todavía nadie se anotó.</p>}
+          {anotados.length === 0 && (
+            <p className="text-sm" style={{ color: 'var(--pitch-300)' }}>
+              Todavía nadie se anotó.
+            </p>
+          )}
           {anotados.map((a) => (
-            <div key={a.id} className="flex items-center justify-between rounded-lg bg-white px-4 py-2.5 shadow-sm">
-              <p className="text-sm font-medium text-slate-900">
-                {a.nombre} {a.apodo && <span className="font-normal text-slate-400">"{a.apodo}"</span>}
+            <div key={a.id} className="glass flex items-center justify-between rounded-2xl px-4 py-2.5">
+              <p className="text-sm font-medium" style={{ color: 'var(--pitch-900)' }}>
+                {a.nombre} {a.apodo && <span style={{ color: 'var(--pitch-300)', fontWeight: 400 }}>"{a.apodo}"</span>}
               </p>
-              <p className="text-xs text-slate-400">{a.posicion}</p>
+              <p className="text-xs" style={{ color: 'var(--pitch-300)' }}>
+                {a.posicion}
+              </p>
             </div>
           ))}
         </div>

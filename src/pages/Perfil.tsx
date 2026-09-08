@@ -5,6 +5,9 @@ import { useAuth } from '../context/AuthContext'
 
 const POSICIONES = ['Arquero', 'Defensor', 'Mediocampista', 'Delantero']
 
+const inputClass =
+  'rounded-2xl border-0 bg-white/70 px-4 py-3.5 text-[15px] outline-none ring-1 ring-black/5 transition focus:ring-2'
+
 export default function Perfil() {
   const { jugador, refreshJugador, session } = useAuth()
   const [nombre, setNombre] = useState(jugador?.nombre ?? '')
@@ -32,27 +35,35 @@ export default function Perfil() {
   }
 
   return (
-    <div className="mx-auto max-w-sm px-4 py-6">
-      <h1 className="mb-6 text-xl font-bold text-slate-900">Mi perfil</h1>
-      <p className="mb-4 text-sm text-slate-500">{session?.user.email}</p>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+    <div>
+      <h1 className="mb-5 text-2xl font-bold" style={{ color: 'var(--pitch-900)' }}>
+        Mi perfil
+      </h1>
+      <p className="mb-4 text-sm" style={{ color: 'var(--pitch-300)' }}>
+        {session?.user.email}
+      </p>
+
+      <form onSubmit={handleSubmit} className="glass-strong flex flex-col gap-3 rounded-[28px] p-6">
         <input
           required
           placeholder="Nombre"
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
-          className="rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-green-600"
+          className={inputClass}
+          style={{ color: 'var(--pitch-900)' }}
         />
         <input
           placeholder="Apodo (opcional)"
           value={apodo}
           onChange={(e) => setApodo(e.target.value)}
-          className="rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-green-600"
+          className={inputClass}
+          style={{ color: 'var(--pitch-900)' }}
         />
         <select
           value={posicion ?? POSICIONES[0]}
           onChange={(e) => setPosicion(e.target.value)}
-          className="rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-green-600"
+          className={inputClass}
+          style={{ color: 'var(--pitch-900)' }}
         >
           {POSICIONES.map((p) => (
             <option key={p} value={p}>
@@ -63,23 +74,30 @@ export default function Perfil() {
         <button
           type="submit"
           disabled={guardando}
-          className="rounded-lg bg-green-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700 disabled:opacity-50"
+          className="tap rounded-2xl px-4 py-3.5 text-[15px] font-semibold text-white shadow-sm disabled:opacity-50"
+          style={{ background: 'var(--pitch-500)' }}
         >
           {guardando ? 'Guardando...' : 'Guardar cambios'}
         </button>
-        {mensaje && <p className="text-sm text-slate-600">{mensaje}</p>}
+        {mensaje && (
+          <p className="text-sm" style={{ color: 'var(--pitch-700)' }}>
+            {mensaje}
+          </p>
+        )}
       </form>
 
       <Link
         to="/bases-y-condiciones"
-        className="mt-6 block text-center text-sm text-slate-400 hover:underline"
+        className="mt-5 block text-center text-sm"
+        style={{ color: 'var(--pitch-300)' }}
       >
         Bases y condiciones
       </Link>
 
       <button
         onClick={() => supabase.auth.signOut()}
-        className="mt-3 w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50"
+        className="tap glass mt-3 w-full rounded-2xl px-4 py-3 text-sm font-semibold"
+        style={{ color: 'var(--pitch-700)' }}
       >
         Cerrar sesión
       </button>

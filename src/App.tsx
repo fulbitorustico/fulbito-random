@@ -1,5 +1,7 @@
-import { BrowserRouter, Routes, Route, NavLink, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import BottomNav from './components/BottomNav'
+import PageTransition from './components/PageTransition'
 import Login from './pages/Login'
 import CompletarPerfil from './pages/CompletarPerfil'
 import Partidos from './pages/Partidos'
@@ -10,33 +12,22 @@ import Perfil from './pages/Perfil'
 import BasesYCondiciones from './pages/BasesYCondiciones'
 
 function Shell() {
-  const linkClass = ({ isActive }: { isActive: boolean }) =>
-    `flex-1 py-3 text-center text-sm font-semibold ${isActive ? 'text-green-600' : 'text-slate-400'}`
+  const location = useLocation()
 
   return (
-    <div className="flex min-h-svh flex-col bg-slate-50">
-      <div className="flex-1 pb-16">
-        <Routes>
-          <Route path="/partidos" element={<Partidos />} />
-          <Route path="/partidos/nuevo" element={<NuevoPartido />} />
-          <Route path="/partidos/:id" element={<DetallePartido />} />
-          <Route path="/jugadores" element={<Jugadores />} />
-          <Route path="/perfil" element={<Perfil />} />
-          <Route path="/bases-y-condiciones" element={<BasesYCondiciones />} />
+    <div className="min-h-svh">
+      <div className="mx-auto max-w-lg px-4 pb-28 pt-6">
+        <Routes location={location} key={location.pathname}>
+          <Route path="/partidos" element={<PageTransition><Partidos /></PageTransition>} />
+          <Route path="/partidos/nuevo" element={<PageTransition><NuevoPartido /></PageTransition>} />
+          <Route path="/partidos/:id" element={<PageTransition><DetallePartido /></PageTransition>} />
+          <Route path="/jugadores" element={<PageTransition><Jugadores /></PageTransition>} />
+          <Route path="/perfil" element={<PageTransition><Perfil /></PageTransition>} />
+          <Route path="/bases-y-condiciones" element={<PageTransition><BasesYCondiciones /></PageTransition>} />
           <Route path="*" element={<Navigate to="/partidos" replace />} />
         </Routes>
       </div>
-      <nav className="fixed bottom-0 left-0 right-0 flex border-t border-slate-200 bg-white">
-        <NavLink to="/partidos" className={linkClass}>
-          ⚽ Partidos
-        </NavLink>
-        <NavLink to="/jugadores" className={linkClass}>
-          👥 Jugadores
-        </NavLink>
-        <NavLink to="/perfil" className={linkClass}>
-          👤 Perfil
-        </NavLink>
-      </nav>
+      <BottomNav />
     </div>
   )
 }
@@ -45,7 +36,11 @@ function Router() {
   const { session, jugador, loading } = useAuth()
 
   if (loading) {
-    return <div className="flex min-h-svh items-center justify-center text-sm text-slate-400">Cargando...</div>
+    return (
+      <div className="flex min-h-svh items-center justify-center text-sm" style={{ color: 'var(--pitch-300)' }}>
+        Cargando...
+      </div>
+    )
   }
 
   if (!session) return <Login />

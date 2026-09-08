@@ -21,33 +21,46 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-svh items-center justify-center bg-slate-50 px-4">
-      <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-sm">
-        <h1 className="mb-1 text-2xl font-bold text-slate-900">⚽ Fulbito Random</h1>
-        <p className="mb-6 text-sm text-slate-500">Organizá partidos con tu grupo</p>
+    <div className="flex min-h-svh items-center justify-center px-5">
+      <div className="glass-strong anim-pop w-full max-w-sm rounded-[28px] p-8">
+        <p className="brand text-4xl leading-none" style={{ color: 'var(--pitch-900)' }}>
+          Fulbito Random
+        </p>
+        <p className="mt-2 text-sm" style={{ color: 'var(--pitch-700)', opacity: 0.75 }}>
+          Armá el partido, avisá si falta uno.
+        </p>
 
         {enviado ? (
-          <p className="rounded-lg bg-green-50 p-4 text-sm text-green-700">
-            Te mandamos un link a <strong>{email}</strong>. Abrilo desde el celular o la compu para entrar.
+          <p
+            className="anim-rise mt-7 rounded-2xl p-4 text-sm"
+            style={{ background: 'rgba(45,106,79,.12)', color: 'var(--pitch-700)' }}
+          >
+            Te mandamos un link a <strong>{email}</strong>. Abrilo desde este mismo dispositivo para entrar.
           </p>
         ) : (
-          <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+          <form onSubmit={handleSubmit} className="mt-7 flex flex-col gap-3">
             <input
               type="email"
               required
               placeholder="tu@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-green-600"
+              className="rounded-2xl border-0 bg-white/70 px-4 py-3.5 text-[15px] outline-none ring-1 ring-black/5 transition focus:ring-2"
+              style={{ color: 'var(--pitch-900)' }}
             />
             <button
               type="submit"
               disabled={enviando}
-              className="rounded-lg bg-green-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700 disabled:opacity-50"
+              className="tap rounded-2xl px-4 py-3.5 text-[15px] font-semibold text-white shadow-sm disabled:opacity-50"
+              style={{ background: 'var(--pitch-500)' }}
             >
               {enviando ? 'Enviando...' : 'Entrar con email'}
             </button>
-            {error && <p className="text-sm text-red-600">{error}</p>}
+            {error && (
+              <p className="text-sm" style={{ color: '#b3432f' }}>
+                {error}
+              </p>
+            )}
           </form>
         )}
       </div>
