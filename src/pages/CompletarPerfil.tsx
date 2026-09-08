@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import SelectorPosiciones from '../components/SelectorPosiciones'
@@ -71,6 +72,18 @@ export default function CompletarPerfil() {
             </p>
           )}
         </form>
+
+        <p className="mt-5 text-center text-xs leading-relaxed" style={{ color: 'var(--pitch-300)' }}>
+          Al continuar aceptás los{' '}
+          <Link to="/terminos" className="underline">
+            términos
+          </Link>{' '}
+          y la{' '}
+          <Link to="/privacidad" className="underline">
+            política de privacidad
+          </Link>
+          .
+        </p>
       </div>
     </div>
   )

@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import { AuthProvider, useAuth } from './context/AuthContext'
 import BottomNav from './components/BottomNav'
 import PageTransition from './components/PageTransition'
+import Landing from './pages/Landing'
 import Login from './pages/Login'
 import CompletarPerfil from './pages/CompletarPerfil'
 import Partidos from './pages/Partidos'
@@ -16,7 +17,8 @@ import GrupoDetalle from './pages/GrupoDetalle'
 import UnirseGrupo from './pages/UnirseGrupo'
 import ReclamarPerfil from './pages/ReclamarPerfil'
 import Perfil from './pages/Perfil'
-import BasesYCondiciones from './pages/BasesYCondiciones'
+import Terminos from './pages/Terminos'
+import Privacidad from './pages/Privacidad'
 
 function Shell() {
   const location = useLocation()
@@ -36,7 +38,6 @@ function Shell() {
           <Route path="/grupos/unirse/:id" element={<PageTransition><UnirseGrupo /></PageTransition>} />
           <Route path="/grupos/:id" element={<PageTransition><GrupoDetalle /></PageTransition>} />
           <Route path="/perfil" element={<PageTransition><Perfil /></PageTransition>} />
-          <Route path="/bases-y-condiciones" element={<PageTransition><BasesYCondiciones /></PageTransition>} />
           <Route path="*" element={<Navigate to="/partidos" replace />} />
         </Routes>
       </div>
@@ -53,6 +54,9 @@ function Router() {
     return <ReclamarPerfil />
   }
 
+  if (location.pathname === '/terminos') return <Terminos />
+  if (location.pathname === '/privacidad') return <Privacidad />
+
   if (loading) {
     return (
       <div className="flex min-h-svh items-center justify-center text-sm" style={{ color: 'var(--pitch-300)' }}>
@@ -61,7 +65,14 @@ function Router() {
     )
   }
 
-  if (!session) return <Login />
+  if (!session) {
+    return (
+      <Routes location={location} key={location.pathname}>
+        <Route path="/login" element={<Login />} />
+        <Route path="*" element={<Landing />} />
+      </Routes>
+    )
+  }
   if (!jugador) return <CompletarPerfil />
 
   return <Shell />

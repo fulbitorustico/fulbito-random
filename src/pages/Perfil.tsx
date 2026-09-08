@@ -152,13 +152,15 @@ export default function Perfil() {
         )}
       </form>
 
-      <Link
-        to="/bases-y-condiciones"
-        className="mt-5 block text-center text-sm"
-        style={{ color: 'var(--pitch-300)' }}
-      >
-        Bases y condiciones
-      </Link>
+      <p className="mt-5 text-center text-sm" style={{ color: 'var(--pitch-300)' }}>
+        <Link to="/terminos" className="underline">
+          Términos y condiciones
+        </Link>
+        {' · '}
+        <Link to="/privacidad" className="underline">
+          Política de privacidad
+        </Link>
+      </p>
 
       <button
         onClick={() => supabase.auth.signOut()}
