@@ -11,7 +11,7 @@ export default function Jugadores() {
   useEffect(() => {
     async function cargar() {
       const { data: jugadoresData } = await supabase.from('jugadores').select('*').order('nombre')
-      const { data: promediosData } = await supabase.from('valoraciones_promedio').select('*')
+      const { data: promediosData } = await supabase.rpc('valoraciones_promedio')
       setJugadores(jugadoresData ?? [])
       const map: Record<string, ValoracionPromedio> = {}
       for (const p of promediosData ?? []) map[p.evaluado_id] = p

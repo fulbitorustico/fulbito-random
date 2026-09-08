@@ -3,6 +3,12 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 
+const HORARIOS = Array.from({ length: 48 }, (_, i) => {
+  const h = String(Math.floor(i / 2)).padStart(2, '0')
+  const m = i % 2 === 0 ? '00' : '30'
+  return `${h}:${m}`
+})
+
 export default function NuevoPartido() {
   const { jugador } = useAuth()
   const navigate = useNavigate()
@@ -55,13 +61,21 @@ export default function NuevoPartido() {
             onChange={(e) => setFecha(e.target.value)}
             className="flex-1 rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-green-600"
           />
-          <input
+          <select
             required
-            type="time"
             value={hora}
             onChange={(e) => setHora(e.target.value)}
             className="flex-1 rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none focus:border-green-600"
-          />
+          >
+            <option value="" disabled>
+              Hora
+            </option>
+            {HORARIOS.map((h) => (
+              <option key={h} value={h}>
+                {h}
+              </option>
+            ))}
+          </select>
         </div>
         <label className="text-sm text-slate-600">
           Cupo total de jugadores
