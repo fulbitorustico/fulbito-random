@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import Avatar from '../components/Avatar'
 import type { Jugador, Partido } from '../lib/types'
 
 const HORARIOS = Array.from({ length: 48 }, (_, i) => {
@@ -287,14 +288,19 @@ export default function DetallePartido() {
             </p>
           )}
           {anotados.map((a) => (
-            <div key={a.id} className="glass flex items-center justify-between rounded-2xl px-4 py-2.5">
-              <p className="text-sm font-medium" style={{ color: 'var(--pitch-900)' }}>
+            <Link
+              key={a.id}
+              to={`/jugadores/${a.id}`}
+              className="glass flex items-center gap-3 rounded-2xl px-4 py-2.5"
+            >
+              <Avatar nombre={a.nombre} avatar={a.avatar} size="sm" />
+              <p className="flex-1 text-sm font-medium" style={{ color: 'var(--pitch-900)' }}>
                 {a.nombre} {a.apodo && <span style={{ color: 'var(--pitch-300)', fontWeight: 400 }}>"{a.apodo}"</span>}
               </p>
               <p className="text-xs" style={{ color: 'var(--pitch-300)' }}>
                 {a.posicion}
               </p>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

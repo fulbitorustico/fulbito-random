@@ -1,7 +1,11 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
+import Avatar from '../components/Avatar'
+import Estrellas from '../components/Estrellas'
+import { AVATARES_DISPONIBLES } from '../lib/avatar'
+import type { ValoracionPromedio } from '../lib/types'
 
 const POSICIONES = ['Arquero', 'Defensor', 'Mediocampista', 'Delantero']
 
@@ -13,10 +17,27 @@ export default function Perfil() {
   const [nombre, setNombre] = useState(jugador?.nombre ?? '')
   const [apodo, setApodo] = useState(jugador?.apodo ?? '')
   const [posicion, setPosicion] = useState(jugador?.posicion ?? POSICIONES[0])
+  const [avatar, setAvatar] = useState(jugador?.avatar ?? '')
   const [guardando, setGuardando] = useState(false)
   const [mensaje, setMensaje] = useState<string | null>(null)
+  const [promedio, setPromedio] = useState<ValoracionPromedio | null>(null)
+
+  useEffect(() => {
+    if (!jugador) return
+    supabase
+      .rpc('valoraciones_promedio')
+      .then(({ data }: { data: ValoracionPromedio[] | null }) => {
+        setPromedio((data ?? []).find((p) => p.evaluado_id === jugador.id) ?? null)
+      })
+  }, [jugador])
 
   if (!jugador) return null
+
+  async function guardarAvatar(nuevo: string) {
+    setAvatar(nuevo)
+    await supabase.from('jugadores').update({ avatar: nuevo }).eq('id', jugador!.id)
+    await refreshJugador()
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -39,9 +60,31 @@ export default function Perfil() {
       <h1 className="mb-5 text-2xl font-bold" style={{ color: 'var(--pitch-900)' }}>
         Mi perfil
       </h1>
-      <p className="mb-4 text-sm" style={{ color: 'var(--pitch-300)' }}>
-        {session?.user.email}
-      </p>
+
+      <div className="glass-strong anim-pop mb-4 flex flex-col items-center rounded-[28px] p-6 text-center">
+        <Avatar nombre={jugador.nombre} avatar={jugador.avatar} size="lg" />
+        <p className="mt-3 text-sm" style={{ color: 'var(--pitch-300)' }}>
+          {session?.user.email}
+        </p>
+        <div className="mt-3">
+          <Estrellas promedio={promedio?.promedio ?? null} cantidad={promedio?.cantidad ?? 0} />
+        </div>
+
+        <div className="mt-4 flex flex-wrap justify-center gap-2">
+          {AVATARES_DISPONIBLES.map((a) => (
+            <button
+              key={a}
+              onClick={() => guardarAvatar(a)}
+              className="tap flex h-10 w-10 items-center justify-center rounded-full text-lg"
+              style={{
+                background: avatar === a ? 'var(--pitch-500)' : 'rgba(18,38,28,.06)',
+              }}
+            >
+              {a}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <form onSubmit={handleSubmit} className="glass-strong flex flex-col gap-3 rounded-[28px] p-6">
         <input

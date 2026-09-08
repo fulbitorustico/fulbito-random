@@ -5,6 +5,7 @@ export interface Jugador {
   apodo: string | null
   posicion: string | null
   foto_url: string | null
+  avatar: string | null
   created_at: string
 }
 
