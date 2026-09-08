@@ -512,8 +512,48 @@ export default function Landing() {
           </Link>
         </section>
 
+        <section className="mt-20">
+          <div className="glass anim-rise rounded-[28px] p-7 text-center">
+            <p
+              className="text-[11px] font-semibold uppercase tracking-[0.18em]"
+              style={{ color: 'var(--acc-orange)' }}
+            >
+              Since 2015
+            </p>
+            <p className="brand mt-3 text-2xl" style={{ color: 'var(--pitch-900)' }}>
+              Venimos de Fulbito Rústico
+            </p>
+            <p className="mx-auto mt-3 max-w-sm text-sm leading-relaxed" style={{ color: 'var(--pitch-700)' }}>
+              Fulbito Rústico es el nombre que le pusimos a nuestros partidos: torneos entre varios, la actuación
+              de cada uno puntuada fecha a fecha, y una fiesta de cierre a fin de año con premios y menciones para
+              los que se la bancaron todo el campeonato. Fulbito Random es esa misma idea, hecha app.
+            </p>
+            <a
+              href="https://instagram.com/fulbitorustico"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="tap glass-strong mt-5 inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold"
+              style={{ color: 'var(--pitch-900)' }}
+            >
+              📸 @fulbitorustico
+            </a>
+          </div>
+        </section>
+
         <footer className="mt-10 text-center text-xs" style={{ color: 'var(--pitch-300)' }}>
           <p>
+            Creado por{' '}
+            <a
+              href="https://x.com/heywilli_e"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold underline"
+              style={{ color: 'var(--acc-blue)' }}
+            >
+              @heywilli_e
+            </a>
+          </p>
+          <p className="mt-2">
             <span className="marca text-[11px]">
               fulbito <strong>random</strong>
             </span>
