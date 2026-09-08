@@ -20,6 +20,7 @@ export default function NuevoPartido() {
   const [fecha, setFecha] = useState('')
   const [hora, setHora] = useState('')
   const [cupo, setCupo] = useState(10)
+  const [valorCancha, setValorCancha] = useState('')
   const [ubicacion, setUbicacion] = useState<Coords | null>(null)
   const [buscandoUbicacion, setBuscandoUbicacion] = useState(false)
   const [guardando, setGuardando] = useState(false)
@@ -48,6 +49,7 @@ export default function NuevoPartido() {
         admin_id: jugador.id,
         lat: ubicacion?.lat ?? null,
         lng: ubicacion?.lng ?? null,
+        valor_cancha: valorCancha ? Number(valorCancha) : null,
       })
       .select()
       .single()
@@ -130,6 +132,25 @@ export default function NuevoPartido() {
             className={`mt-1.5 w-full ${inputClass}`}
             style={{ color: 'var(--pitch-900)' }}
           />
+        </label>
+
+        <label className="text-sm" style={{ color: 'var(--pitch-700)' }}>
+          Valor de la cancha (opcional)
+          <input
+            type="number"
+            min={0}
+            step="100"
+            placeholder="$"
+            value={valorCancha}
+            onChange={(e) => setValorCancha(e.target.value)}
+            className={`mt-1.5 w-full ${inputClass}`}
+            style={{ color: 'var(--pitch-900)' }}
+          />
+          {valorCancha && cupo > 0 && (
+            <span className="mt-1.5 block text-[13px]" style={{ color: 'var(--pitch-500)' }}>
+              ${Math.ceil(Number(valorCancha) / cupo)} por jugador
+            </span>
+          )}
         </label>
 
         <button

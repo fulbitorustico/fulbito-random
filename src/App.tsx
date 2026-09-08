@@ -7,6 +7,7 @@ import CompletarPerfil from './pages/CompletarPerfil'
 import Partidos from './pages/Partidos'
 import NuevoPartido from './pages/NuevoPartido'
 import DetallePartido from './pages/DetallePartido'
+import ValorarPartido from './pages/ValorarPartido'
 import Jugadores from './pages/Jugadores'
 import JugadorDetalle from './pages/JugadorDetalle'
 import Perfil from './pages/Perfil'
@@ -22,6 +23,7 @@ function Shell() {
           <Route path="/partidos" element={<PageTransition><Partidos /></PageTransition>} />
           <Route path="/partidos/nuevo" element={<PageTransition><NuevoPartido /></PageTransition>} />
           <Route path="/partidos/:id" element={<PageTransition><DetallePartido /></PageTransition>} />
+          <Route path="/partidos/:id/valorar" element={<PageTransition><ValorarPartido /></PageTransition>} />
           <Route path="/jugadores" element={<PageTransition><Jugadores /></PageTransition>} />
           <Route path="/jugadores/:id" element={<PageTransition><JugadorDetalle /></PageTransition>} />
           <Route path="/perfil" element={<PageTransition><Perfil /></PageTransition>} />

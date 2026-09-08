@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import Avatar from '../components/Avatar'
 import Estrellas from '../components/Estrellas'
+import { formatPosiciones } from '../lib/posiciones'
 import type { Jugador, ValoracionPromedio } from '../lib/types'
 
 export default function JugadorDetalle() {
@@ -71,7 +72,7 @@ export default function JugadorDetalle() {
           </p>
         )}
         <p className="mt-1 text-sm font-medium" style={{ color: 'var(--pitch-500)' }}>
-          {jugador.posicion ?? 'Sin posición'}
+          {formatPosiciones(jugador.posiciones)}
         </p>
 
         <div className="mt-5">

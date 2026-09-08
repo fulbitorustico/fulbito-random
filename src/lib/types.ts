@@ -4,6 +4,7 @@ export interface Jugador {
   nombre: string
   apodo: string | null
   posicion: string | null
+  posiciones: string[] | null
   foto_url: string | null
   avatar: string | null
   created_at: string
@@ -21,6 +22,7 @@ export interface Partido {
   created_at: string
   lat: number | null
   lng: number | null
+  valor_cancha: number | null
 }
 
 export interface Participante {

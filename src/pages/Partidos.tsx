@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import type { Partido } from '../lib/types'
 import { distanciaKm, formatCuentaRegresiva, formatDistancia, pedirUbicacion, type Coords } from '../lib/geo'
+import { registrarBaja } from '../lib/bajas'
 
 interface PartidoConCupo extends Partido {
   anotados: number
@@ -67,6 +68,7 @@ export default function Partidos() {
     if (!jugador) return
     if (p.yo_anotado) {
       await supabase.from('participantes').delete().eq('partido_id', p.id).eq('jugador_id', jugador.id)
+      await registrarBaja(p.id, jugador.id, p.fecha_hora)
     } else {
       await supabase.from('participantes').insert({ partido_id: p.id, jugador_id: jugador.id })
     }
@@ -130,9 +132,10 @@ export default function Partidos() {
                     })}
                     <span style={{ color: 'var(--gold-500)' }}> · {formatCuentaRegresiva(p.fecha_hora)}</span>
                   </p>
-                  {p.distanciaKm != null && (
-                    <p className="mt-0.5 text-[12.5px] font-medium" style={{ color: 'var(--pitch-500)' }}>
-                      📍 {formatDistancia(p.distanciaKm)}
+                  {(p.distanciaKm != null || p.valor_cancha) && (
+                    <p className="mt-0.5 flex items-center gap-2 text-[12.5px] font-medium" style={{ color: 'var(--pitch-500)' }}>
+                      {p.distanciaKm != null && <span>📍 {formatDistancia(p.distanciaKm)}</span>}
+                      {p.valor_cancha && <span>${Math.ceil(p.valor_cancha / p.cupo_total)}/jugador</span>}
                     </p>
                   )}
                 </Link>

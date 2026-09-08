@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import Avatar from '../components/Avatar'
 import InvitarBoton from '../components/InvitarBoton'
+import { formatPosiciones } from '../lib/posiciones'
 import type { Jugador, ValoracionPromedio } from '../lib/types'
 
 export default function Jugadores() {
@@ -101,7 +102,7 @@ export default function Jugadores() {
                   {j.apodo && <span style={{ color: 'var(--pitch-300)', fontWeight: 400 }}>"{j.apodo}"</span>}
                 </p>
                 <p className="text-[13px]" style={{ color: 'var(--pitch-300)' }}>
-                  {j.posicion ?? 'Sin posición'}
+                  {formatPosiciones(j.posiciones)}
                 </p>
               </div>
               {prom ? (

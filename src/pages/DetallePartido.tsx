@@ -3,6 +3,8 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import Avatar from '../components/Avatar'
+import { formatPosiciones } from '../lib/posiciones'
+import { registrarBaja } from '../lib/bajas'
 import type { Jugador, Partido } from '../lib/types'
 
 const HORARIOS = Array.from({ length: 48 }, (_, i) => {
@@ -92,6 +94,7 @@ export default function DetallePartido() {
     if (!jugador || !partido) return
     if (yoAnotado) {
       await supabase.from('participantes').delete().eq('partido_id', partido.id).eq('jugador_id', jugador.id)
+      await registrarBaja(partido.id, jugador.id, partido.fecha_hora)
     } else {
       await supabase.from('participantes').insert({ partido_id: partido.id, jugador_id: jugador.id })
     }
@@ -172,6 +175,12 @@ export default function DetallePartido() {
             </span>
           </div>
 
+          {partido.valor_cancha && (
+            <p className="mt-2 text-sm font-medium" style={{ color: 'var(--pitch-500)' }}>
+              ${Math.ceil(partido.valor_cancha / partido.cupo_total)} por jugador · ${partido.valor_cancha} total
+            </p>
+          )}
+
           {partido.estado !== 'cancelado' && (
             <button
               onClick={toggleAnotarse}
@@ -185,6 +194,16 @@ export default function DetallePartido() {
             >
               {yoAnotado ? 'Bajarme' : 'Sumarme'}
             </button>
+          )}
+
+          {new Date(partido.fecha_hora).getTime() < Date.now() && partido.estado !== 'cancelado' && (
+            <Link
+              to={`/partidos/${partido.id}/valorar`}
+              className="tap mt-2 block w-full rounded-2xl px-4 py-3 text-center text-[15px] font-semibold"
+              style={{ background: 'rgba(185,121,31,.14)', color: 'var(--gold-500)' }}
+            >
+              ★ Valorar compañeros
+            </Link>
           )}
         </div>
       ) : (
@@ -298,7 +317,7 @@ export default function DetallePartido() {
                 {a.nombre} {a.apodo && <span style={{ color: 'var(--pitch-300)', fontWeight: 400 }}>"{a.apodo}"</span>}
               </p>
               <p className="text-xs" style={{ color: 'var(--pitch-300)' }}>
-                {a.posicion}
+                {formatPosiciones(a.posiciones)}
               </p>
             </Link>
           ))}

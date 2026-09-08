@@ -5,9 +5,8 @@ import { useAuth } from '../context/AuthContext'
 import Avatar from '../components/Avatar'
 import Estrellas from '../components/Estrellas'
 import { AVATARES_DISPONIBLES } from '../lib/avatar'
+import SelectorPosiciones from '../components/SelectorPosiciones'
 import type { ValoracionPromedio } from '../lib/types'
-
-const POSICIONES = ['Arquero', 'Defensor', 'Mediocampista', 'Delantero']
 
 const inputClass =
   'rounded-2xl border-0 bg-white/70 px-4 py-3.5 text-[15px] outline-none ring-1 ring-black/5 transition focus:ring-2'
@@ -16,7 +15,7 @@ export default function Perfil() {
   const { jugador, refreshJugador, session } = useAuth()
   const [nombre, setNombre] = useState(jugador?.nombre ?? '')
   const [apodo, setApodo] = useState(jugador?.apodo ?? '')
-  const [posicion, setPosicion] = useState(jugador?.posicion ?? POSICIONES[0])
+  const [posiciones, setPosiciones] = useState<string[]>(jugador?.posiciones ?? [])
   const [avatar, setAvatar] = useState(jugador?.avatar ?? '')
   const [guardando, setGuardando] = useState(false)
   const [mensaje, setMensaje] = useState<string | null>(null)
@@ -45,7 +44,7 @@ export default function Perfil() {
     setMensaje(null)
     const { error } = await supabase
       .from('jugadores')
-      .update({ nombre, apodo: apodo || null, posicion })
+      .update({ nombre, apodo: apodo || null, posiciones })
       .eq('id', jugador!.id)
     setGuardando(false)
     if (error) setMensaje(error.message)
@@ -102,18 +101,7 @@ export default function Perfil() {
           className={inputClass}
           style={{ color: 'var(--pitch-900)' }}
         />
-        <select
-          value={posicion ?? POSICIONES[0]}
-          onChange={(e) => setPosicion(e.target.value)}
-          className={inputClass}
-          style={{ color: 'var(--pitch-900)' }}
-        >
-          {POSICIONES.map((p) => (
-            <option key={p} value={p}>
-              {p}
-            </option>
-          ))}
-        </select>
+        <SelectorPosiciones value={posiciones} onChange={setPosiciones} />
         <button
           type="submit"
           disabled={guardando}

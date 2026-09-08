@@ -1,14 +1,13 @@
 import { useState, type FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-
-const POSICIONES = ['Arquero', 'Defensor', 'Mediocampista', 'Delantero']
+import SelectorPosiciones from '../components/SelectorPosiciones'
 
 export default function CompletarPerfil() {
   const { session, refreshJugador } = useAuth()
   const [nombre, setNombre] = useState('')
   const [apodo, setApodo] = useState('')
-  const [posicion, setPosicion] = useState(POSICIONES[0])
+  const [posiciones, setPosiciones] = useState<string[]>([])
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -21,7 +20,7 @@ export default function CompletarPerfil() {
       user_id: session.user.id,
       nombre,
       apodo: apodo || null,
-      posicion,
+      posiciones,
     })
     setGuardando(false)
     if (error) setError(error.message)
@@ -41,7 +40,7 @@ export default function CompletarPerfil() {
           Así te van a reconocer tus compañeros
         </p>
 
-        <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-3">
+        <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
           <input
             required
             placeholder="Nombre"
@@ -57,18 +56,7 @@ export default function CompletarPerfil() {
             className={inputClass}
             style={{ color: 'var(--pitch-900)' }}
           />
-          <select
-            value={posicion}
-            onChange={(e) => setPosicion(e.target.value)}
-            className={inputClass}
-            style={{ color: 'var(--pitch-900)' }}
-          >
-            {POSICIONES.map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
-            ))}
-          </select>
+          <SelectorPosiciones value={posiciones} onChange={setPosiciones} />
           <button
             type="submit"
             disabled={guardando}
