@@ -51,13 +51,22 @@ function Router() {
   const { session, jugador, loading } = useAuth()
   const location = useLocation()
 
-  if (location.pathname.startsWith('/reclamar/')) {
-    return <ReclamarPerfil />
-  }
+  const esRutaPublicaConId =
+    location.pathname.startsWith('/reclamar/') ||
+    location.pathname === '/terminos' ||
+    location.pathname === '/privacidad' ||
+    /^\/grupos\/[^/]+\/publico$/.test(location.pathname)
 
-  if (location.pathname === '/terminos') return <Terminos />
-  if (location.pathname === '/privacidad') return <Privacidad />
-  if (/^\/grupos\/[^/]+\/publico$/.test(location.pathname)) return <GrupoPublico />
+  if (esRutaPublicaConId) {
+    return (
+      <Routes location={location} key={location.pathname}>
+        <Route path="/reclamar/:id" element={<ReclamarPerfil />} />
+        <Route path="/terminos" element={<Terminos />} />
+        <Route path="/privacidad" element={<Privacidad />} />
+        <Route path="/grupos/:id/publico" element={<GrupoPublico />} />
+      </Routes>
+    )
+  }
 
   if (loading) {
     return (
