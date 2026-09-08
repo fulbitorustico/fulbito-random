@@ -1,4 +1,14 @@
 // Supabase Edge Function: envía mails transaccionales vía Resend.
+//
+// IMPORTANTE: en el proyecto real esta función quedó deployada con el nombre
+// visible "notificar" pero el slug/URL real es "rapid-action"
+// (https://<proyecto>.supabase.co/functions/v1/rapid-action) — el nombre que
+// se le puso al crearla en el Dashboard no coincide con el slug de la URL.
+// El frontend (DetallePartido.tsx, GrupoDetalle.tsx) invoca 'rapid-action'
+// por eso. Si el día de mañana se borra y se vuelve a crear esta función con
+// el nombre "notificar" desde cero, actualizar esos dos `.invoke(...)` para
+// que apunten a 'notificar' en vez de 'rapid-action'.
+//
 // Deploy: npx supabase functions deploy notificar
 // Secrets necesarios (Supabase Dashboard → Edge Functions → notificar → Secrets,
 // o `npx supabase secrets set RESEND_API_KEY=...`):

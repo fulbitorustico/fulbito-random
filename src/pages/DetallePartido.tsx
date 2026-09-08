@@ -123,7 +123,7 @@ export default function DetallePartido() {
       if (jugador.id !== partido.admin_id) {
         const nuevosAnotados = anotados.length + 1
         supabase.functions
-          .invoke('notificar', {
+          .invoke('rapid-action', {
             body: {
               tipo: nuevosAnotados >= partido.cupo_total ? 'partido_completo' : 'sumaron_partido',
               admin_id: partido.admin_id,
