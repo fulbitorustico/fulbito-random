@@ -11,6 +11,7 @@ export interface Jugador {
 }
 
 export type EstadoPartido = 'abierto' | 'cerrado' | 'cancelado'
+export type AperturaPartido = 'abierto' | 'solo_confiables'
 
 export interface Partido {
   id: string
@@ -23,6 +24,12 @@ export interface Partido {
   lat: number | null
   lng: number | null
   valor_cancha: number | null
+  apertura: AperturaPartido
+}
+
+export interface BajasTardias {
+  jugador_id: string
+  cantidad: number
 }
 
 export interface Participante {

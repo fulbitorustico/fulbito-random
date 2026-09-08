@@ -4,8 +4,10 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import Avatar from '../components/Avatar'
 import Estrellas from '../components/Estrellas'
+import BadgeConfiabilidad from '../components/BadgeConfiabilidad'
 import { AVATARES_DISPONIBLES } from '../lib/avatar'
 import SelectorPosiciones from '../components/SelectorPosiciones'
+import { fetchBajasTardiasMap } from '../lib/bajas'
 import type { ValoracionPromedio } from '../lib/types'
 
 const inputClass =
@@ -20,6 +22,7 @@ export default function Perfil() {
   const [guardando, setGuardando] = useState(false)
   const [mensaje, setMensaje] = useState<string | null>(null)
   const [promedio, setPromedio] = useState<ValoracionPromedio | null>(null)
+  const [bajasTardias, setBajasTardias] = useState(0)
 
   useEffect(() => {
     if (!jugador) return
@@ -28,6 +31,7 @@ export default function Perfil() {
       .then(({ data }: { data: ValoracionPromedio[] | null }) => {
         setPromedio((data ?? []).find((p) => p.evaluado_id === jugador.id) ?? null)
       })
+    fetchBajasTardiasMap().then((map) => setBajasTardias(map[jugador.id] ?? 0))
   }, [jugador])
 
   if (!jugador) return null
@@ -67,6 +71,10 @@ export default function Perfil() {
         </p>
         <div className="mt-3">
           <Estrellas promedio={promedio?.promedio ?? null} cantidad={promedio?.cantidad ?? 0} />
+        </div>
+
+        <div className="mt-2">
+          <BadgeConfiabilidad bajasTardias={bajasTardias} />
         </div>
 
         <div className="mt-4 flex flex-wrap justify-center gap-2">

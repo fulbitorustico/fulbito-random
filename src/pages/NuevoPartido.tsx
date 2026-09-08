@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { pedirUbicacion, type Coords } from '../lib/geo'
+import type { AperturaPartido } from '../lib/types'
 
 const HORARIOS = Array.from({ length: 48 }, (_, i) => {
   const h = String(Math.floor(i / 2)).padStart(2, '0')
@@ -21,6 +22,7 @@ export default function NuevoPartido() {
   const [hora, setHora] = useState('')
   const [cupo, setCupo] = useState(10)
   const [valorCancha, setValorCancha] = useState('')
+  const [apertura, setApertura] = useState<AperturaPartido>('abierto')
   const [ubicacion, setUbicacion] = useState<Coords | null>(null)
   const [buscandoUbicacion, setBuscandoUbicacion] = useState(false)
   const [guardando, setGuardando] = useState(false)
@@ -50,6 +52,7 @@ export default function NuevoPartido() {
         lat: ubicacion?.lat ?? null,
         lng: ubicacion?.lng ?? null,
         valor_cancha: valorCancha ? Number(valorCancha) : null,
+        apertura,
       })
       .select()
       .single()
@@ -152,6 +155,36 @@ export default function NuevoPartido() {
             </span>
           )}
         </label>
+
+        <div>
+          <p className="mb-2 text-sm" style={{ color: 'var(--pitch-700)' }}>
+            ¿Quién se puede sumar?
+          </p>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setApertura('abierto')}
+              className="tap flex-1 rounded-2xl px-3 py-2.5 text-[13px] font-semibold"
+              style={{
+                background: apertura === 'abierto' ? 'var(--pitch-500)' : 'rgba(18,38,28,.06)',
+                color: apertura === 'abierto' ? '#fff' : 'var(--pitch-700)',
+              }}
+            >
+              Abierto a todos
+            </button>
+            <button
+              type="button"
+              onClick={() => setApertura('solo_confiables')}
+              className="tap flex-1 rounded-2xl px-3 py-2.5 text-[13px] font-semibold"
+              style={{
+                background: apertura === 'solo_confiables' ? 'var(--pitch-500)' : 'rgba(18,38,28,.06)',
+                color: apertura === 'solo_confiables' ? '#fff' : 'var(--pitch-700)',
+              }}
+            >
+              Solo confiables 🟢
+            </button>
+          </div>
+        </div>
 
         <button
           type="submit"

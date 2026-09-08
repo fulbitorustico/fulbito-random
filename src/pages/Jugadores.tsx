@@ -4,13 +4,16 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import Avatar from '../components/Avatar'
 import InvitarBoton from '../components/InvitarBoton'
+import BadgeConfiabilidad from '../components/BadgeConfiabilidad'
 import { formatPosiciones } from '../lib/posiciones'
+import { fetchBajasTardiasMap } from '../lib/bajas'
 import type { Jugador, ValoracionPromedio } from '../lib/types'
 
 export default function Jugadores() {
   const { jugador } = useAuth()
   const [jugadores, setJugadores] = useState<Jugador[]>([])
   const [promedios, setPromedios] = useState<Record<string, ValoracionPromedio>>({})
+  const [bajasTardiasMap, setBajasTardiasMap] = useState<Record<string, number>>({})
   const [busqueda, setBusqueda] = useState('')
   const [loading, setLoading] = useState(true)
 
@@ -44,6 +47,7 @@ export default function Jugadores() {
 
       setJugadores(compañeros)
       setPromedios(map)
+      setBajasTardiasMap(await fetchBajasTardiasMap())
       setLoading(false)
     }
     cargar()
@@ -105,15 +109,18 @@ export default function Jugadores() {
                   {formatPosiciones(j.posiciones)}
                 </p>
               </div>
-              {prom ? (
-                <p className="shrink-0 text-sm font-semibold" style={{ color: 'var(--gold-500)' }}>
-                  ★ {prom.promedio}
-                </p>
-              ) : (
-                <p className="shrink-0 text-xs" style={{ color: 'var(--pitch-300)' }}>
-                  Sin valorar
-                </p>
-              )}
+              <div className="flex shrink-0 flex-col items-end gap-1">
+                {prom ? (
+                  <p className="text-sm font-semibold" style={{ color: 'var(--gold-500)' }}>
+                    ★ {prom.promedio}
+                  </p>
+                ) : (
+                  <p className="text-xs" style={{ color: 'var(--pitch-300)' }}>
+                    Sin valorar
+                  </p>
+                )}
+                <BadgeConfiabilidad bajasTardias={bajasTardiasMap[j.id] ?? 0} />
+              </div>
             </Link>
           )
         })}

@@ -4,7 +4,8 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import type { Partido } from '../lib/types'
 import { distanciaKm, formatCuentaRegresiva, formatDistancia, pedirUbicacion, type Coords } from '../lib/geo'
-import { registrarBaja } from '../lib/bajas'
+import { registrarBaja, fetchBajasTardiasMap } from '../lib/bajas'
+import { nivelDesdeBajasTardias } from '../lib/confiabilidad'
 
 interface PartidoConCupo extends Partido {
   anotados: number
@@ -18,6 +19,14 @@ export default function Partidos() {
   const [loading, setLoading] = useState(true)
   const [miUbicacion, setMiUbicacion] = useState<Coords | null>(null)
   const [ubicacionNegada, setUbicacionNegada] = useState(false)
+  const [miConfiable, setMiConfiable] = useState(true)
+
+  useEffect(() => {
+    if (!jugador) return
+    fetchBajasTardiasMap().then((map) => {
+      setMiConfiable(nivelDesdeBajasTardias(map[jugador.id] ?? 0) === 'confiable')
+    })
+  }, [jugador])
 
   const cargar = useCallback(
     async (ubicacion: Coords | null) => {
@@ -110,7 +119,8 @@ export default function Partidos() {
       <div className="flex flex-col gap-3">
         {partidos.map((p, i) => {
           const lugares = p.cupo_total - p.anotados
-          const abierto = p.estado === 'abierto' && lugares > 0
+          const restringido = p.apertura === 'solo_confiables' && !miConfiable && !p.yo_anotado
+          const abierto = p.estado === 'abierto' && lugares > 0 && !restringido
           return (
             <div
               key={p.id}
@@ -153,6 +163,7 @@ export default function Partidos() {
               <div className="mt-3 flex items-center justify-between">
                 <span className="text-[13px]" style={{ color: 'var(--pitch-300)' }}>
                   {p.anotados}/{p.cupo_total} anotados
+                  {p.apertura === 'solo_confiables' && ' · Solo confiables 🟢'}
                 </span>
                 <button
                   onClick={() => toggleAnotarse(p)}
@@ -164,7 +175,7 @@ export default function Partidos() {
                       : { background: 'var(--pitch-500)', color: '#fff' }
                   }
                 >
-                  {p.yo_anotado ? 'Bajarme' : 'Sumarme'}
+                  {p.yo_anotado ? 'Bajarme' : restringido ? 'Solo confiables' : 'Sumarme'}
                 </button>
               </div>
             </div>

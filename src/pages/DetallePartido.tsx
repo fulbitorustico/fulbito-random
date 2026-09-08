@@ -4,7 +4,9 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import Avatar from '../components/Avatar'
 import { formatPosiciones } from '../lib/posiciones'
-import { registrarBaja } from '../lib/bajas'
+import { registrarBaja, fetchBajasTardiasMap } from '../lib/bajas'
+import { nivelDesdeBajasTardias } from '../lib/confiabilidad'
+import BadgeConfiabilidad from '../components/BadgeConfiabilidad'
 import type { Jugador, Partido } from '../lib/types'
 
 const HORARIOS = Array.from({ length: 48 }, (_, i) => {
@@ -39,6 +41,11 @@ export default function DetallePartido() {
   const [fecha, setFecha] = useState('')
   const [hora, setHora] = useState('')
   const [cupo, setCupo] = useState(10)
+  const [bajasTardiasMap, setBajasTardiasMap] = useState<Record<string, number>>({})
+
+  useEffect(() => {
+    fetchBajasTardiasMap().then(setBajasTardiasMap)
+  }, [])
 
   const cargar = useCallback(async () => {
     if (!id) return
@@ -88,7 +95,9 @@ export default function DetallePartido() {
   const esAdmin = jugador?.id === partido.admin_id
   const yoAnotado = anotados.some((a) => a.id === jugador?.id)
   const lugares = partido.cupo_total - anotados.length
-  const abierto = partido.estado === 'abierto' && lugares > 0
+  const miConfiable = !jugador || nivelDesdeBajasTardias(bajasTardiasMap[jugador.id] ?? 0) === 'confiable'
+  const restringido = partido.apertura === 'solo_confiables' && !miConfiable && !yoAnotado
+  const abierto = partido.estado === 'abierto' && lugares > 0 && !restringido
 
   async function toggleAnotarse() {
     if (!jugador || !partido) return
@@ -181,6 +190,12 @@ export default function DetallePartido() {
             </p>
           )}
 
+          {partido.apertura === 'solo_confiables' && (
+            <p className="mt-2 text-[13px] font-medium" style={{ color: 'var(--pitch-500)' }}>
+              🟢 Solo para jugadores confiables
+            </p>
+          )}
+
           {partido.estado !== 'cancelado' && (
             <button
               onClick={toggleAnotarse}
@@ -192,7 +207,7 @@ export default function DetallePartido() {
                   : { background: 'var(--pitch-500)', color: '#fff' }
               }
             >
-              {yoAnotado ? 'Bajarme' : 'Sumarme'}
+              {yoAnotado ? 'Bajarme' : restringido ? 'Solo confiables' : 'Sumarme'}
             </button>
           )}
 
@@ -316,9 +331,12 @@ export default function DetallePartido() {
               <p className="flex-1 text-sm font-medium" style={{ color: 'var(--pitch-900)' }}>
                 {a.nombre} {a.apodo && <span style={{ color: 'var(--pitch-300)', fontWeight: 400 }}>"{a.apodo}"</span>}
               </p>
-              <p className="text-xs" style={{ color: 'var(--pitch-300)' }}>
-                {formatPosiciones(a.posiciones)}
-              </p>
+              <div className="flex flex-col items-end gap-1">
+                <p className="text-xs" style={{ color: 'var(--pitch-300)' }}>
+                  {formatPosiciones(a.posiciones)}
+                </p>
+                <BadgeConfiabilidad bajasTardias={bajasTardiasMap[a.id] ?? 0} />
+              </div>
             </Link>
           ))}
         </div>

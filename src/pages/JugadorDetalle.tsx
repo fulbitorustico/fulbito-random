@@ -4,7 +4,9 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import Avatar from '../components/Avatar'
 import Estrellas from '../components/Estrellas'
+import BadgeConfiabilidad from '../components/BadgeConfiabilidad'
 import { formatPosiciones } from '../lib/posiciones'
+import { fetchBajasTardiasMap } from '../lib/bajas'
 import type { Jugador, ValoracionPromedio } from '../lib/types'
 
 export default function JugadorDetalle() {
@@ -13,6 +15,7 @@ export default function JugadorDetalle() {
   const [jugador, setJugador] = useState<Jugador | null>(null)
   const [promedio, setPromedio] = useState<ValoracionPromedio | null>(null)
   const [partidosJuntos, setPartidosJuntos] = useState(0)
+  const [bajasTardias, setBajasTardias] = useState(0)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -24,6 +27,9 @@ export default function JugadorDetalle() {
       const { data: promediosData } = await supabase.rpc('valoraciones_promedio')
       const mio = (promediosData ?? []).find((p: ValoracionPromedio) => p.evaluado_id === id)
       setPromedio(mio ?? null)
+
+      const bajasMap = await fetchBajasTardiasMap()
+      setBajasTardias(bajasMap[id] ?? 0)
 
       if (yo && yo.id !== id) {
         const { data: misPartidos } = await supabase.from('participantes').select('partido_id').eq('jugador_id', yo.id)
@@ -77,6 +83,10 @@ export default function JugadorDetalle() {
 
         <div className="mt-5">
           <Estrellas promedio={promedio?.promedio ?? null} cantidad={promedio?.cantidad ?? 0} size={20} />
+        </div>
+
+        <div className="mt-3">
+          <BadgeConfiabilidad bajasTardias={bajasTardias} />
         </div>
 
         {yo && yo.id !== id && partidosJuntos > 0 && (
