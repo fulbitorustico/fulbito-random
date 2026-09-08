@@ -76,7 +76,7 @@ export default function Partidos() {
           return (
             <div key={p.id} className="rounded-xl bg-white p-4 shadow-sm">
               <div className="flex items-start justify-between gap-2">
-                <div>
+                <Link to={`/partidos/${p.id}`} className="hover:underline">
                   <p className="font-semibold text-slate-900">{p.cancha}</p>
                   <p className="text-sm text-slate-500">
                     {new Date(p.fecha_hora).toLocaleString('es-AR', {
@@ -87,7 +87,7 @@ export default function Partidos() {
                       minute: '2-digit',
                     })}
                   </p>
-                </div>
+                </Link>
                 <span
                   className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
                     abierto ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-500'

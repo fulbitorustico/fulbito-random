@@ -4,8 +4,10 @@ import Login from './pages/Login'
 import CompletarPerfil from './pages/CompletarPerfil'
 import Partidos from './pages/Partidos'
 import NuevoPartido from './pages/NuevoPartido'
+import DetallePartido from './pages/DetallePartido'
 import Jugadores from './pages/Jugadores'
 import Perfil from './pages/Perfil'
+import BasesYCondiciones from './pages/BasesYCondiciones'
 
 function Shell() {
   const linkClass = ({ isActive }: { isActive: boolean }) =>
@@ -17,8 +19,10 @@ function Shell() {
         <Routes>
           <Route path="/partidos" element={<Partidos />} />
           <Route path="/partidos/nuevo" element={<NuevoPartido />} />
+          <Route path="/partidos/:id" element={<DetallePartido />} />
           <Route path="/jugadores" element={<Jugadores />} />
           <Route path="/perfil" element={<Perfil />} />
+          <Route path="/bases-y-condiciones" element={<BasesYCondiciones />} />
           <Route path="*" element={<Navigate to="/partidos" replace />} />
         </Routes>
       </div>

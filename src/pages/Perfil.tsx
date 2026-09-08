@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 
@@ -69,9 +70,16 @@ export default function Perfil() {
         {mensaje && <p className="text-sm text-slate-600">{mensaje}</p>}
       </form>
 
+      <Link
+        to="/bases-y-condiciones"
+        className="mt-6 block text-center text-sm text-slate-400 hover:underline"
+      >
+        Bases y condiciones
+      </Link>
+
       <button
         onClick={() => supabase.auth.signOut()}
-        className="mt-6 w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50"
+        className="mt-3 w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-50"
       >
         Cerrar sesión
       </button>
