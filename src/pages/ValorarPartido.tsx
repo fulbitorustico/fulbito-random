@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import Avatar from '../components/Avatar'
+import { INSIGNIAS } from '../lib/insignias'
 import type { Jugador, Partido } from '../lib/types'
 
 const VENTANA_HORAS = 24
@@ -18,6 +19,7 @@ export default function ValorarPartido() {
   const [loading, setLoading] = useState(true)
   const [estrellasPorJugador, setEstrellasPorJugador] = useState<Record<string, number>>({})
   const [comentarioPorJugador, setComentarioPorJugador] = useState<Record<string, string>>({})
+  const [insigniaPorJugador, setInsigniaPorJugador] = useState<Record<string, string>>({})
   const [enviando, setEnviando] = useState<string | null>(null)
 
   const cargar = useCallback(async () => {
@@ -66,6 +68,15 @@ export default function ValorarPartido() {
       estrellas,
       comentario: comentarioPorJugador[evaluadoId] || null,
     })
+    const insignia = insigniaPorJugador[evaluadoId]
+    if (!error && insignia) {
+      await supabase.from('insignias_otorgadas').insert({
+        partido_id: id,
+        otorgado_por_id: jugador.id,
+        jugador_id: evaluadoId,
+        insignia,
+      })
+    }
     setEnviando(null)
     if (!error) setEnviados((prev) => new Set(prev).add(evaluadoId))
   }
@@ -171,6 +182,32 @@ export default function ValorarPartido() {
                 style={{ color: 'var(--pitch-900)' }}
                 rows={2}
               />
+
+              <p className="mb-1.5 text-xs font-medium" style={{ color: 'var(--pitch-300)' }}>
+                Insignia (opcional)
+              </p>
+              <div className="mb-3 flex flex-wrap gap-1.5">
+                {INSIGNIAS.map((ins) => {
+                  const activa = insigniaPorJugador[p.id] === ins.id
+                  return (
+                    <button
+                      key={ins.id}
+                      type="button"
+                      onClick={() =>
+                        setInsigniaPorJugador((s) => ({ ...s, [p.id]: activa ? '' : ins.id }))
+                      }
+                      className="tap flex items-center gap-1 rounded-full px-2.5 py-1.5 text-xs font-semibold"
+                      style={{
+                        background: activa ? 'var(--pitch-500)' : 'rgba(18,38,28,.06)',
+                        color: activa ? '#fff' : 'var(--pitch-700)',
+                      }}
+                    >
+                      <span>{ins.emoji}</span>
+                      {ins.label}
+                    </button>
+                  )
+                })}
+              </div>
 
               <button
                 type="button"

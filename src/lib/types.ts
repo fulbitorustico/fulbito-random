@@ -58,10 +58,21 @@ export interface ValoracionPromedio {
   cantidad: number
 }
 
+export interface DistribucionValoracion {
+  estrellas: number
+  cantidad: number
+}
+
+export interface InsigniaConteo {
+  insignia: string
+  cantidad: number
+}
+
 export interface Grupo {
   id: string
   nombre: string
   creador_id: string
+  requiere_aprobacion: boolean
   created_at: string
 }
 
@@ -69,5 +80,15 @@ export interface GrupoMiembro {
   id: string
   grupo_id: string
   jugador_id: string
+  created_at: string
+}
+
+export type EstadoSolicitud = 'pendiente' | 'aprobada' | 'rechazada'
+
+export interface SolicitudGrupo {
+  id: string
+  grupo_id: string
+  jugador_id: string
+  estado: EstadoSolicitud
   created_at: string
 }

@@ -134,7 +134,7 @@ export default function Jugadores() {
               <div className="flex shrink-0 flex-col items-end gap-1">
                 {prom ? (
                   <p className="text-sm font-semibold" style={{ color: 'var(--gold-500)' }}>
-                    ★ {prom.promedio}
+                    ★ {prom.promedio.toFixed(1)}
                   </p>
                 ) : (
                   <p className="text-xs" style={{ color: 'var(--pitch-300)' }}>

@@ -7,13 +7,16 @@ import Estrellas from '../components/Estrellas'
 import BadgeConfiabilidad from '../components/BadgeConfiabilidad'
 import { formatPosiciones } from '../lib/posiciones'
 import { fetchBajasTardiasMap } from '../lib/bajas'
-import type { Jugador, ValoracionPromedio } from '../lib/types'
+import { insigniaPorId } from '../lib/insignias'
+import type { DistribucionValoracion, InsigniaConteo, Jugador, ValoracionPromedio } from '../lib/types'
 
 export default function JugadorDetalle() {
   const { id } = useParams<{ id: string }>()
   const { jugador: yo } = useAuth()
   const [jugador, setJugador] = useState<Jugador | null>(null)
   const [promedio, setPromedio] = useState<ValoracionPromedio | null>(null)
+  const [distribucion, setDistribucion] = useState<DistribucionValoracion[]>([])
+  const [insignias, setInsignias] = useState<InsigniaConteo[]>([])
   const [partidosJuntos, setPartidosJuntos] = useState(0)
   const [partidosJugados, setPartidosJugados] = useState(0)
   const [comentarios, setComentarios] = useState<{ comentario: string; created_at: string }[]>([])
@@ -29,6 +32,12 @@ export default function JugadorDetalle() {
       const { data: promediosData } = await supabase.rpc('valoraciones_promedio')
       const mio = (promediosData ?? []).find((p: ValoracionPromedio) => p.evaluado_id === id)
       setPromedio(mio ?? null)
+
+      const { data: distribucionData } = await supabase.rpc('distribucion_valoraciones', { p_evaluado_id: id })
+      setDistribucion(distribucionData ?? [])
+
+      const { data: insigniasData } = await supabase.rpc('insignias_por_jugador', { p_jugador_id: id })
+      setInsignias(insigniasData ?? [])
 
       const bajasMap = await fetchBajasTardiasMap()
       setBajasTardias(bajasMap[id] ?? 0)
@@ -92,8 +101,13 @@ export default function JugadorDetalle() {
           {formatPosiciones(jugador.posiciones)}
         </p>
 
-        <div className="mt-5">
-          <Estrellas promedio={promedio?.promedio ?? null} cantidad={promedio?.cantidad ?? 0} size={20} />
+        <div className="mt-5 w-full">
+          <Estrellas
+            promedio={promedio?.promedio ?? null}
+            cantidad={promedio?.cantidad ?? 0}
+            variant="completo"
+            distribucion={distribucion}
+          />
         </div>
 
         <div className="mt-3">
@@ -117,6 +131,31 @@ export default function JugadorDetalle() {
           </p>
         )}
       </div>
+
+      {insignias.length > 0 && (
+        <div className="glass-strong mt-4 rounded-[28px] p-5">
+          <h2 className="mb-3 text-sm font-semibold" style={{ color: 'var(--pitch-700)' }}>
+            Medallero
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {insignias.map((i) => {
+              const info = insigniaPorId(i.insignia)
+              if (!info) return null
+              return (
+                <div
+                  key={i.insignia}
+                  className="flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold"
+                  style={{ background: 'rgba(185,121,31,.14)', color: 'var(--gold-500)' }}
+                >
+                  <span>{info.emoji}</span>
+                  {info.label}
+                  <span style={{ color: 'var(--pitch-300)' }}>×{i.cantidad}</span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {comentarios.length > 0 && (
         <div className="mt-4">

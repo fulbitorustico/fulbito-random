@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 const PASOS = [
@@ -50,6 +51,53 @@ const FEATURES = [
     texto: 'El compromiso se cuida con reputación, no con multas.',
   },
 ]
+
+function DemoValoracion() {
+  const [estrellas, setEstrellas] = useState(4)
+
+  return (
+    <div className="glass-strong anim-pop rounded-[24px] p-5">
+      <div className="flex items-center gap-3">
+        <div
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-lg font-semibold text-white"
+          style={{ background: 'var(--pitch-500)' }}
+        >
+          C
+        </div>
+        <div>
+          <p className="font-semibold" style={{ color: 'var(--pitch-900)' }}>
+            Cami
+          </p>
+          <p className="text-xs" style={{ color: 'var(--pitch-300)' }}>
+            Volante · jugó con vos el domingo
+          </p>
+        </div>
+      </div>
+
+      <p className="mt-4 text-sm" style={{ color: 'var(--pitch-700)', opacity: 0.8 }}>
+        Tocá las estrellas para probar cómo se valora a un compañero:
+      </p>
+
+      <div className="mt-2 flex gap-1.5">
+        {[1, 2, 3, 4, 5].map((n) => (
+          <button key={n} type="button" onClick={() => setEstrellas(n)} className="tap" aria-label={`${n} estrellas`}>
+            <svg width="32" height="32" viewBox="0 0 20 20">
+              <path
+                d="M10 1.5 12.5 7 18.5 7.8 14 11.9 15.3 18 10 14.8 4.7 18 6 11.9 1.5 7.8 7.5 7Z"
+                fill={estrellas >= n ? 'var(--gold-500)' : 'rgba(18,38,28,.12)'}
+              />
+            </svg>
+          </button>
+        ))}
+      </div>
+
+      <p className="mt-3 text-xs" style={{ color: 'var(--pitch-300)' }}>
+        Es solo una demo — no se guarda en ningún lado. Las valoraciones reales son anónimas y siempre a compañeros
+        con los que jugaste.
+      </p>
+    </div>
+  )
+}
 
 export default function Landing() {
   return (
@@ -111,6 +159,15 @@ export default function Landing() {
 
         <section className="mt-14">
           <p className="brand text-xl" style={{ color: 'var(--pitch-900)' }}>
+            Probalo vos mismo
+          </p>
+          <div className="mt-4">
+            <DemoValoracion />
+          </div>
+        </section>
+
+        <section className="mt-14">
+          <p className="brand text-xl" style={{ color: 'var(--pitch-900)' }}>
             Qué tiene la app
           </p>
           <div className="mt-4 grid grid-cols-2 gap-3">
@@ -145,7 +202,16 @@ export default function Landing() {
         </section>
 
         <footer className="mt-10 text-center text-xs" style={{ color: 'var(--pitch-300)' }}>
-          Fulbito Random · fútbol amateur en Argentina
+          <p>Fulbito Random · fútbol amateur en Argentina</p>
+          <p className="mt-2">
+            <Link to="/terminos" className="underline">
+              Términos
+            </Link>
+            {' · '}
+            <Link to="/privacidad" className="underline">
+              Privacidad
+            </Link>
+          </p>
         </footer>
       </div>
     </div>

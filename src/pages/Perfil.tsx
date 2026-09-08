@@ -8,7 +8,8 @@ import BadgeConfiabilidad from '../components/BadgeConfiabilidad'
 import { AVATARES_DISPONIBLES } from '../lib/avatar'
 import SelectorPosiciones from '../components/SelectorPosiciones'
 import { fetchBajasTardiasMap } from '../lib/bajas'
-import type { ValoracionPromedio } from '../lib/types'
+import { insigniaPorId } from '../lib/insignias'
+import type { DistribucionValoracion, InsigniaConteo, ValoracionPromedio } from '../lib/types'
 
 const inputClass =
   'rounded-2xl border-0 bg-white/70 px-4 py-3.5 text-[15px] outline-none ring-1 ring-black/5 transition focus:ring-2'
@@ -22,9 +23,11 @@ export default function Perfil() {
   const [guardando, setGuardando] = useState(false)
   const [mensaje, setMensaje] = useState<string | null>(null)
   const [promedio, setPromedio] = useState<ValoracionPromedio | null>(null)
+  const [distribucion, setDistribucion] = useState<DistribucionValoracion[]>([])
   const [bajasTardias, setBajasTardias] = useState(0)
   const [partidosJugados, setPartidosJugados] = useState(0)
   const [comentarios, setComentarios] = useState<{ comentario: string; created_at: string }[]>([])
+  const [insignias, setInsignias] = useState<InsigniaConteo[]>([])
 
   useEffect(() => {
     if (!jugador) return
@@ -40,6 +43,12 @@ export default function Perfil() {
       .eq('jugador_id', jugador.id)
       .then(({ count }) => setPartidosJugados(count ?? 0))
     supabase.rpc('comentarios_recibidos', { p_evaluado_id: jugador.id }).then(({ data }) => setComentarios(data ?? []))
+    supabase
+      .rpc('distribucion_valoraciones', { p_evaluado_id: jugador.id })
+      .then(({ data }: { data: DistribucionValoracion[] | null }) => setDistribucion(data ?? []))
+    supabase
+      .rpc('insignias_por_jugador', { p_jugador_id: jugador.id })
+      .then(({ data }: { data: InsigniaConteo[] | null }) => setInsignias(data ?? []))
   }, [jugador])
 
   if (!jugador) return null
@@ -77,8 +86,13 @@ export default function Perfil() {
         <p className="mt-3 text-sm" style={{ color: 'var(--pitch-300)' }}>
           {session?.user.email}
         </p>
-        <div className="mt-3">
-          <Estrellas promedio={promedio?.promedio ?? null} cantidad={promedio?.cantidad ?? 0} />
+        <div className="mt-3 w-full">
+          <Estrellas
+            promedio={promedio?.promedio ?? null}
+            cantidad={promedio?.cantidad ?? 0}
+            variant="completo"
+            distribucion={distribucion}
+          />
         </div>
 
         <div className="mt-2">
@@ -104,6 +118,31 @@ export default function Perfil() {
           ))}
         </div>
       </div>
+
+      {insignias.length > 0 && (
+        <div className="glass-strong mb-4 rounded-[28px] p-5">
+          <h2 className="mb-3 text-sm font-semibold" style={{ color: 'var(--pitch-700)' }}>
+            Medallero — insignias que te votó el grupo
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {insignias.map((i) => {
+              const info = insigniaPorId(i.insignia)
+              if (!info) return null
+              return (
+                <div
+                  key={i.insignia}
+                  className="flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold"
+                  style={{ background: 'rgba(185,121,31,.14)', color: 'var(--gold-500)' }}
+                >
+                  <span>{info.emoji}</span>
+                  {info.label}
+                  <span style={{ color: 'var(--pitch-300)' }}>×{i.cantidad}</span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {comentarios.length > 0 && (
         <div className="mb-4">

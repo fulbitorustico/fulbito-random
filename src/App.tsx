@@ -19,6 +19,7 @@ import ReclamarPerfil from './pages/ReclamarPerfil'
 import Perfil from './pages/Perfil'
 import Terminos from './pages/Terminos'
 import Privacidad from './pages/Privacidad'
+import GrupoPublico from './pages/GrupoPublico'
 
 function Shell() {
   const location = useLocation()
@@ -56,6 +57,7 @@ function Router() {
 
   if (location.pathname === '/terminos') return <Terminos />
   if (location.pathname === '/privacidad') return <Privacidad />
+  if (/^\/grupos\/[^/]+\/publico$/.test(location.pathname)) return <GrupoPublico />
 
   if (loading) {
     return (

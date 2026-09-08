@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext'
 import Avatar from '../components/Avatar'
 import BadgeConfiabilidad from '../components/BadgeConfiabilidad'
 import { fetchBajasTardiasMap } from '../lib/bajas'
-import type { Grupo, Jugador, Partido } from '../lib/types'
+import type { Grupo, Jugador, Partido, SolicitudGrupo } from '../lib/types'
 
 export default function GrupoDetalle() {
   const { id } = useParams<{ id: string }>()
@@ -20,6 +20,7 @@ export default function GrupoDetalle() {
   const [nombreNuevo, setNombreNuevo] = useState('')
   const [agregando, setAgregando] = useState(false)
   const [linkReclamo, setLinkReclamo] = useState<{ nombre: string; url: string } | null>(null)
+  const [solicitudes, setSolicitudes] = useState<(SolicitudGrupo & { jugador: Jugador })[]>([])
 
   const cargar = useCallback(async () => {
     if (!id) return
@@ -43,9 +44,32 @@ export default function GrupoDetalle() {
     } else {
       setMiembros([])
     }
+
+    if (grupoData?.requiere_aprobacion && grupoData.creador_id === jugador?.id) {
+      const { data: solicitudesData } = await supabase
+        .from('solicitudes_grupo')
+        .select('*')
+        .eq('grupo_id', id)
+        .eq('estado', 'pendiente')
+      const jugadorIds = (solicitudesData ?? []).map((s) => s.jugador_id)
+      if (jugadorIds.length > 0) {
+        const { data: jugadoresSolicitantes } = await supabase.from('jugadores').select('*').in('id', jugadorIds)
+        const mapaJugadores = new Map((jugadoresSolicitantes ?? []).map((j) => [j.id, j]))
+        setSolicitudes(
+          (solicitudesData ?? [])
+            .map((s) => ({ ...s, jugador: mapaJugadores.get(s.jugador_id) }))
+            .filter((s): s is SolicitudGrupo & { jugador: Jugador } => !!s.jugador),
+        )
+      } else {
+        setSolicitudes([])
+      }
+    } else {
+      setSolicitudes([])
+    }
+
     setBajasTardiasMap(await fetchBajasTardiasMap())
     setLoading(false)
-  }, [id])
+  }, [id, jugador?.id])
 
   useEffect(() => {
     cargar()
@@ -94,6 +118,38 @@ export default function GrupoDetalle() {
     window.open(`https://wa.me/?text=${encodeURIComponent(mensaje)}`, '_blank')
   }
 
+  async function aprobarSolicitud(s: SolicitudGrupo) {
+    if (!id) return
+    await supabase.from('grupo_miembros').insert({ grupo_id: id, jugador_id: s.jugador_id })
+    await supabase.from('solicitudes_grupo').update({ estado: 'aprobada' }).eq('id', s.id)
+    await cargar()
+  }
+
+  async function rechazarSolicitud(s: SolicitudGrupo) {
+    await supabase.from('solicitudes_grupo').update({ estado: 'rechazada' }).eq('id', s.id)
+    await cargar()
+  }
+
+  async function compartirVistaPublica() {
+    if (!grupo) return
+    const url = `${window.location.origin}/grupos/${grupo.id}/publico`
+    const mensaje = `Mirá las estadísticas del grupo "${grupo.nombre}" en Fulbito Random: ${url}`
+    if (navigator.share) {
+      try {
+        await navigator.share({ text: mensaje, url })
+        return
+      } catch {
+        // cancelado, seguimos al fallback
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(url)
+      alert('Link copiado al portapapeles')
+    } catch {
+      window.open(`https://wa.me/?text=${encodeURIComponent(mensaje)}`, '_blank')
+    }
+  }
+
   if (loading)
     return (
       <p className="text-sm" style={{ color: 'var(--pitch-300)' }}>
@@ -106,6 +162,8 @@ export default function GrupoDetalle() {
         Este grupo no existe.
       </p>
     )
+
+  const esAdmin = jugador?.id === grupo.creador_id
 
   return (
     <div>
@@ -125,6 +183,48 @@ export default function GrupoDetalle() {
           Invitar
         </button>
       </div>
+
+      {esAdmin && (
+        <button
+          onClick={compartirVistaPublica}
+          className="tap glass mb-4 w-full rounded-2xl px-4 py-2.5 text-sm font-semibold"
+          style={{ color: 'var(--pitch-700)' }}
+        >
+          🔗 Compartir vista pública del grupo
+        </button>
+      )}
+
+      {esAdmin && solicitudes.length > 0 && (
+        <div className="mb-4">
+          <h2 className="mb-2 text-sm font-semibold" style={{ color: 'var(--pitch-700)' }}>
+            Pedidos para sumarse ({solicitudes.length})
+          </h2>
+          <div className="flex flex-col gap-2">
+            {solicitudes.map((s) => (
+              <div key={s.id} className="glass flex items-center gap-3 rounded-2xl px-4 py-2.5">
+                <Avatar nombre={s.jugador.nombre} avatar={s.jugador.avatar} size="sm" />
+                <p className="flex-1 text-sm font-medium" style={{ color: 'var(--pitch-900)' }}>
+                  {s.jugador.nombre}
+                </p>
+                <button
+                  onClick={() => aprobarSolicitud(s)}
+                  className="tap rounded-full px-3 py-1.5 text-xs font-semibold text-white"
+                  style={{ background: 'var(--pitch-500)' }}
+                >
+                  Aprobar
+                </button>
+                <button
+                  onClick={() => rechazarSolicitud(s)}
+                  className="tap rounded-full px-3 py-1.5 text-xs font-semibold"
+                  style={{ background: 'rgba(179,67,47,.1)', color: '#b3432f' }}
+                >
+                  Rechazar
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="mb-4">
         <div className="mb-2 flex items-center justify-between">
