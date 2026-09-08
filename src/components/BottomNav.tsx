@@ -2,6 +2,7 @@ import { NavLink, useLocation } from 'react-router-dom'
 
 const TABS = [
   { to: '/partidos', label: 'Partidos', icon: BallIcon },
+  { to: '/grupos', label: 'Grupos', icon: GruposIcon },
   { to: '/jugadores', label: 'Jugadores', icon: PeopleIcon },
   { to: '/perfil', label: 'Perfil', icon: PersonIcon },
 ]
@@ -15,7 +16,7 @@ export default function BottomNav() {
       style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 14px)' }}
     >
       {TABS.map((tab) => {
-        const active = location.pathname === tab.to
+        const active = location.pathname === tab.to || location.pathname.startsWith(`${tab.to}/`)
         return (
           <NavLink
             key={tab.to}
@@ -47,6 +48,18 @@ function BallIcon({ active }: { active: boolean }) {
         strokeWidth="1.4"
         strokeLinejoin="round"
       />
+    </svg>
+  )
+}
+
+function GruposIcon({ active }: { active: boolean }) {
+  const c = active ? '#fff' : 'var(--pitch-700)'
+  return (
+    <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
+      <rect x="3.5" y="3.5" width="7.5" height="7.5" rx="1.6" stroke={c} strokeWidth="1.7" />
+      <rect x="13" y="3.5" width="7.5" height="7.5" rx="1.6" stroke={c} strokeWidth="1.7" />
+      <rect x="3.5" y="13" width="7.5" height="7.5" rx="1.6" stroke={c} strokeWidth="1.7" />
+      <rect x="13" y="13" width="7.5" height="7.5" rx="1.6" stroke={c} strokeWidth="1.7" />
     </svg>
   )
 }

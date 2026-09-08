@@ -1,9 +1,9 @@
-import { useState, type FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState, type FormEvent } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { pedirUbicacion, type Coords } from '../lib/geo'
-import type { AperturaPartido } from '../lib/types'
+import type { AperturaPartido, Grupo } from '../lib/types'
 
 const HORARIOS = Array.from({ length: 48 }, (_, i) => {
   const h = String(Math.floor(i / 2)).padStart(2, '0')
@@ -17,16 +17,32 @@ const inputClass =
 export default function NuevoPartido() {
   const { jugador } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const [cancha, setCancha] = useState('')
   const [fecha, setFecha] = useState('')
   const [hora, setHora] = useState('')
   const [cupo, setCupo] = useState(10)
   const [valorCancha, setValorCancha] = useState('')
   const [apertura, setApertura] = useState<AperturaPartido>('abierto')
+  const [grupoId, setGrupoId] = useState<string>(searchParams.get('grupo') ?? '')
+  const [misGrupos, setMisGrupos] = useState<Grupo[]>([])
+  const [usaEquipos, setUsaEquipos] = useState(false)
   const [ubicacion, setUbicacion] = useState<Coords | null>(null)
   const [buscandoUbicacion, setBuscandoUbicacion] = useState(false)
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function cargarGrupos() {
+      if (!jugador) return
+      const { data: miembros } = await supabase.from('grupo_miembros').select('grupo_id').eq('jugador_id', jugador.id)
+      const ids = (miembros ?? []).map((m) => m.grupo_id)
+      if (ids.length === 0) return
+      const { data } = await supabase.from('grupos').select('*').in('id', ids)
+      setMisGrupos(data ?? [])
+    }
+    cargarGrupos()
+  }, [jugador])
 
   async function usarMiUbicacion() {
     setBuscandoUbicacion(true)
@@ -53,6 +69,8 @@ export default function NuevoPartido() {
         lng: ubicacion?.lng ?? null,
         valor_cancha: valorCancha ? Number(valorCancha) : null,
         apertura,
+        grupo_id: grupoId || null,
+        usa_equipos: usaEquipos,
       })
       .select()
       .single()
@@ -81,6 +99,22 @@ export default function NuevoPartido() {
           className={inputClass}
           style={{ color: 'var(--pitch-900)' }}
         />
+
+        {misGrupos.length > 0 && (
+          <select
+            value={grupoId}
+            onChange={(e) => setGrupoId(e.target.value)}
+            className={inputClass}
+            style={{ color: 'var(--pitch-900)' }}
+          >
+            <option value="">Público (abierto, lo ve cualquiera cerca)</option>
+            {misGrupos.map((g) => (
+              <option key={g.id} value={g.id}>
+                Grupo: {g.nombre}
+              </option>
+            ))}
+          </select>
+        )}
 
         <button
           type="button"
@@ -185,6 +219,19 @@ export default function NuevoPartido() {
             </button>
           </div>
         </div>
+
+        <button
+          type="button"
+          onClick={() => setUsaEquipos((v) => !v)}
+          className="tap flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-semibold"
+          style={{
+            background: usaEquipos ? 'rgba(45,106,79,.14)' : 'rgba(18,38,28,.05)',
+            color: usaEquipos ? 'var(--pitch-500)' : 'var(--pitch-700)',
+          }}
+        >
+          <span>Armar 2 equipos parejos automático</span>
+          <span>{usaEquipos ? '✓' : ''}</span>
+        </button>
 
         <button
           type="submit"

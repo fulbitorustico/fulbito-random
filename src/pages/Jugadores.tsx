@@ -27,18 +27,40 @@ export default function Jugadores() {
         .eq('jugador_id', jugador.id)
       const misPartidoIds = (misParticipaciones ?? []).map((p) => p.partido_id)
 
-      let compañeros: Jugador[] = []
+      const { data: misMiembros } = await supabase
+        .from('grupo_miembros')
+        .select('grupo_id')
+        .eq('jugador_id', jugador.id)
+      const misGrupoIds = (misMiembros ?? []).map((m) => m.grupo_id)
+
+      const idsUnicos = new Set<string>()
+
       if (misPartidoIds.length > 0) {
         const { data: coParticipantes } = await supabase
           .from('participantes')
           .select('jugador_id')
           .in('partido_id', misPartidoIds)
           .neq('jugador_id', jugador.id)
-        const idsUnicos = [...new Set((coParticipantes ?? []).map((c) => c.jugador_id))]
-        if (idsUnicos.length > 0) {
-          const { data: jugadoresData } = await supabase.from('jugadores').select('*').in('id', idsUnicos).order('nombre')
-          compañeros = jugadoresData ?? []
-        }
+        for (const c of coParticipantes ?? []) idsUnicos.add(c.jugador_id)
+      }
+
+      if (misGrupoIds.length > 0) {
+        const { data: coMiembros } = await supabase
+          .from('grupo_miembros')
+          .select('jugador_id')
+          .in('grupo_id', misGrupoIds)
+          .neq('jugador_id', jugador.id)
+        for (const m of coMiembros ?? []) idsUnicos.add(m.jugador_id)
+      }
+
+      let compañeros: Jugador[] = []
+      if (idsUnicos.size > 0) {
+        const { data: jugadoresData } = await supabase
+          .from('jugadores')
+          .select('*')
+          .in('id', [...idsUnicos])
+          .order('nombre')
+        compañeros = jugadoresData ?? []
       }
 
       const { data: promediosData } = await supabase.rpc('valoraciones_promedio')

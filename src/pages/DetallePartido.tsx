@@ -7,7 +7,7 @@ import { formatPosiciones } from '../lib/posiciones'
 import { registrarBaja, fetchBajasTardiasMap } from '../lib/bajas'
 import { nivelDesdeBajasTardias } from '../lib/confiabilidad'
 import BadgeConfiabilidad from '../components/BadgeConfiabilidad'
-import type { Jugador, Partido } from '../lib/types'
+import type { Jugador, Partido, ValoracionPromedio } from '../lib/types'
 
 const HORARIOS = Array.from({ length: 48 }, (_, i) => {
   const h = String(Math.floor(i / 2)).padStart(2, '0')
@@ -42,9 +42,18 @@ export default function DetallePartido() {
   const [hora, setHora] = useState('')
   const [cupo, setCupo] = useState(10)
   const [bajasTardiasMap, setBajasTardiasMap] = useState<Record<string, number>>({})
+  const [equipos, setEquipos] = useState<Record<string, 'A' | 'B'>>({})
+  const [promedios, setPromedios] = useState<Record<string, number>>({})
+  const [generandoEquipos, setGenerandoEquipos] = useState(false)
+  const [duplicando, setDuplicando] = useState(false)
 
   useEffect(() => {
     fetchBajasTardiasMap().then(setBajasTardiasMap)
+    supabase.rpc('valoraciones_promedio').then(({ data }: { data: ValoracionPromedio[] | null }) => {
+      const map: Record<string, number> = {}
+      for (const p of data ?? []) map[p.evaluado_id] = p.promedio
+      setPromedios(map)
+    })
   }, [])
 
   const cargar = useCallback(async () => {
@@ -53,7 +62,7 @@ export default function DetallePartido() {
     const { data: partidoData } = await supabase.from('partidos').select('*').eq('id', id).maybeSingle()
     const { data: participantesData } = await supabase
       .from('participantes')
-      .select('jugador_id')
+      .select('jugador_id, equipo')
       .eq('partido_id', id)
 
     if (partidoData) {
@@ -72,6 +81,11 @@ export default function DetallePartido() {
     } else {
       setAnotados([])
     }
+
+    const equiposMap: Record<string, 'A' | 'B'> = {}
+    for (const p of participantesData ?? []) if (p.equipo === 'A' || p.equipo === 'B') equiposMap[p.jugador_id] = p.equipo
+    setEquipos(equiposMap)
+
     setLoading(false)
   }, [id])
 
@@ -134,6 +148,53 @@ export default function DetallePartido() {
     if (!confirm('¿Cancelar este partido? Los anotados van a dejar de verlo en la lista.')) return
     await supabase.from('partidos').update({ estado: 'cancelado' }).eq('id', partido.id)
     navigate('/partidos')
+  }
+
+  async function generarEquipos() {
+    if (!partido) return
+    setGenerandoEquipos(true)
+    const ordenados = [...anotados].sort((a, b) => (promedios[b.id] ?? 0) - (promedios[a.id] ?? 0))
+    // draft en serpentina (A,B,B,A,A,B,B,A...) para que los dos equipos queden parejos por rating
+    const asignaciones = ordenados.map((j, i) => {
+      const bloque = Math.floor(i / 2)
+      const equipo: 'A' | 'B' = bloque % 2 === 0 ? (i % 2 === 0 ? 'A' : 'B') : i % 2 === 0 ? 'B' : 'A'
+      return { jugador_id: j.id, equipo }
+    })
+    await Promise.all(
+      asignaciones.map((a) =>
+        supabase.from('participantes').update({ equipo: a.equipo }).eq('partido_id', partido.id).eq('jugador_id', a.jugador_id),
+      ),
+    )
+    setGenerandoEquipos(false)
+    await cargar()
+  }
+
+  async function duplicarPartido() {
+    if (!partido || !jugador) return
+    setDuplicando(true)
+    const nuevaFecha = new Date(partido.fecha_hora)
+    nuevaFecha.setDate(nuevaFecha.getDate() + 7)
+    const { data, error } = await supabase
+      .from('partidos')
+      .insert({
+        cancha: partido.cancha,
+        fecha_hora: nuevaFecha.toISOString(),
+        cupo_total: partido.cupo_total,
+        admin_id: jugador.id,
+        lat: partido.lat,
+        lng: partido.lng,
+        valor_cancha: partido.valor_cancha,
+        apertura: partido.apertura,
+        grupo_id: partido.grupo_id,
+        usa_equipos: partido.usa_equipos,
+      })
+      .select()
+      .single()
+    setDuplicando(false)
+    if (!error && data) {
+      await supabase.from('participantes').insert({ partido_id: data.id, jugador_id: jugador.id })
+      navigate(`/partidos/${data.id}`)
+    }
   }
 
   return (
@@ -293,20 +354,38 @@ export default function DetallePartido() {
       )}
 
       {esAdmin && partido.estado !== 'cancelado' && !editando && (
-        <div className="mt-3 flex gap-2">
+        <div className="mt-3 flex flex-wrap gap-2">
           <button
             onClick={() => setEditando(true)}
             className="tap glass flex-1 rounded-2xl px-4 py-2.5 text-sm font-semibold"
             style={{ color: 'var(--pitch-700)' }}
           >
-            Editar partido
+            Editar
+          </button>
+          {partido.usa_equipos && anotados.length >= 2 && (
+            <button
+              onClick={generarEquipos}
+              disabled={generandoEquipos}
+              className="tap glass flex-1 rounded-2xl px-4 py-2.5 text-sm font-semibold disabled:opacity-50"
+              style={{ color: 'var(--pitch-500)' }}
+            >
+              {generandoEquipos ? 'Armando...' : 'Generar equipos'}
+            </button>
+          )}
+          <button
+            onClick={duplicarPartido}
+            disabled={duplicando}
+            className="tap glass flex-1 rounded-2xl px-4 py-2.5 text-sm font-semibold disabled:opacity-50"
+            style={{ color: 'var(--pitch-700)' }}
+          >
+            {duplicando ? 'Creando...' : 'Repetir la próxima semana'}
           </button>
           <button
             onClick={cancelarPartido}
             className="tap glass flex-1 rounded-2xl px-4 py-2.5 text-sm font-semibold"
             style={{ color: '#b3432f' }}
           >
-            Cancelar partido
+            Cancelar
           </button>
         </div>
       )}
@@ -327,6 +406,14 @@ export default function DetallePartido() {
               to={`/jugadores/${a.id}`}
               className="glass flex items-center gap-3 rounded-2xl px-4 py-2.5"
             >
+              {equipos[a.id] && (
+                <span
+                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white"
+                  style={{ background: equipos[a.id] === 'A' ? 'var(--pitch-500)' : 'var(--gold-500)' }}
+                >
+                  {equipos[a.id]}
+                </span>
+              )}
               <Avatar nombre={a.nombre} avatar={a.avatar} size="sm" />
               <p className="flex-1 text-sm font-medium" style={{ color: 'var(--pitch-900)' }}>
                 {a.nombre} {a.apodo && <span style={{ color: 'var(--pitch-300)', fontWeight: 400 }}>"{a.apodo}"</span>}

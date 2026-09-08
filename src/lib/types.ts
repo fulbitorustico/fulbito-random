@@ -1,6 +1,6 @@
 export interface Jugador {
   id: string
-  user_id: string
+  user_id: string | null
   nombre: string
   apodo: string | null
   posicion: string | null
@@ -25,6 +25,8 @@ export interface Partido {
   lng: number | null
   valor_cancha: number | null
   apertura: AperturaPartido
+  grupo_id: string | null
+  usa_equipos: boolean
 }
 
 export interface BajasTardias {
@@ -36,6 +38,7 @@ export interface Participante {
   id: string
   partido_id: string
   jugador_id: string
+  equipo: 'A' | 'B' | null
   created_at: string
 }
 
@@ -53,4 +56,18 @@ export interface ValoracionPromedio {
   evaluado_id: string
   promedio: number
   cantidad: number
+}
+
+export interface Grupo {
+  id: string
+  nombre: string
+  creador_id: string
+  created_at: string
+}
+
+export interface GrupoMiembro {
+  id: string
+  grupo_id: string
+  jugador_id: string
+  created_at: string
 }

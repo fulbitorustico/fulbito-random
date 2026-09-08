@@ -10,6 +10,11 @@ import DetallePartido from './pages/DetallePartido'
 import ValorarPartido from './pages/ValorarPartido'
 import Jugadores from './pages/Jugadores'
 import JugadorDetalle from './pages/JugadorDetalle'
+import Grupos from './pages/Grupos'
+import NuevoGrupo from './pages/NuevoGrupo'
+import GrupoDetalle from './pages/GrupoDetalle'
+import UnirseGrupo from './pages/UnirseGrupo'
+import ReclamarPerfil from './pages/ReclamarPerfil'
 import Perfil from './pages/Perfil'
 import BasesYCondiciones from './pages/BasesYCondiciones'
 
@@ -26,6 +31,10 @@ function Shell() {
           <Route path="/partidos/:id/valorar" element={<PageTransition><ValorarPartido /></PageTransition>} />
           <Route path="/jugadores" element={<PageTransition><Jugadores /></PageTransition>} />
           <Route path="/jugadores/:id" element={<PageTransition><JugadorDetalle /></PageTransition>} />
+          <Route path="/grupos" element={<PageTransition><Grupos /></PageTransition>} />
+          <Route path="/grupos/nuevo" element={<PageTransition><NuevoGrupo /></PageTransition>} />
+          <Route path="/grupos/unirse/:id" element={<PageTransition><UnirseGrupo /></PageTransition>} />
+          <Route path="/grupos/:id" element={<PageTransition><GrupoDetalle /></PageTransition>} />
           <Route path="/perfil" element={<PageTransition><Perfil /></PageTransition>} />
           <Route path="/bases-y-condiciones" element={<PageTransition><BasesYCondiciones /></PageTransition>} />
           <Route path="*" element={<Navigate to="/partidos" replace />} />
@@ -38,6 +47,11 @@ function Shell() {
 
 function Router() {
   const { session, jugador, loading } = useAuth()
+  const location = useLocation()
+
+  if (location.pathname.startsWith('/reclamar/')) {
+    return <ReclamarPerfil />
+  }
 
   if (loading) {
     return (

@@ -11,6 +11,7 @@ interface PartidoConCupo extends Partido {
   anotados: number
   yo_anotado: boolean
   distanciaKm: number | null
+  grupos: { nombre: string } | null
 }
 
 export default function Partidos() {
@@ -33,7 +34,7 @@ export default function Partidos() {
       setLoading(true)
       const { data: partidosData } = await supabase
         .from('partidos')
-        .select('*')
+        .select('*, grupos(nombre)')
         .neq('estado', 'cancelado')
         .order('fecha_hora', { ascending: true })
 
@@ -131,6 +132,11 @@ export default function Partidos() {
                 <Link to={`/partidos/${p.id}`} className="min-w-0 flex-1">
                   <p className="truncate font-semibold" style={{ color: 'var(--pitch-900)' }}>
                     {p.cancha}
+                    {p.grupos && (
+                      <span className="ml-2 text-[11px] font-semibold" style={{ color: 'var(--pitch-300)' }}>
+                        {p.grupos.nombre}
+                      </span>
+                    )}
                   </p>
                   <p className="mt-0.5 text-[13px]" style={{ color: 'var(--pitch-700)', opacity: 0.75 }}>
                     {new Date(p.fecha_hora).toLocaleString('es-AR', {

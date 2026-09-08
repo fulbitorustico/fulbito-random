@@ -15,6 +15,8 @@ export default function JugadorDetalle() {
   const [jugador, setJugador] = useState<Jugador | null>(null)
   const [promedio, setPromedio] = useState<ValoracionPromedio | null>(null)
   const [partidosJuntos, setPartidosJuntos] = useState(0)
+  const [partidosJugados, setPartidosJugados] = useState(0)
+  const [comentarios, setComentarios] = useState<{ comentario: string; created_at: string }[]>([])
   const [bajasTardias, setBajasTardias] = useState(0)
   const [loading, setLoading] = useState(true)
 
@@ -30,6 +32,15 @@ export default function JugadorDetalle() {
 
       const bajasMap = await fetchBajasTardiasMap()
       setBajasTardias(bajasMap[id] ?? 0)
+
+      const { count: jugadosCount } = await supabase
+        .from('participantes')
+        .select('*', { count: 'exact', head: true })
+        .eq('jugador_id', id)
+      setPartidosJugados(jugadosCount ?? 0)
+
+      const { data: comentariosData } = await supabase.rpc('comentarios_recibidos', { p_evaluado_id: id })
+      setComentarios(comentariosData ?? [])
 
       if (yo && yo.id !== id) {
         const { data: misPartidos } = await supabase.from('participantes').select('partido_id').eq('jugador_id', yo.id)
@@ -89,12 +100,38 @@ export default function JugadorDetalle() {
           <BadgeConfiabilidad bajasTardias={bajasTardias} />
         </div>
 
+        <div className="mt-5 flex gap-6">
+          <div>
+            <p className="text-xl font-bold" style={{ color: 'var(--pitch-900)' }}>
+              {partidosJugados}
+            </p>
+            <p className="text-[11px]" style={{ color: 'var(--pitch-300)' }}>
+              Partidos jugados
+            </p>
+          </div>
+        </div>
+
         {yo && yo.id !== id && partidosJuntos > 0 && (
           <p className="mt-4 rounded-full px-3 py-1.5 text-xs font-medium" style={{ background: 'rgba(45,106,79,.1)', color: 'var(--pitch-700)' }}>
             Jugaron juntos {partidosJuntos} {partidosJuntos === 1 ? 'vez' : 'veces'}
           </p>
         )}
       </div>
+
+      {comentarios.length > 0 && (
+        <div className="mt-4">
+          <h2 className="mb-2 text-sm font-semibold" style={{ color: 'var(--pitch-700)' }}>
+            Comentarios recibidos
+          </h2>
+          <div className="flex flex-col gap-2">
+            {comentarios.map((c, i) => (
+              <div key={i} className="glass rounded-2xl px-4 py-3 text-sm" style={{ color: 'var(--pitch-700)' }}>
+                "{c.comentario}"
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

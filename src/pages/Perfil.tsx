@@ -23,6 +23,8 @@ export default function Perfil() {
   const [mensaje, setMensaje] = useState<string | null>(null)
   const [promedio, setPromedio] = useState<ValoracionPromedio | null>(null)
   const [bajasTardias, setBajasTardias] = useState(0)
+  const [partidosJugados, setPartidosJugados] = useState(0)
+  const [comentarios, setComentarios] = useState<{ comentario: string; created_at: string }[]>([])
 
   useEffect(() => {
     if (!jugador) return
@@ -32,6 +34,12 @@ export default function Perfil() {
         setPromedio((data ?? []).find((p) => p.evaluado_id === jugador.id) ?? null)
       })
     fetchBajasTardiasMap().then((map) => setBajasTardias(map[jugador.id] ?? 0))
+    supabase
+      .from('participantes')
+      .select('*', { count: 'exact', head: true })
+      .eq('jugador_id', jugador.id)
+      .then(({ count }) => setPartidosJugados(count ?? 0))
+    supabase.rpc('comentarios_recibidos', { p_evaluado_id: jugador.id }).then(({ data }) => setComentarios(data ?? []))
   }, [jugador])
 
   if (!jugador) return null
@@ -77,6 +85,10 @@ export default function Perfil() {
           <BadgeConfiabilidad bajasTardias={bajasTardias} />
         </div>
 
+        <p className="mt-3 text-xs" style={{ color: 'var(--pitch-300)' }}>
+          {partidosJugados} {partidosJugados === 1 ? 'partido jugado' : 'partidos jugados'}
+        </p>
+
         <div className="mt-4 flex flex-wrap justify-center gap-2">
           {AVATARES_DISPONIBLES.map((a) => (
             <button
@@ -92,6 +104,21 @@ export default function Perfil() {
           ))}
         </div>
       </div>
+
+      {comentarios.length > 0 && (
+        <div className="mb-4">
+          <h2 className="mb-2 text-sm font-semibold" style={{ color: 'var(--pitch-700)' }}>
+            Comentarios recibidos
+          </h2>
+          <div className="flex flex-col gap-2">
+            {comentarios.map((c, i) => (
+              <div key={i} className="glass rounded-2xl px-4 py-3 text-sm" style={{ color: 'var(--pitch-700)' }}>
+                "{c.comentario}"
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="glass-strong flex flex-col gap-3 rounded-[28px] p-6">
         <input
