@@ -82,30 +82,30 @@ export default function UnirseGrupo() {
         {yaSoyMiembro ? (
           <button
             onClick={() => navigate(`/grupos/${id}`)}
-            className="tap mt-6 w-full rounded-2xl px-4 py-3.5 text-[15px] font-semibold text-white shadow-sm"
-            style={{ background: 'var(--pitch-500)' }}
+            className="tap mt-6 w-full rounded-2xl px-4 py-3.5 text-[15px] font-semibold text-[color:var(--ink-900)] shadow-sm"
+            style={{ background: 'var(--paper)' }}
           >
             Ya sos miembro — ver grupo
           </button>
         ) : solicitudEstado === 'pendiente' ? (
           <p
             className="mt-6 rounded-2xl p-4 text-sm"
-            style={{ background: 'rgba(185,121,31,.14)', color: 'var(--gold-500)' }}
+            style={{ background: 'rgba(237,197,141,.16)', color: 'var(--gold-500)' }}
           >
             Tu pedido para sumarte está pendiente de aprobación del admin del grupo.
           </p>
         ) : (
           <>
             {solicitudEstado === 'rechazada' && (
-              <p className="mt-6 text-sm" style={{ color: '#b3432f' }}>
+              <p className="mt-6 text-sm" style={{ color: 'var(--error)' }}>
                 Tu pedido anterior fue rechazado. Podés volver a pedirlo:
               </p>
             )}
             <button
               onClick={unirme}
               disabled={uniendo}
-              className="tap mt-3 w-full rounded-2xl px-4 py-3.5 text-[15px] font-semibold text-white shadow-sm disabled:opacity-50"
-              style={{ background: 'var(--pitch-500)' }}
+              className="tap mt-3 w-full rounded-2xl px-4 py-3.5 text-[15px] font-semibold text-[color:var(--ink-900)] shadow-sm disabled:opacity-50"
+              style={{ background: 'var(--paper)' }}
             >
               {uniendo
                 ? 'Enviando...'

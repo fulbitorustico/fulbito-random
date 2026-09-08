@@ -83,7 +83,7 @@ export default function JugadorDetalle() {
 
   return (
     <div>
-      <Link to="/jugadores" className="mb-4 inline-block text-sm font-medium" style={{ color: 'var(--pitch-500)' }}>
+      <Link to="/jugadores" className="mb-4 inline-block text-sm font-medium" style={{ color: 'var(--acc-green)' }}>
         ← Volver a jugadores
       </Link>
 
@@ -97,7 +97,7 @@ export default function JugadorDetalle() {
             "{jugador.apodo}"
           </p>
         )}
-        <p className="mt-1 text-sm font-medium" style={{ color: 'var(--pitch-500)' }}>
+        <p className="mt-1 text-sm font-medium" style={{ color: 'var(--acc-green)' }}>
           {formatPosiciones(jugador.posiciones)}
         </p>
 
@@ -126,7 +126,7 @@ export default function JugadorDetalle() {
         </div>
 
         {yo && yo.id !== id && partidosJuntos > 0 && (
-          <p className="mt-4 rounded-full px-3 py-1.5 text-xs font-medium" style={{ background: 'rgba(45,106,79,.1)', color: 'var(--pitch-700)' }}>
+          <p className="mt-4 rounded-full px-3 py-1.5 text-xs font-medium" style={{ background: 'rgba(159,198,154,.14)', color: 'var(--pitch-700)' }}>
             Jugaron juntos {partidosJuntos} {partidosJuntos === 1 ? 'vez' : 'veces'}
           </p>
         )}
@@ -145,7 +145,7 @@ export default function JugadorDetalle() {
                 <div
                   key={i.insignia}
                   className="flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold"
-                  style={{ background: 'rgba(185,121,31,.14)', color: 'var(--gold-500)' }}
+                  style={{ background: 'rgba(237,197,141,.16)', color: 'var(--gold-500)' }}
                 >
                   <span>{info.emoji}</span>
                   {info.label}

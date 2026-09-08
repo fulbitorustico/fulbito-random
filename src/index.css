@@ -1,36 +1,47 @@
 @import "tailwindcss";
 
 :root {
-  --pitch-900: #12261c;
-  --pitch-700: #1c4432;
-  --pitch-600: #245741;
-  --pitch-500: #2d6a4f;
-  --pitch-400: #4a8a6a;
-  --pitch-300: #8aab97;
-  --gold-500: #b9791f;
-  --gold-400: #d69a3d;
-  --chalk-50: #f5f7f1;
-  --chalk-100: #eaeee2;
-  --chalk-200: #dde3d3;
-  --line: rgba(18, 38, 28, 0.1);
-  --glass-bg: rgba(255, 255, 255, 0.6);
-  --glass-bg-strong: rgba(255, 255, 255, 0.78);
-  --glass-border: rgba(255, 255, 255, 0.65);
+  /* Base: negro y off white */
+  --ink-900: #141414;
+  --ink-800: #1b1b1b;
+  --ink-700: #232323;
+  --paper: #f2efe9;
+
+  /* Los 5 colores del logo — solo para detalles finos */
+  --acc-coral: #dd977b;
+  --acc-purple: #a28abc;
+  --acc-blue: #9dccda;
+  --acc-green: #9fc69a;
+  --acc-orange: #edc58d;
+
+  --error: #e07a63;
+
+  /* Alias semánticos: texto principal, secundario y tenue sobre el fondo oscuro */
+  --pitch-900: var(--paper);
+  --pitch-700: rgba(242, 239, 233, 0.78);
+  --pitch-500: var(--acc-green);
+  --pitch-300: rgba(242, 239, 233, 0.45);
+  --gold-500: var(--acc-orange);
+
+  --line: rgba(242, 239, 233, 0.12);
+  --glass-bg: rgba(255, 255, 255, 0.04);
+  --glass-bg-strong: rgba(255, 255, 255, 0.065);
+  --glass-border: rgba(242, 239, 233, 0.1);
 }
 
 html {
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 body {
   margin: 0;
   min-height: 100svh;
-  font-family: 'Manrope', system-ui, sans-serif;
-  color: var(--pitch-900);
+  font-family: 'Montserrat', system-ui, sans-serif;
+  color: var(--paper);
   background:
-    radial-gradient(1100px 560px at 12% -8%, rgba(45, 106, 79, 0.18), transparent 60%),
-    radial-gradient(900px 520px at 105% 0%, rgba(185, 121, 31, 0.14), transparent 55%),
-    var(--chalk-50);
+    radial-gradient(900px 500px at 12% -8%, rgba(159, 198, 154, 0.07), transparent 60%),
+    radial-gradient(820px 460px at 105% 0%, rgba(162, 138, 188, 0.06), transparent 55%),
+    var(--ink-900);
   background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
 }
@@ -39,39 +50,63 @@ body {
   min-height: 100svh;
 }
 
+/* Titulares de display */
 .brand {
-  font-family: 'Bebas Neue', sans-serif;
-  letter-spacing: 0.02em;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+/* Marca: "fulbito" siempre Light, "random" siempre Bold */
+.marca {
+  font-weight: 300;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.marca strong {
+  font-weight: 800;
 }
 
 .glass {
   background: var(--glass-bg);
-  backdrop-filter: blur(24px) saturate(160%);
-  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
   border: 1px solid var(--glass-border);
   box-shadow:
-    0 8px 30px rgba(18, 38, 28, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    0 8px 30px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .glass-strong {
   background: var(--glass-bg-strong);
-  backdrop-filter: blur(28px) saturate(160%);
-  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  backdrop-filter: blur(28px) saturate(140%);
+  -webkit-backdrop-filter: blur(28px) saturate(140%);
   border: 1px solid var(--glass-border);
   box-shadow:
-    0 10px 36px rgba(18, 38, 28, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+    0 10px 36px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 input,
 select,
 textarea {
   font-family: inherit;
+  color: var(--paper);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(242, 239, 233, 0.35);
+}
+
+select option {
+  background: var(--ink-800);
+  color: var(--paper);
 }
 
 ::selection {
-  background: rgba(45, 106, 79, 0.25);
+  background: rgba(159, 198, 154, 0.3);
 }
 
 @keyframes rise-in {

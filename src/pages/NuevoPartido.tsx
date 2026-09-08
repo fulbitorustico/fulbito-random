@@ -12,7 +12,7 @@ const HORARIOS = Array.from({ length: 48 }, (_, i) => {
 })
 
 const inputClass =
-  'rounded-2xl border-0 bg-white/70 px-4 py-3.5 text-[15px] outline-none ring-1 ring-black/5 transition focus:ring-2'
+  'rounded-2xl border-0 bg-white/5 px-4 py-3.5 text-[15px] outline-none ring-1 ring-white/10 transition focus:ring-2'
 
 export default function NuevoPartido() {
   const { jugador } = useAuth()
@@ -123,8 +123,8 @@ export default function NuevoPartido() {
           className="tap flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold"
           style={
             ubicacion
-              ? { background: 'rgba(45,106,79,.14)', color: 'var(--pitch-500)' }
-              : { background: 'rgba(18,38,28,.05)', color: 'var(--pitch-700)' }
+              ? { background: 'rgba(159,198,154,.18)', color: 'var(--acc-green)' }
+              : { background: 'rgba(242,239,233,.06)', color: 'var(--pitch-700)' }
           }
         >
           {buscandoUbicacion ? 'Buscando...' : ubicacion ? '📍 Ubicación guardada' : '📍 Usar mi ubicación actual'}
@@ -184,7 +184,7 @@ export default function NuevoPartido() {
             style={{ color: 'var(--pitch-900)' }}
           />
           {valorCancha && cupo > 0 && (
-            <span className="mt-1.5 block text-[13px]" style={{ color: 'var(--pitch-500)' }}>
+            <span className="mt-1.5 block text-[13px]" style={{ color: 'var(--acc-green)' }}>
               ${Math.ceil(Number(valorCancha) / cupo)} por jugador
             </span>
           )}
@@ -200,8 +200,8 @@ export default function NuevoPartido() {
               onClick={() => setApertura('abierto')}
               className="tap flex-1 rounded-2xl px-3 py-2.5 text-[13px] font-semibold"
               style={{
-                background: apertura === 'abierto' ? 'var(--pitch-500)' : 'rgba(18,38,28,.06)',
-                color: apertura === 'abierto' ? '#fff' : 'var(--pitch-700)',
+                background: apertura === 'abierto' ? 'var(--paper)' : 'rgba(242,239,233,.07)',
+                color: apertura === 'abierto' ? 'var(--ink-900)' : 'var(--pitch-700)',
               }}
             >
               Abierto a todos
@@ -211,8 +211,8 @@ export default function NuevoPartido() {
               onClick={() => setApertura('solo_confiables')}
               className="tap flex-1 rounded-2xl px-3 py-2.5 text-[13px] font-semibold"
               style={{
-                background: apertura === 'solo_confiables' ? 'var(--pitch-500)' : 'rgba(18,38,28,.06)',
-                color: apertura === 'solo_confiables' ? '#fff' : 'var(--pitch-700)',
+                background: apertura === 'solo_confiables' ? 'var(--paper)' : 'rgba(242,239,233,.07)',
+                color: apertura === 'solo_confiables' ? 'var(--ink-900)' : 'var(--pitch-700)',
               }}
             >
               Solo confiables 🟢
@@ -225,8 +225,8 @@ export default function NuevoPartido() {
           onClick={() => setUsaEquipos((v) => !v)}
           className="tap flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-semibold"
           style={{
-            background: usaEquipos ? 'rgba(45,106,79,.14)' : 'rgba(18,38,28,.05)',
-            color: usaEquipos ? 'var(--pitch-500)' : 'var(--pitch-700)',
+            background: usaEquipos ? 'rgba(159,198,154,.18)' : 'rgba(242,239,233,.06)',
+            color: usaEquipos ? 'var(--paper)' : 'var(--pitch-700)',
           }}
         >
           <span>Armar 2 equipos parejos automático</span>
@@ -236,13 +236,13 @@ export default function NuevoPartido() {
         <button
           type="submit"
           disabled={guardando}
-          className="tap mt-1 rounded-2xl px-4 py-3.5 text-[15px] font-semibold text-white shadow-sm disabled:opacity-50"
-          style={{ background: 'var(--pitch-500)' }}
+          className="tap mt-1 rounded-2xl px-4 py-3.5 text-[15px] font-semibold text-[color:var(--ink-900)] shadow-sm disabled:opacity-50"
+          style={{ background: 'var(--paper)' }}
         >
           {guardando ? 'Creando...' : 'Crear partido'}
         </button>
         {error && (
-          <p className="text-sm" style={{ color: '#b3432f' }}>
+          <p className="text-sm" style={{ color: 'var(--error)' }}>
             {error}
           </p>
         )}

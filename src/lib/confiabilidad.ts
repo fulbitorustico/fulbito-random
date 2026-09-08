@@ -9,7 +9,7 @@ export function nivelDesdeBajasTardias(cantidad: number): NivelConfiabilidad {
 }
 
 export const CONFIABILIDAD_INFO: Record<NivelConfiabilidad, { emoji: string; label: string; color: string; bg: string }> = {
-  confiable: { emoji: '🟢', label: 'Confiable', color: 'var(--pitch-500)', bg: 'rgba(45,106,79,.12)' },
-  a_prueba: { emoji: '🟡', label: 'A prueba', color: 'var(--gold-500)', bg: 'rgba(185,121,31,.14)' },
-  poco_confiable: { emoji: '🔴', label: 'Poco confiable', color: '#b3432f', bg: 'rgba(179,67,47,.1)' },
+  confiable: { emoji: '🟢', label: 'Confiable', color: 'var(--acc-green)', bg: 'rgba(159,198,154,.16)' },
+  a_prueba: { emoji: '🟡', label: 'A prueba', color: 'var(--gold-500)', bg: 'rgba(237,197,141,.16)' },
+  poco_confiable: { emoji: '🔴', label: 'Poco confiable', color: 'var(--error)', bg: 'rgba(224,122,99,.14)' },
 }

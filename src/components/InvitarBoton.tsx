@@ -16,7 +16,7 @@ export default function InvitarBoton() {
   return (
     <button
       onClick={invitar}
-      className="tap inline-flex items-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-semibold text-white shadow-sm"
+      className="tap inline-flex items-center gap-1.5 rounded-full px-4 py-2.5 text-sm font-semibold text-[color:var(--ink-900)] shadow-sm"
       style={{ background: '#25D366' }}
     >
       Invitar amigos

@@ -51,18 +51,22 @@ function Router() {
   const { session, jugador, loading } = useAuth()
   const location = useLocation()
 
-  const esRutaPublicaConId =
+  // Rutas que se ven igual con o sin sesión (incluye /landing, para poder
+  // mirar la landing aunque estés logueado).
+  const esRutaPublica =
     location.pathname.startsWith('/reclamar/') ||
     location.pathname === '/terminos' ||
     location.pathname === '/privacidad' ||
+    location.pathname === '/landing' ||
     /^\/grupos\/[^/]+\/publico$/.test(location.pathname)
 
-  if (esRutaPublicaConId) {
+  if (esRutaPublica) {
     return (
       <Routes location={location} key={location.pathname}>
         <Route path="/reclamar/:id" element={<ReclamarPerfil />} />
         <Route path="/terminos" element={<Terminos />} />
         <Route path="/privacidad" element={<Privacidad />} />
+        <Route path="/landing" element={<Landing />} />
         <Route path="/grupos/:id/publico" element={<GrupoPublico />} />
       </Routes>
     )

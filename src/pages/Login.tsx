@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import Marca from '../components/Marca'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -33,9 +34,7 @@ export default function Login() {
   return (
     <div className="flex min-h-svh items-center justify-center px-5">
       <div className="glass-strong anim-pop w-full max-w-sm rounded-[28px] p-8">
-        <p className="brand text-4xl leading-none" style={{ color: 'var(--pitch-900)' }}>
-          Fulbito Random
-        </p>
+        <Marca size="lg" />
         <p className="mt-2 text-sm" style={{ color: 'var(--pitch-700)', opacity: 0.75 }}>
           Armá el partido, avisá si falta uno.
         </p>
@@ -44,8 +43,8 @@ export default function Login() {
           <button
             type="button"
             onClick={handleGoogle}
-            className="tap mt-7 flex w-full items-center justify-center gap-2.5 rounded-2xl bg-white px-4 py-3.5 text-[15px] font-semibold shadow-sm ring-1 ring-black/5"
-            style={{ color: 'var(--pitch-900)' }}
+            className="tap mt-7 flex w-full items-center justify-center gap-2.5 rounded-2xl bg-white px-4 py-3.5 text-[15px] font-semibold shadow-sm"
+            style={{ color: 'var(--ink-900)' }}
           >
             <svg width="18" height="18" viewBox="0 0 18 18">
               <path
@@ -79,7 +78,7 @@ export default function Login() {
         {enviado ? (
           <p
             className="anim-rise mt-7 rounded-2xl p-4 text-sm"
-            style={{ background: 'rgba(45,106,79,.12)', color: 'var(--pitch-700)' }}
+            style={{ background: 'rgba(159,198,154,.16)', color: 'var(--pitch-700)' }}
           >
             Te mandamos un link a <strong>{email}</strong>. Abrilo desde este mismo dispositivo para entrar.
           </p>
@@ -91,19 +90,19 @@ export default function Login() {
               placeholder="tu@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="rounded-2xl border-0 bg-white/70 px-4 py-3.5 text-[15px] outline-none ring-1 ring-black/5 transition focus:ring-2"
+              className="rounded-2xl border-0 bg-white/5 px-4 py-3.5 text-[15px] outline-none ring-1 ring-white/10 transition focus:ring-2"
               style={{ color: 'var(--pitch-900)' }}
             />
             <button
               type="submit"
               disabled={enviando}
-              className="tap rounded-2xl px-4 py-3.5 text-[15px] font-semibold text-white shadow-sm disabled:opacity-50"
-              style={{ background: 'var(--pitch-500)' }}
+              className="tap rounded-2xl px-4 py-3.5 text-[15px] font-semibold text-[color:var(--ink-900)] shadow-sm disabled:opacity-50"
+              style={{ background: 'var(--paper)' }}
             >
               {enviando ? 'Enviando...' : 'Entrar con email'}
             </button>
             {error && (
-              <p className="text-sm" style={{ color: '#b3432f' }}>
+              <p className="text-sm" style={{ color: 'var(--error)' }}>
                 {error}
               </p>
             )}

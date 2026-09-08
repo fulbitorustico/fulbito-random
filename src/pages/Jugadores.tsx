@@ -94,7 +94,7 @@ export default function Jugadores() {
           placeholder="Buscar por nombre o apodo..."
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
-          className="mb-4 w-full rounded-2xl border-0 bg-white/70 px-4 py-3.5 text-[15px] outline-none ring-1 ring-black/5 transition focus:ring-2"
+          className="mb-4 w-full rounded-2xl border-0 bg-white/5 px-4 py-3.5 text-[15px] outline-none ring-1 ring-white/10 transition focus:ring-2"
           style={{ color: 'var(--pitch-900)' }}
         />
       )}

@@ -1,6 +1,7 @@
 export const AVATARES_DISPONIBLES = ['⚽', '🦁', '🐺', '🦅', '🐢', '🔥', '⭐', '🎯', '🥷', '🐉', '🦈', '🐐']
 
-const COLORES = ['#2d6a4f', '#b9791f', '#245741', '#7c5b2e', '#3f8265', '#8a5a2b']
+// Los 5 colores del logo: el avatar es el lugar donde más se los ve.
+const COLORES = ['#dd977b', '#a28abc', '#9dccda', '#9fc69a', '#edc58d']
 
 export function colorParaNombre(nombre: string): string {
   let hash = 0

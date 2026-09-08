@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import Avatar from '../components/Avatar'
 import Estrellas from '../components/Estrellas'
+import Marca from '../components/Marca'
 
 interface MiembroPublico {
   jugador_id: string
@@ -56,9 +57,7 @@ export default function GrupoPublico() {
   return (
     <div className="min-h-svh">
       <div className="mx-auto max-w-lg px-5 pb-16 pt-8">
-        <p className="brand text-xl" style={{ color: 'var(--pitch-900)' }}>
-          Fulbito Random
-        </p>
+        <Marca size="sm" />
         <h1 className="mt-4 text-2xl font-bold" style={{ color: 'var(--pitch-900)' }}>
           {nombre}
         </h1>
@@ -89,8 +88,8 @@ export default function GrupoPublico() {
           </p>
           <Link
             to="/login"
-            className="tap mt-5 inline-block w-full rounded-2xl px-4 py-3.5 text-[15px] font-semibold text-white shadow-sm"
-            style={{ background: 'var(--pitch-500)' }}
+            className="tap mt-5 inline-block w-full rounded-2xl px-4 py-3.5 text-[15px] font-semibold text-[color:var(--ink-900)] shadow-sm"
+            style={{ background: 'var(--paper)' }}
           >
             Entrar con email
           </Link>

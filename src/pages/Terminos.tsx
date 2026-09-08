@@ -20,7 +20,7 @@ export default function Terminos() {
       <button
         onClick={() => navigate(-1)}
         className="mb-4 inline-block text-sm font-medium"
-        style={{ color: 'var(--pitch-500)' }}
+        style={{ color: 'var(--acc-green)' }}
       >
         ← Volver
       </button>
@@ -97,7 +97,7 @@ export default function Terminos() {
             Estos términos se rigen por las leyes de la República Argentina, incluyendo la Ley 24.240 de Defensa
             del Consumidor en lo que resulte aplicable a un servicio gratuito. Ante cualquier consulta, podés
             escribir a{' '}
-            <a href="mailto:info.fulbitorustico@gmail.com" className="font-medium" style={{ color: 'var(--pitch-500)' }}>
+            <a href="mailto:info.fulbitorustico@gmail.com" className="font-medium" style={{ color: 'var(--acc-green)' }}>
               info.fulbitorustico@gmail.com
             </a>
             .
@@ -107,7 +107,7 @@ export default function Terminos() {
 
       <p className="mt-4 text-center text-xs" style={{ color: 'var(--pitch-300)' }}>
         Ver también la{' '}
-        <Link to="/privacidad" className="font-medium underline" style={{ color: 'var(--pitch-500)' }}>
+        <Link to="/privacidad" className="font-medium underline" style={{ color: 'var(--acc-green)' }}>
           Política de privacidad
         </Link>
         .

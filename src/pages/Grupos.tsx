@@ -47,8 +47,8 @@ export default function Grupos() {
         </h1>
         <Link
           to="/grupos/nuevo"
-          className="tap inline-flex items-center rounded-full px-4 py-2.5 text-sm font-semibold text-white shadow-sm"
-          style={{ background: 'var(--pitch-500)' }}
+          className="tap inline-flex items-center rounded-full px-4 py-2.5 text-sm font-semibold text-[color:var(--ink-900)] shadow-sm"
+          style={{ background: 'var(--paper)' }}
         >
           + Grupo
         </Link>

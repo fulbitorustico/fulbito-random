@@ -10,7 +10,7 @@ function FilaEstrellas({ promedio, size }: { promedio: number; size: number }) {
             <defs>
               <linearGradient id={`estrella-${n}-${size}`}>
                 <stop offset={`${fill * 100}%`} stopColor="var(--gold-500)" />
-                <stop offset={`${fill * 100}%`} stopColor="rgba(18,38,28,.12)" />
+                <stop offset={`${fill * 100}%`} stopColor="rgba(242,239,233,.14)" />
               </linearGradient>
             </defs>
             <path
@@ -75,7 +75,7 @@ export default function Estrellas({
                   <span className="text-[11px]" style={{ color: 'var(--gold-500)' }}>
                     ★
                   </span>
-                  <div className="h-1.5 flex-1 overflow-hidden rounded-full" style={{ background: 'rgba(18,38,28,.08)' }}>
+                  <div className="h-1.5 flex-1 overflow-hidden rounded-full" style={{ background: 'rgba(242,239,233,.09)' }}>
                     <div
                       className="h-full rounded-full transition-all"
                       style={{ width: `${pct}%`, background: 'var(--gold-500)' }}

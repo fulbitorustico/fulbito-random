@@ -93,8 +93,8 @@ export default function Partidos() {
         </h1>
         <Link
           to="/partidos/nuevo"
-          className="tap inline-flex items-center rounded-full px-4 py-2.5 text-sm font-semibold text-white shadow-sm"
-          style={{ background: 'var(--pitch-500)' }}
+          className="tap inline-flex items-center rounded-full px-4 py-2.5 text-sm font-semibold text-[color:var(--ink-900)] shadow-sm"
+          style={{ background: 'var(--paper)' }}
         >
           + Nuevo
         </Link>
@@ -149,7 +149,7 @@ export default function Partidos() {
                     <span style={{ color: 'var(--gold-500)' }}> · {formatCuentaRegresiva(p.fecha_hora)}</span>
                   </p>
                   {(p.distanciaKm != null || p.valor_cancha) && (
-                    <p className="mt-0.5 flex items-center gap-2 text-[12.5px] font-medium" style={{ color: 'var(--pitch-500)' }}>
+                    <p className="mt-0.5 flex items-center gap-2 text-[12.5px] font-medium" style={{ color: 'var(--acc-green)' }}>
                       {p.distanciaKm != null && <span>📍 {formatDistancia(p.distanciaKm)}</span>}
                       {p.valor_cancha && <span>${Math.ceil(p.valor_cancha / p.cupo_total)}/jugador</span>}
                     </p>
@@ -159,8 +159,8 @@ export default function Partidos() {
                   className="shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold"
                   style={
                     abierto
-                      ? { background: 'rgba(185,121,31,.16)', color: 'var(--gold-500)' }
-                      : { background: 'rgba(18,38,28,.06)', color: 'var(--pitch-300)' }
+                      ? { background: 'rgba(237,197,141,.18)', color: 'var(--gold-500)' }
+                      : { background: 'rgba(242,239,233,.07)', color: 'var(--pitch-300)' }
                   }
                 >
                   {lugares > 0 ? `Faltan ${lugares}` : 'Completo'}
@@ -177,8 +177,8 @@ export default function Partidos() {
                   className="tap rounded-full px-4 py-2 text-[13px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-40"
                   style={
                     p.yo_anotado
-                      ? { background: 'rgba(18,38,28,.07)', color: 'var(--pitch-700)' }
-                      : { background: 'var(--pitch-500)', color: '#fff' }
+                      ? { background: 'rgba(242,239,233,.08)', color: 'var(--pitch-700)' }
+                      : { background: 'var(--paper)', color: 'var(--ink-900)' }
                   }
                 >
                   {p.yo_anotado ? 'Bajarme' : restringido ? 'Solo confiables' : 'Sumarme'}

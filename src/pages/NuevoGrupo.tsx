@@ -45,7 +45,7 @@ export default function NuevoGrupo() {
           placeholder="Ej: Los jueves de Pedro"
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
-          className="rounded-2xl border-0 bg-white/70 px-4 py-3.5 text-[15px] outline-none ring-1 ring-black/5 transition focus:ring-2"
+          className="rounded-2xl border-0 bg-white/5 px-4 py-3.5 text-[15px] outline-none ring-1 ring-white/10 transition focus:ring-2"
           style={{ color: 'var(--pitch-900)' }}
         />
 
@@ -54,8 +54,8 @@ export default function NuevoGrupo() {
           onClick={() => setRequiereAprobacion((v) => !v)}
           className="tap flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-semibold"
           style={{
-            background: requiereAprobacion ? 'rgba(45,106,79,.14)' : 'rgba(18,38,28,.05)',
-            color: requiereAprobacion ? 'var(--pitch-500)' : 'var(--pitch-700)',
+            background: requiereAprobacion ? 'rgba(159,198,154,.18)' : 'rgba(242,239,233,.06)',
+            color: requiereAprobacion ? 'var(--paper)' : 'var(--pitch-700)',
           }}
         >
           <span>El admin aprueba antes de sumar gente</span>
@@ -65,13 +65,13 @@ export default function NuevoGrupo() {
         <button
           type="submit"
           disabled={guardando}
-          className="tap rounded-2xl px-4 py-3.5 text-[15px] font-semibold text-white shadow-sm disabled:opacity-50"
-          style={{ background: 'var(--pitch-500)' }}
+          className="tap rounded-2xl px-4 py-3.5 text-[15px] font-semibold text-[color:var(--ink-900)] shadow-sm disabled:opacity-50"
+          style={{ background: 'var(--paper)' }}
         >
           {guardando ? 'Creando...' : 'Crear grupo'}
         </button>
         {error && (
-          <p className="text-sm" style={{ color: '#b3432f' }}>
+          <p className="text-sm" style={{ color: 'var(--error)' }}>
             {error}
           </p>
         )}

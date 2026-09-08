@@ -12,7 +12,7 @@ import { insigniaPorId } from '../lib/insignias'
 import type { DistribucionValoracion, InsigniaConteo, ValoracionPromedio } from '../lib/types'
 
 const inputClass =
-  'rounded-2xl border-0 bg-white/70 px-4 py-3.5 text-[15px] outline-none ring-1 ring-black/5 transition focus:ring-2'
+  'rounded-2xl border-0 bg-white/5 px-4 py-3.5 text-[15px] outline-none ring-1 ring-white/10 transition focus:ring-2'
 
 export default function Perfil() {
   const { jugador, refreshJugador, session } = useAuth()
@@ -110,7 +110,7 @@ export default function Perfil() {
               onClick={() => guardarAvatar(a)}
               className="tap flex h-10 w-10 items-center justify-center rounded-full text-lg"
               style={{
-                background: avatar === a ? 'var(--pitch-500)' : 'rgba(18,38,28,.06)',
+                background: avatar === a ? 'var(--paper)' : 'rgba(242,239,233,.07)',
               }}
             >
               {a}
@@ -132,7 +132,7 @@ export default function Perfil() {
                 <div
                   key={i.insignia}
                   className="flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold"
-                  style={{ background: 'rgba(185,121,31,.14)', color: 'var(--gold-500)' }}
+                  style={{ background: 'rgba(237,197,141,.16)', color: 'var(--gold-500)' }}
                 >
                   <span>{info.emoji}</span>
                   {info.label}
@@ -179,8 +179,8 @@ export default function Perfil() {
         <button
           type="submit"
           disabled={guardando}
-          className="tap rounded-2xl px-4 py-3.5 text-[15px] font-semibold text-white shadow-sm disabled:opacity-50"
-          style={{ background: 'var(--pitch-500)' }}
+          className="tap rounded-2xl px-4 py-3.5 text-[15px] font-semibold text-[color:var(--ink-900)] shadow-sm disabled:opacity-50"
+          style={{ background: 'var(--paper)' }}
         >
           {guardando ? 'Guardando...' : 'Guardar cambios'}
         </button>

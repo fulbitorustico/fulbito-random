@@ -32,8 +32,8 @@ export default function SelectorPosiciones({
               onClick={() => toggle(p)}
               className="tap rounded-full px-3.5 py-2 text-[13px] font-medium disabled:cursor-not-allowed disabled:opacity-35"
               style={{
-                background: activa ? 'var(--pitch-500)' : 'rgba(18,38,28,.06)',
-                color: activa ? '#fff' : 'var(--pitch-700)',
+                background: activa ? 'var(--paper)' : 'rgba(242,239,233,.07)',
+                color: activa ? 'var(--ink-900)' : 'var(--pitch-700)',
               }}
             >
               {p}

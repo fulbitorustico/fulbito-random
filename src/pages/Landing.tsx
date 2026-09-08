@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import MockupTelefono from '../components/MockupTelefono'
+import Marca from '../components/Marca'
+import LogoFR from '../components/LogoFR'
 import { INSIGNIAS } from '../lib/insignias'
 
 const PASOS = [
@@ -108,7 +110,7 @@ function NavMockup({ activa = 'Partidos' }: { activa?: string }) {
           className="flex-1 rounded-full py-1.5 text-center text-[8.5px] font-bold"
           style={
             t === activa
-              ? { background: 'var(--pitch-500)', color: '#fff' }
+              ? { background: 'var(--paper)', color: 'var(--ink-900)' }
               : { color: 'var(--pitch-700)' }
           }
         >
@@ -127,8 +129,8 @@ function PantallaPartidos() {
           Partidos
         </p>
         <span
-          className="rounded-full px-2.5 py-1 text-[9px] font-bold text-white"
-          style={{ background: 'var(--pitch-500)' }}
+          className="rounded-full px-2.5 py-1 text-[9px] font-bold text-[color:var(--ink-900)]"
+          style={{ background: 'var(--paper)' }}
         >
           + Nuevo
         </span>
@@ -151,7 +153,7 @@ function PantallaPartidos() {
                   {p.cuando}
                   <span style={{ color: 'var(--gold-500)' }}> · {p.falta}</span>
                 </p>
-                <p className="mt-0.5 text-[9px] font-semibold" style={{ color: 'var(--pitch-500)' }}>
+                <p className="mt-0.5 text-[9px] font-semibold" style={{ color: 'var(--acc-green)' }}>
                   📍 {p.distancia}
                   {p.precio && ` · ${p.precio}/jugador`}
                 </p>
@@ -160,8 +162,8 @@ function PantallaPartidos() {
                 className="shrink-0 rounded-full px-2 py-0.5 text-[8px] font-bold"
                 style={
                   p.lugares > 0
-                    ? { background: 'rgba(185,121,31,.16)', color: 'var(--gold-500)' }
-                    : { background: 'rgba(18,38,28,.06)', color: 'var(--pitch-300)' }
+                    ? { background: 'rgba(237,197,141,.18)', color: 'var(--gold-500)' }
+                    : { background: 'rgba(242,239,233,.07)', color: 'var(--pitch-300)' }
                 }
               >
                 {p.lugares > 0 ? `Faltan ${p.lugares}` : 'Completo'}
@@ -175,8 +177,8 @@ function PantallaPartidos() {
                 className="rounded-full px-2.5 py-1 text-[9px] font-bold"
                 style={
                   p.lugares > 0
-                    ? { background: 'var(--pitch-500)', color: '#fff' }
-                    : { background: 'rgba(18,38,28,.07)', color: 'var(--pitch-700)' }
+                    ? { background: 'var(--paper)', color: 'var(--ink-900)' }
+                    : { background: 'rgba(242,239,233,.08)', color: 'var(--pitch-700)' }
                 }
               >
                 {p.lugares > 0 ? 'Sumarme' : 'Bajarme'}
@@ -207,8 +209,8 @@ function PantallaValorar() {
       <div className="glass-strong shrink-0 rounded-[20px] p-3">
         <div className="flex items-center gap-2">
           <div
-            className="flex h-8 w-8 items-center justify-center rounded-full text-[12px] font-bold text-white"
-            style={{ background: 'var(--pitch-500)' }}
+            className="flex h-8 w-8 items-center justify-center rounded-full text-[12px] font-bold text-[color:var(--ink-900)]"
+            style={{ background: 'var(--paper)' }}
           >
             C
           </div>
@@ -228,7 +230,7 @@ function PantallaValorar() {
               <svg width="26" height="26" viewBox="0 0 20 20">
                 <path
                   d="M10 1.5 12.5 7 18.5 7.8 14 11.9 15.3 18 10 14.8 4.7 18 6 11.9 1.5 7.8 7.5 7Z"
-                  fill={estrellas >= n ? 'var(--gold-500)' : 'rgba(18,38,28,.12)'}
+                  fill={estrellas >= n ? 'var(--gold-500)' : 'rgba(242,239,233,.14)'}
                 />
               </svg>
             </button>
@@ -248,8 +250,8 @@ function PantallaValorar() {
                 onClick={() => setInsignia(activa ? '' : ins.id)}
                 className="tap rounded-full px-2 py-1 text-[8.5px] font-bold"
                 style={{
-                  background: activa ? 'var(--pitch-500)' : 'rgba(18,38,28,.06)',
-                  color: activa ? '#fff' : 'var(--pitch-700)',
+                  background: activa ? 'var(--paper)' : 'rgba(242,239,233,.07)',
+                  color: activa ? 'var(--ink-900)' : 'var(--pitch-700)',
                 }}
               >
                 {ins.emoji} {ins.label}
@@ -259,8 +261,8 @@ function PantallaValorar() {
         </div>
 
         <div
-          className="mt-3 rounded-xl py-1.5 text-center text-[10px] font-bold text-white"
-          style={{ background: 'var(--pitch-500)' }}
+          className="mt-3 rounded-xl py-1.5 text-center text-[10px] font-bold text-[color:var(--ink-900)]"
+          style={{ background: 'var(--paper)' }}
         >
           Valorar
         </div>
@@ -269,12 +271,12 @@ function PantallaValorar() {
       {[
         { inicial: 'N', nombre: 'Nico', color: 'var(--gold-500)' },
         { inicial: 'S', nombre: 'Sofi', color: 'var(--pitch-700)' },
-        { inicial: 'L', nombre: 'Lucho', color: 'var(--pitch-500)' },
+        { inicial: 'L', nombre: 'Lucho', color: 'var(--acc-green)' },
       ].map((j) => (
         <div key={j.nombre} className="glass mt-2 shrink-0 rounded-2xl p-2.5">
           <div className="flex items-center gap-2">
             <div
-              className="flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-bold text-white"
+              className="flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-bold text-[color:var(--ink-900)]"
               style={{ background: j.color }}
             >
               {j.inicial}
@@ -303,19 +305,19 @@ function PantallaEquipos() {
       <p className="shrink-0 text-[9px]" style={{ color: 'var(--pitch-700)', opacity: 0.75 }}>
         sáb 13 sep, 20:30 · 10/10 anotados
       </p>
-      <p className="mb-3 shrink-0 text-[9px] font-semibold" style={{ color: 'var(--pitch-500)' }}>
+      <p className="mb-3 shrink-0 text-[9px] font-semibold" style={{ color: 'var(--acc-green)' }}>
         ⚖️ Equipos parejos · 0,1 ★ de diferencia
       </p>
 
       {(['a', 'b'] as const).map((lado) => {
         const equipo = EQUIPOS_DEMO[lado]
-        const color = lado === 'a' ? 'var(--pitch-500)' : 'var(--gold-500)'
+        const color = lado === 'a' ? 'var(--paper)' : 'var(--gold-500)'
         return (
           <div key={lado} className="glass mb-2 shrink-0 rounded-2xl p-2.5">
             <div className="mb-1.5 flex items-center justify-between">
               <span className="flex items-center gap-1.5 text-[10px] font-bold" style={{ color: 'var(--pitch-900)' }}>
                 <span
-                  className="flex h-4 w-4 items-center justify-center rounded-full text-[8px] font-bold text-white"
+                  className="flex h-4 w-4 items-center justify-center rounded-full text-[8px] font-bold text-[color:var(--ink-900)]"
                   style={{ background: color }}
                 >
                   {lado.toUpperCase()}
@@ -342,7 +344,7 @@ function PantallaEquipos() {
 
       <div
         className="shrink-0 rounded-xl py-1.5 text-center text-[10px] font-bold"
-        style={{ background: 'rgba(18,38,28,.06)', color: 'var(--pitch-700)' }}
+        style={{ background: 'rgba(242,239,233,.07)', color: 'var(--pitch-700)' }}
       >
         Volver a generar equipos
       </div>
@@ -357,13 +359,11 @@ export default function Landing() {
     <div className="min-h-svh">
       <div className="mx-auto max-w-lg px-5 pb-16 pt-8 md:max-w-4xl">
         <header className="flex items-center justify-between">
-          <p className="brand text-2xl" style={{ color: 'var(--pitch-900)' }}>
-            Fulbito Random
-          </p>
+          <Marca />
           <Link
             to="/login"
-            className="tap rounded-full px-4 py-2 text-sm font-semibold text-white"
-            style={{ background: 'var(--pitch-500)' }}
+            className="tap rounded-full px-4 py-2 text-sm font-semibold text-[color:var(--ink-900)]"
+            style={{ background: 'var(--paper)' }}
           >
             Entrar
           </Link>
@@ -372,7 +372,7 @@ export default function Landing() {
         <section className="mt-12 md:grid md:grid-cols-2 md:items-center md:gap-10">
           <div className="anim-pop text-center md:text-left">
             <h1
-              className="brand text-balance text-[38px] leading-[0.95] md:text-6xl"
+              className="brand text-balance text-[30px] leading-[1.05] md:text-5xl"
               style={{ color: 'var(--pitch-900)' }}
             >
               Nunca más un partido que se cae por faltar uno
@@ -385,8 +385,8 @@ export default function Landing() {
             </p>
             <Link
               to="/login"
-              className="tap mt-7 inline-block rounded-2xl px-7 py-4 text-[15px] font-semibold text-white shadow-sm"
-              style={{ background: 'var(--pitch-500)' }}
+              className="tap mt-7 inline-block rounded-2xl px-7 py-4 text-[15px] font-semibold text-[color:var(--ink-900)] shadow-sm"
+              style={{ background: 'var(--paper)' }}
             >
               Armar mi primer partido
             </Link>
@@ -429,7 +429,7 @@ export default function Landing() {
           <div className="text-center md:order-2 md:text-left">
             <span
               className="inline-block rounded-full px-3 py-1.5 text-xs font-semibold"
-              style={{ background: 'rgba(185,121,31,.14)', color: 'var(--gold-500)' }}
+              style={{ background: 'rgba(237,197,141,.16)', color: 'var(--gold-500)' }}
             >
               Probalo acá · es una demo
             </span>
@@ -494,6 +494,9 @@ export default function Landing() {
         </section>
 
         <section className="glass-strong anim-pop mt-20 rounded-[28px] p-7 text-center">
+          <div className="mb-4 flex justify-center">
+            <LogoFR size={54} />
+          </div>
           <p className="brand text-2xl" style={{ color: 'var(--pitch-900)' }}>
             ¿Organizás fulbito?
           </p>
@@ -502,15 +505,20 @@ export default function Landing() {
           </p>
           <Link
             to="/login"
-            className="tap mx-auto mt-5 inline-block w-full max-w-xs rounded-2xl px-4 py-3.5 text-[15px] font-semibold text-white shadow-sm"
-            style={{ background: 'var(--pitch-500)' }}
+            className="tap mx-auto mt-5 inline-block w-full max-w-xs rounded-2xl px-4 py-3.5 text-[15px] font-semibold text-[color:var(--ink-900)] shadow-sm"
+            style={{ background: 'var(--paper)' }}
           >
             Entrar
           </Link>
         </section>
 
         <footer className="mt-10 text-center text-xs" style={{ color: 'var(--pitch-300)' }}>
-          <p>Fulbito Random · fútbol amateur en Argentina</p>
+          <p>
+            <span className="marca text-[11px]">
+              fulbito <strong>random</strong>
+            </span>
+            {' · fútbol amateur en Argentina'}
+          </p>
           <p className="mt-2">
             <Link to="/terminos" className="underline">
               Términos

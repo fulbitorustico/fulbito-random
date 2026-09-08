@@ -139,7 +139,7 @@ export default function ValorarPartido() {
       )}
 
       {pendientes.length > 0 && faltan.length === 0 && (
-        <div className="glass rounded-2xl p-6 text-sm" style={{ color: 'var(--pitch-500)' }}>
+        <div className="glass rounded-2xl p-6 text-sm" style={{ color: 'var(--acc-green)' }}>
           Ya valoraste a todos ✓
         </div>
       )}
@@ -167,7 +167,7 @@ export default function ValorarPartido() {
                     <svg width="30" height="30" viewBox="0 0 20 20">
                       <path
                         d="M10 1.5 12.5 7 18.5 7.8 14 11.9 15.3 18 10 14.8 4.7 18 6 11.9 1.5 7.8 7.5 7Z"
-                        fill={(estrellasPorJugador[p.id] ?? 0) >= n ? 'var(--gold-500)' : 'rgba(18,38,28,.12)'}
+                        fill={(estrellasPorJugador[p.id] ?? 0) >= n ? 'var(--gold-500)' : 'rgba(242,239,233,.14)'}
                       />
                     </svg>
                   </button>
@@ -178,7 +178,7 @@ export default function ValorarPartido() {
                 placeholder="Comentario (opcional)"
                 value={comentarioPorJugador[p.id] ?? ''}
                 onChange={(e) => setComentarioPorJugador((c) => ({ ...c, [p.id]: e.target.value }))}
-                className="mb-3 w-full resize-none rounded-2xl border-0 bg-white/70 px-4 py-3 text-sm outline-none ring-1 ring-black/5 transition focus:ring-2"
+                className="mb-3 w-full resize-none rounded-2xl border-0 bg-white/5 px-4 py-3 text-sm outline-none ring-1 ring-white/10 transition focus:ring-2"
                 style={{ color: 'var(--pitch-900)' }}
                 rows={2}
               />
@@ -198,8 +198,8 @@ export default function ValorarPartido() {
                       }
                       className="tap flex items-center gap-1 rounded-full px-2.5 py-1.5 text-xs font-semibold"
                       style={{
-                        background: activa ? 'var(--pitch-500)' : 'rgba(18,38,28,.06)',
-                        color: activa ? '#fff' : 'var(--pitch-700)',
+                        background: activa ? 'var(--paper)' : 'rgba(242,239,233,.07)',
+                        color: activa ? 'var(--ink-900)' : 'var(--pitch-700)',
                       }}
                     >
                       <span>{ins.emoji}</span>
@@ -213,8 +213,8 @@ export default function ValorarPartido() {
                 type="button"
                 onClick={() => enviarValoracion(p.id)}
                 disabled={!estrellasPorJugador[p.id] || enviando === p.id}
-                className="tap w-full rounded-2xl px-4 py-2.5 text-sm font-semibold text-white shadow-sm disabled:opacity-40"
-                style={{ background: 'var(--pitch-500)' }}
+                className="tap w-full rounded-2xl px-4 py-2.5 text-sm font-semibold text-[color:var(--ink-900)] shadow-sm disabled:opacity-40"
+                style={{ background: 'var(--paper)' }}
               >
                 {enviando === p.id ? 'Enviando...' : 'Valorar'}
               </button>
@@ -237,7 +237,7 @@ export default function ValorarPartido() {
 
 function BotonVolver({ id }: { id: string }) {
   return (
-    <Link to={`/partidos/${id}`} className="mb-4 inline-block text-sm font-medium" style={{ color: 'var(--pitch-500)' }}>
+    <Link to={`/partidos/${id}`} className="mb-4 inline-block text-sm font-medium" style={{ color: 'var(--acc-green)' }}>
       ← Volver al partido
     </Link>
   )

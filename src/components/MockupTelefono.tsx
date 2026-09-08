@@ -17,8 +17,8 @@ export default function MockupTelefono({
         aspectRatio: '9 / 19',
         borderRadius: 42,
         padding: 9,
-        background: 'linear-gradient(160deg, #1c4432, #0b1a12)',
-        boxShadow: '0 26px 60px rgba(18,38,28,.3), inset 0 1px 0 rgba(255,255,255,.18)',
+        background: 'linear-gradient(160deg, #3a3a3a, #101010)',
+        boxShadow: '0 26px 60px rgba(0,0,0,.55), inset 0 1px 0 rgba(242,239,233,.22)',
       }}
     >
       <div
@@ -26,12 +26,12 @@ export default function MockupTelefono({
         style={{
           borderRadius: 34,
           background:
-            'radial-gradient(420px 220px at 10% -6%, rgba(45,106,79,.18), transparent 60%), radial-gradient(360px 200px at 105% 0%, rgba(185,121,31,.16), transparent 55%), var(--chalk-50)',
+            'radial-gradient(420px 220px at 10% -6%, rgba(159,198,154,.1), transparent 60%), radial-gradient(360px 200px at 105% 0%, rgba(162,138,188,.09), transparent 55%), var(--ink-900)',
         }}
       >
         <div
           className="absolute left-1/2 top-2 z-10 -translate-x-1/2 rounded-full"
-          style={{ width: 68, height: 17, background: '#0b1a12' }}
+          style={{ width: 68, height: 17, background: '#050505' }}
         />
 
         <div

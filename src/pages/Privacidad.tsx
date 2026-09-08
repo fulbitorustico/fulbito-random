@@ -20,7 +20,7 @@ export default function Privacidad() {
       <button
         onClick={() => navigate(-1)}
         className="mb-4 inline-block text-sm font-medium"
-        style={{ color: 'var(--pitch-500)' }}
+        style={{ color: 'var(--acc-green)' }}
       >
         ← Volver
       </button>
@@ -94,7 +94,7 @@ export default function Privacidad() {
             Podés editar tu nombre, apodo, posiciones y avatar directamente desde tu Perfil. Para solicitar la
             eliminación completa de tu cuenta y tus datos, o cualquier otra consulta sobre tu información,
             escribinos a{' '}
-            <a href="mailto:info.fulbitorustico@gmail.com" className="font-medium" style={{ color: 'var(--pitch-500)' }}>
+            <a href="mailto:info.fulbitorustico@gmail.com" className="font-medium" style={{ color: 'var(--acc-green)' }}>
               info.fulbitorustico@gmail.com
             </a>
             . La Agencia de Acceso a la Información Pública, como órgano de control de la Ley 25.326, es la
@@ -112,7 +112,7 @@ export default function Privacidad() {
 
       <p className="mt-4 text-center text-xs" style={{ color: 'var(--pitch-300)' }}>
         Ver también los{' '}
-        <Link to="/terminos" className="font-medium underline" style={{ color: 'var(--pitch-500)' }}>
+        <Link to="/terminos" className="font-medium underline" style={{ color: 'var(--acc-green)' }}>
           Términos y condiciones
         </Link>
         .

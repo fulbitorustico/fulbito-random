@@ -22,12 +22,12 @@ export default function BottomNav() {
             key={tab.to}
             to={tab.to}
             className="tap relative flex flex-1 flex-col items-center gap-0.5 rounded-full px-3 py-2 transition-colors duration-300"
-            style={{ background: active ? 'var(--pitch-500)' : 'transparent' }}
+            style={{ background: active ? 'var(--paper)' : 'transparent' }}
           >
             <tab.icon active={active} />
             <span
               className="text-[10.5px] font-semibold transition-colors duration-300"
-              style={{ color: active ? '#fff' : 'var(--pitch-700)' }}
+              style={{ color: active ? 'var(--ink-900)' : 'var(--pitch-700)' }}
             >
               {tab.label}
             </span>
@@ -41,10 +41,10 @@ export default function BottomNav() {
 function BallIcon({ active }: { active: boolean }) {
   return (
     <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="9" stroke={active ? '#fff' : 'var(--pitch-700)'} strokeWidth="1.8" />
+      <circle cx="12" cy="12" r="9" stroke={active ? 'var(--ink-900)' : 'var(--pitch-700)'} strokeWidth="1.8" />
       <path
         d="M12 8.2 15.2 10.5 14 14.3H10L8.8 10.5 12 8.2Z"
-        stroke={active ? '#fff' : 'var(--pitch-700)'}
+        stroke={active ? 'var(--ink-900)' : 'var(--pitch-700)'}
         strokeWidth="1.4"
         strokeLinejoin="round"
       />
@@ -53,7 +53,7 @@ function BallIcon({ active }: { active: boolean }) {
 }
 
 function GruposIcon({ active }: { active: boolean }) {
-  const c = active ? '#fff' : 'var(--pitch-700)'
+  const c = active ? 'var(--ink-900)' : 'var(--pitch-700)'
   return (
     <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
       <rect x="3.5" y="3.5" width="7.5" height="7.5" rx="1.6" stroke={c} strokeWidth="1.7" />
@@ -65,7 +65,7 @@ function GruposIcon({ active }: { active: boolean }) {
 }
 
 function PeopleIcon({ active }: { active: boolean }) {
-  const c = active ? '#fff' : 'var(--pitch-700)'
+  const c = active ? 'var(--ink-900)' : 'var(--pitch-700)'
   return (
     <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
       <circle cx="9" cy="8" r="3" stroke={c} strokeWidth="1.8" />
@@ -77,7 +77,7 @@ function PeopleIcon({ active }: { active: boolean }) {
 }
 
 function PersonIcon({ active }: { active: boolean }) {
-  const c = active ? '#fff' : 'var(--pitch-700)'
+  const c = active ? 'var(--ink-900)' : 'var(--pitch-700)'
   return (
     <svg width="19" height="19" viewBox="0 0 24 24" fill="none">
       <circle cx="12" cy="8" r="3.6" stroke={c} strokeWidth="1.8" />

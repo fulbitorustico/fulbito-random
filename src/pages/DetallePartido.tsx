@@ -16,7 +16,7 @@ const HORARIOS = Array.from({ length: 48 }, (_, i) => {
 })
 
 const inputClass =
-  'rounded-2xl border-0 bg-white/70 px-4 py-3.5 text-[15px] outline-none ring-1 ring-black/5 transition focus:ring-2'
+  'rounded-2xl border-0 bg-white/5 px-4 py-3.5 text-[15px] outline-none ring-1 ring-white/10 transition focus:ring-2'
 
 function aFechaHora(iso: string) {
   const d = new Date(iso)
@@ -217,7 +217,7 @@ export default function DetallePartido() {
       <Link
         to="/partidos"
         className="mb-4 inline-block text-sm font-medium"
-        style={{ color: 'var(--pitch-500)' }}
+        style={{ color: 'var(--acc-green)' }}
       >
         ← Volver a partidos
       </Link>
@@ -225,7 +225,7 @@ export default function DetallePartido() {
       {partido.estado === 'cancelado' && (
         <p
           className="mb-4 rounded-2xl p-3 text-sm"
-          style={{ background: 'rgba(179,67,47,.1)', color: '#b3432f' }}
+          style={{ background: 'rgba(224,122,99,.14)', color: 'var(--error)' }}
         >
           Este partido fue cancelado.
         </p>
@@ -252,8 +252,8 @@ export default function DetallePartido() {
               className="shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold"
               style={
                 abierto
-                  ? { background: 'rgba(185,121,31,.16)', color: 'var(--gold-500)' }
-                  : { background: 'rgba(18,38,28,.06)', color: 'var(--pitch-300)' }
+                  ? { background: 'rgba(237,197,141,.18)', color: 'var(--gold-500)' }
+                  : { background: 'rgba(242,239,233,.07)', color: 'var(--pitch-300)' }
               }
             >
               {partido.estado === 'cancelado' ? 'Cancelado' : lugares > 0 ? `Faltan ${lugares}` : 'Completo'}
@@ -261,13 +261,13 @@ export default function DetallePartido() {
           </div>
 
           {partido.valor_cancha && (
-            <p className="mt-2 text-sm font-medium" style={{ color: 'var(--pitch-500)' }}>
+            <p className="mt-2 text-sm font-medium" style={{ color: 'var(--acc-green)' }}>
               ${Math.ceil(partido.valor_cancha / partido.cupo_total)} por jugador · ${partido.valor_cancha} total
             </p>
           )}
 
           {partido.apertura === 'solo_confiables' && (
-            <p className="mt-2 text-[13px] font-medium" style={{ color: 'var(--pitch-500)' }}>
+            <p className="mt-2 text-[13px] font-medium" style={{ color: 'var(--acc-green)' }}>
               🟢 Solo para jugadores confiables
             </p>
           )}
@@ -279,8 +279,8 @@ export default function DetallePartido() {
               className="tap mt-4 w-full rounded-2xl px-4 py-3 text-[15px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-40"
               style={
                 yoAnotado
-                  ? { background: 'rgba(18,38,28,.07)', color: 'var(--pitch-700)' }
-                  : { background: 'var(--pitch-500)', color: '#fff' }
+                  ? { background: 'rgba(242,239,233,.08)', color: 'var(--pitch-700)' }
+                  : { background: 'var(--paper)', color: 'var(--ink-900)' }
               }
             >
               {yoAnotado ? 'Bajarme' : restringido ? 'Solo confiables' : 'Sumarme'}
@@ -291,7 +291,7 @@ export default function DetallePartido() {
             <Link
               to={`/partidos/${partido.id}/valorar`}
               className="tap mt-2 block w-full rounded-2xl px-4 py-3 text-center text-[15px] font-semibold"
-              style={{ background: 'rgba(185,121,31,.14)', color: 'var(--gold-500)' }}
+              style={{ background: 'rgba(237,197,141,.16)', color: 'var(--gold-500)' }}
             >
               ★ Valorar compañeros
             </Link>
@@ -346,8 +346,8 @@ export default function DetallePartido() {
             <button
               type="submit"
               disabled={guardando}
-              className="tap flex-1 rounded-2xl px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
-              style={{ background: 'var(--pitch-500)' }}
+              className="tap flex-1 rounded-2xl px-4 py-3 text-sm font-semibold text-[color:var(--ink-900)] disabled:opacity-50"
+              style={{ background: 'var(--paper)' }}
             >
               {guardando ? 'Guardando...' : 'Guardar'}
             </button>
@@ -355,13 +355,13 @@ export default function DetallePartido() {
               type="button"
               onClick={() => setEditando(false)}
               className="tap rounded-2xl px-4 py-3 text-sm font-semibold"
-              style={{ background: 'rgba(18,38,28,.06)', color: 'var(--pitch-700)' }}
+              style={{ background: 'rgba(242,239,233,.07)', color: 'var(--pitch-700)' }}
             >
               Cancelar
             </button>
           </div>
           {error && (
-            <p className="text-sm" style={{ color: '#b3432f' }}>
+            <p className="text-sm" style={{ color: 'var(--error)' }}>
               {error}
             </p>
           )}
@@ -382,7 +382,7 @@ export default function DetallePartido() {
               onClick={generarEquipos}
               disabled={generandoEquipos}
               className="tap glass flex-1 rounded-2xl px-4 py-2.5 text-sm font-semibold disabled:opacity-50"
-              style={{ color: 'var(--pitch-500)' }}
+              style={{ color: 'var(--acc-green)' }}
             >
               {generandoEquipos ? 'Armando...' : 'Generar equipos'}
             </button>
@@ -398,7 +398,7 @@ export default function DetallePartido() {
           <button
             onClick={cancelarPartido}
             className="tap glass flex-1 rounded-2xl px-4 py-2.5 text-sm font-semibold"
-            style={{ color: '#b3432f' }}
+            style={{ color: 'var(--error)' }}
           >
             Cancelar
           </button>
@@ -423,8 +423,8 @@ export default function DetallePartido() {
             >
               {equipos[a.id] && (
                 <span
-                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white"
-                  style={{ background: equipos[a.id] === 'A' ? 'var(--pitch-500)' : 'var(--gold-500)' }}
+                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-[color:var(--ink-900)]"
+                  style={{ background: equipos[a.id] === 'A' ? 'var(--paper)' : 'var(--gold-500)' }}
                 >
                   {equipos[a.id]}
                 </span>
