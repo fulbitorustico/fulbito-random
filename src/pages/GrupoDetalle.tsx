@@ -119,9 +119,12 @@ export default function GrupoDetalle() {
   }
 
   async function aprobarSolicitud(s: SolicitudGrupo) {
-    if (!id) return
+    if (!id || !grupo) return
     await supabase.from('grupo_miembros').insert({ grupo_id: id, jugador_id: s.jugador_id })
     await supabase.from('solicitudes_grupo').update({ estado: 'aprobada' }).eq('id', s.id)
+    supabase.functions
+      .invoke('notificar', { body: { tipo: 'aprobado_grupo', jugador_id: s.jugador_id, grupo_nombre: grupo.nombre } })
+      .catch(() => {})
     await cargar()
   }
 

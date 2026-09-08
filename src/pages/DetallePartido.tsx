@@ -120,6 +120,21 @@ export default function DetallePartido() {
       await registrarBaja(partido.id, jugador.id, partido.fecha_hora)
     } else {
       await supabase.from('participantes').insert({ partido_id: partido.id, jugador_id: jugador.id })
+      if (jugador.id !== partido.admin_id) {
+        const nuevosAnotados = anotados.length + 1
+        supabase.functions
+          .invoke('notificar', {
+            body: {
+              tipo: nuevosAnotados >= partido.cupo_total ? 'partido_completo' : 'sumaron_partido',
+              admin_id: partido.admin_id,
+              jugador_nombre: jugador.nombre,
+              cancha: partido.cancha,
+              anotados: nuevosAnotados,
+              cupo: partido.cupo_total,
+            },
+          })
+          .catch(() => {})
+      }
     }
     await cargar()
   }
