@@ -15,6 +15,12 @@ const FROM = Deno.env.get('RESEND_FROM') ?? 'Fulbito Random <onboarding@resend.d
 
 const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY)
 
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+}
+
 async function emailDeJugador(jugadorId: string): Promise<string | null> {
   const { data: jugador } = await admin.from('jugadores').select('user_id').eq('id', jugadorId).maybeSingle()
   if (!jugador?.user_id) return null
@@ -36,13 +42,14 @@ async function enviarMail(to: string, subject: string, html: string) {
 }
 
 Deno.serve(async (req) => {
-  if (req.method !== 'POST') return new Response('Method not allowed', { status: 405 })
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS_HEADERS })
+  if (req.method !== 'POST') return new Response('Method not allowed', { status: 405, headers: CORS_HEADERS })
 
   let body: Record<string, unknown>
   try {
     body = await req.json()
   } catch {
-    return new Response('JSON inválido', { status: 400 })
+    return new Response('JSON inválido', { status: 400, headers: CORS_HEADERS })
   }
 
   try {
@@ -81,11 +88,11 @@ Deno.serve(async (req) => {
         break
       }
       default:
-        return new Response('Tipo desconocido', { status: 400 })
+        return new Response('Tipo desconocido', { status: 400, headers: CORS_HEADERS })
     }
-    return new Response('ok')
+    return new Response('ok', { headers: CORS_HEADERS })
   } catch (e) {
     console.error(e)
-    return new Response('error', { status: 500 })
+    return new Response('error', { status: 500, headers: CORS_HEADERS })
   }
 })
