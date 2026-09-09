@@ -5,6 +5,9 @@ import { useAuth } from '../context/AuthContext'
 import CardJugador from '../components/CardJugador'
 import Objetivos from '../components/Objetivos'
 import Icono from '../components/Icono'
+import BotonCompartir from '../components/BotonCompartir'
+import { insigniaPorId } from '../lib/insignias'
+import { nivelPorPartidos } from '../lib/nivel'
 import { AVATARES_DISPONIBLES } from '../lib/avatar'
 import { achicarParaAvatar } from '../lib/imagen'
 import SelectorPosiciones from '../components/SelectorPosiciones'
@@ -197,6 +200,29 @@ export default function Perfil() {
           {session?.user.email}
         </p>
       </CardJugador>
+
+      <BotonCompartir
+        className="mt-4"
+        etiquetaBoton="Compartir mi card"
+        texto="Mi card en Fulbito Random"
+        datos={{
+          etiqueta: nivelPorPartidos(partidosJugados).nombre,
+          titulo: jugador.apodo ? `${jugador.nombre} "${jugador.apodo}"` : jugador.nombre,
+          subtitulo: (jugador.posiciones ?? []).join(' · ') || undefined,
+          destacado: (promedio?.promedio ?? 3).toFixed(1),
+          pieDestacado:
+            (promedio?.cantidad ?? 0) === 0
+              ? 'puntaje de arranque'
+              : `promedio en ${promedio!.cantidad} valoraciones`,
+          filas: [
+            { izquierda: 'Partidos jugados', derecha: String(partidosJugados) },
+            ...insignias.slice(0, 3).map((i) => ({
+              izquierda: insigniaPorId(i.insignia)?.label ?? i.insignia,
+              derecha: `×${i.cantidad}`,
+            })),
+          ],
+        }}
+      />
 
       <div className="mt-4">
         <Objetivos

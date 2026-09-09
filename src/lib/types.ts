@@ -71,6 +71,15 @@ export interface InsigniaConteo {
   cantidad: number
 }
 
+export interface MvpDelPartido {
+  jugador_id: string
+  nombre: string
+  apodo: string | null
+  avatar: string | null
+  foto_url: string | null
+  votos: number
+}
+
 export interface Grupo {
   id: string
   nombre: string

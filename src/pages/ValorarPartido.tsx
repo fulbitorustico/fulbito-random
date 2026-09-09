@@ -22,6 +22,8 @@ export default function ValorarPartido() {
   const [comentarioPorJugador, setComentarioPorJugador] = useState<Record<string, string>>({})
   const [insigniaPorJugador, setInsigniaPorJugador] = useState<Record<string, string>>({})
   const [enviando, setEnviando] = useState<string | null>(null)
+  const [mvpVotado, setMvpVotado] = useState<string | null>(null)
+  const [votandoMvp, setVotandoMvp] = useState(false)
 
   const cargar = useCallback(async () => {
     if (!id || !jugador) return
@@ -49,9 +51,27 @@ export default function ValorarPartido() {
     } else {
       setPendientes([])
     }
+    const { data: miVoto } = await supabase
+      .from('mvp_votos')
+      .select('votado_id')
+      .eq('partido_id', id)
+      .eq('votante_id', jugador.id)
+      .maybeSingle()
+    setMvpVotado(miVoto?.votado_id ?? null)
+
     setEnviados(idsYaValorados)
     setLoading(false)
   }, [id, jugador])
+
+  async function votarMvp(votadoId: string) {
+    if (!jugador || !id || mvpVotado) return
+    setVotandoMvp(true)
+    const { error } = await supabase
+      .from('mvp_votos')
+      .insert({ partido_id: id, votante_id: jugador.id, votado_id: votadoId })
+    setVotandoMvp(false)
+    if (!error) setMvpVotado(votadoId)
+  }
 
   useEffect(() => {
     cargar()
@@ -140,8 +160,51 @@ export default function ValorarPartido() {
       )}
 
       {pendientes.length > 0 && faltan.length === 0 && (
-        <div className="glass rounded-2xl p-6 text-sm" style={{ color: 'var(--acc-green)' }}>
-          Ya valoraste a todos ✓
+        <div className="glass flex items-center gap-2 rounded-2xl p-6 text-sm" style={{ color: 'var(--acc-green)' }}>
+          <Icono name="cumplidor" size={17} /> Ya valoraste a todos
+        </div>
+      )}
+
+      {pendientes.length > 0 && (
+        <div className="glass-strong mt-4 rounded-[24px] p-5">
+          <h2 className="text-sm font-semibold" style={{ color: 'var(--pitch-700)' }}>
+            ¿Quién fue el MVP de la fecha?
+          </h2>
+          <p className="mt-1 text-xs" style={{ color: 'var(--pitch-300)' }}>
+            {mvpVotado ? 'Ya votaste. Se muestra solo el más votado.' : 'Un voto por partido, anónimo.'}
+          </p>
+
+          <div className="mt-3 flex flex-col gap-2">
+            {pendientes.map((p) => {
+              const elegido = mvpVotado === p.id
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => votarMvp(p.id)}
+                  disabled={!!mvpVotado || votandoMvp}
+                  className="tap flex items-center gap-3 rounded-2xl px-3 py-2.5 text-left disabled:cursor-not-allowed"
+                  style={{
+                    background: elegido ? 'rgba(237,197,141,.18)' : 'rgba(242,239,233,.06)',
+                    opacity: mvpVotado && !elegido ? 0.45 : 1,
+                  }}
+                >
+                  <Avatar nombre={p.nombre} avatar={p.avatar} fotoUrl={p.foto_url} size="sm" />
+                  <span className="flex-1 text-sm font-medium" style={{ color: 'var(--pitch-900)' }}>
+                    {p.nombre}
+                  </span>
+                  {elegido && (
+                    <span
+                      className="flex items-center gap-1 text-xs font-bold"
+                      style={{ color: 'var(--gold-500)' }}
+                    >
+                      <Icono name="corona" size={14} /> Tu voto
+                    </span>
+                  )}
+                </button>
+              )
+            })}
+          </div>
         </div>
       )}
 

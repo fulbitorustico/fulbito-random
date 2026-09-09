@@ -8,7 +8,8 @@ import { registrarBaja, fetchBajasTardiasMap } from '../lib/bajas'
 import { nivelDesdeBajasTardias } from '../lib/confiabilidad'
 import BadgeConfiabilidad from '../components/BadgeConfiabilidad'
 import Icono from '../components/Icono'
-import type { Jugador, Partido, ValoracionPromedio } from '../lib/types'
+import BotonCompartir from '../components/BotonCompartir'
+import type { Jugador, MvpDelPartido, Partido, ValoracionPromedio } from '../lib/types'
 
 const HORARIOS = Array.from({ length: 48 }, (_, i) => {
   const h = String(Math.floor(i / 2)).padStart(2, '0')
@@ -47,6 +48,7 @@ export default function DetallePartido() {
   const [promedios, setPromedios] = useState<Record<string, number>>({})
   const [generandoEquipos, setGenerandoEquipos] = useState(false)
   const [duplicando, setDuplicando] = useState(false)
+  const [mvp, setMvp] = useState<MvpDelPartido[]>([])
 
   useEffect(() => {
     fetchBajasTardiasMap().then(setBajasTardiasMap)
@@ -87,6 +89,9 @@ export default function DetallePartido() {
     for (const p of participantesData ?? []) if (p.equipo === 'A' || p.equipo === 'B') equiposMap[p.jugador_id] = p.equipo
     setEquipos(equiposMap)
 
+    const { data: mvpData } = await supabase.rpc('mvp_del_partido', { p_partido_id: id })
+    setMvp(mvpData ?? [])
+
     setLoading(false)
   }, [id])
 
@@ -110,6 +115,7 @@ export default function DetallePartido() {
   const esAdmin = jugador?.id === partido.admin_id
   const yoAnotado = anotados.some((a) => a.id === jugador?.id)
   const lugares = partido.cupo_total - anotados.length
+  const yaSeJugo = new Date(partido.fecha_hora).getTime() < Date.now()
   const miConfiable = !jugador || nivelDesdeBajasTardias(bajasTardiasMap[jugador.id] ?? 0) === 'confiable'
   const restringido = partido.apertura === 'solo_confiables' && !miConfiable && !yoAnotado
   const abierto = partido.estado === 'abierto' && lugares > 0 && !restringido
@@ -288,7 +294,7 @@ export default function DetallePartido() {
             </button>
           )}
 
-          {new Date(partido.fecha_hora).getTime() < Date.now() && partido.estado !== 'cancelado' && (
+          {yaSeJugo && partido.estado !== 'cancelado' && (
             <Link
               to={`/partidos/${partido.id}/valorar`}
               className="tap mt-2 block w-full rounded-2xl px-4 py-3 text-center text-[15px] font-semibold"
@@ -369,6 +375,53 @@ export default function DetallePartido() {
             </p>
           )}
         </form>
+      )}
+
+      {yaSeJugo && mvp.length > 0 && (
+        <div className="glass-strong anim-rise mt-3 rounded-[24px] p-5">
+          <div className="flex items-center gap-3">
+            <div style={{ color: 'var(--gold-500)' }}>
+              <Icono name="corona" size={26} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-[10.5px] font-bold uppercase tracking-[0.16em]" style={{ color: 'var(--pitch-300)' }}>
+                MVP de la fecha
+              </p>
+              <p className="truncate text-lg font-extrabold" style={{ color: 'var(--pitch-900)' }}>
+                {mvp[0].nombre}
+                {mvp[0].apodo && (
+                  <span style={{ color: 'var(--pitch-300)', fontWeight: 400 }}> "{mvp[0].apodo}"</span>
+                )}
+              </p>
+            </div>
+            <span className="shrink-0 text-sm font-bold" style={{ color: 'var(--gold-500)' }}>
+              {mvp[0].votos} {mvp[0].votos === 1 ? 'voto' : 'votos'}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {yaSeJugo && partido.estado !== 'cancelado' && (
+        <BotonCompartir
+          className="mt-3"
+          etiquetaBoton="Compartir el partido"
+          texto={`Jugamos en ${partido.cancha} 🏟️`}
+          datos={{
+            etiqueta: 'Fecha jugada',
+            titulo: partido.cancha,
+            subtitulo: new Date(partido.fecha_hora).toLocaleDateString('es-AR', {
+              weekday: 'long',
+              day: 'numeric',
+              month: 'long',
+            }),
+            destacado: mvp.length > 0 ? mvp[0].nombre : `${anotados.length}`,
+            pieDestacado: mvp.length > 0 ? 'MVP de la fecha' : 'jugadores en cancha',
+            filas: anotados.slice(0, 10).map((a) => ({
+              izquierda: a.nombre,
+              derecha: equipos[a.id] ? `Equipo ${equipos[a.id]}` : '—',
+            })),
+          }}
+        />
       )}
 
       {esAdmin && partido.estado !== 'cancelado' && !editando && (
