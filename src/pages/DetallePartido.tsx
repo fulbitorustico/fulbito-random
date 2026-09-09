@@ -112,7 +112,10 @@ export default function DetallePartido() {
       </p>
     )
 
-  const esAdmin = jugador?.id === partido.admin_id
+  const esCapitan = jugador?.id === partido.admin_id
+  const esSubcapitan = jugador?.id === partido.subcapitan_id
+  // El subcapitán tiene los mismos poderes que el capitán sobre el partido.
+  const esAdmin = esCapitan || esSubcapitan
   const yoAnotado = anotados.some((a) => a.id === jugador?.id)
   const lugares = partido.cupo_total - anotados.length
   const yaSeJugo = new Date(partido.fecha_hora).getTime() < Date.now()
@@ -188,6 +191,12 @@ export default function DetallePartido() {
       ),
     )
     setGenerandoEquipos(false)
+    await cargar()
+  }
+
+  async function designarSubcapitan(jugadorId: string | null) {
+    if (!partido) return
+    await supabase.from('partidos').update({ subcapitan_id: jugadorId }).eq('id', partido.id)
     await cargar()
   }
 
@@ -470,6 +479,32 @@ export default function DetallePartido() {
         </div>
       )}
 
+      {esCapitan && partido.estado !== 'cancelado' && anotados.length > 1 && (
+        <div className="glass mt-3 rounded-2xl p-4">
+          <h2 className="flex items-center gap-2 text-sm font-semibold" style={{ color: 'var(--pitch-700)' }}>
+            <Icono name="corona" size={15} /> Subcapitán del partido
+          </h2>
+          <p className="mt-1 text-xs" style={{ color: 'var(--pitch-300)' }}>
+            Puede editar, armar equipos, buscar jugadores y cancelar, igual que vos.
+          </p>
+          <select
+            value={partido.subcapitan_id ?? ''}
+            onChange={(e) => designarSubcapitan(e.target.value || null)}
+            className="mt-3 w-full rounded-2xl border-0 bg-white/5 px-4 py-3 text-sm outline-none ring-1 ring-white/10 focus:ring-2"
+            style={{ color: 'var(--pitch-900)' }}
+          >
+            <option value="">Sin subcapitán</option>
+            {anotados
+              .filter((a) => a.id !== partido.admin_id)
+              .map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.nombre}
+                </option>
+              ))}
+          </select>
+        </div>
+      )}
+
       <div className="mt-6">
         <h2 className="mb-2 text-sm font-semibold" style={{ color: 'var(--pitch-700)' }}>
           Anotados ({anotados.length}/{partido.cupo_total})
@@ -495,8 +530,21 @@ export default function DetallePartido() {
                 </span>
               )}
               <Avatar nombre={a.nombre} avatar={a.avatar} fotoUrl={a.foto_url} size="sm" />
-              <p className="flex-1 text-sm font-medium" style={{ color: 'var(--pitch-900)' }}>
-                {a.nombre} {a.apodo && <span style={{ color: 'var(--pitch-300)', fontWeight: 400 }}>"{a.apodo}"</span>}
+              <p className="flex flex-1 items-center gap-1.5 text-sm font-medium" style={{ color: 'var(--pitch-900)' }}>
+                <span className="min-w-0 truncate">
+                  {a.nombre}{' '}
+                  {a.apodo && <span style={{ color: 'var(--pitch-300)', fontWeight: 400 }}>"{a.apodo}"</span>}
+                </span>
+                {a.id === partido.admin_id && (
+                  <span title="Capitán" style={{ color: 'var(--gold-500)' }}>
+                    <Icono name="corona" size={13} />
+                  </span>
+                )}
+                {a.id === partido.subcapitan_id && (
+                  <span title="Subcapitán" style={{ color: 'var(--acc-blue)' }}>
+                    <Icono name="corona" size={13} />
+                  </span>
+                )}
               </p>
               <div className="flex flex-col items-end gap-1">
                 <p className="text-xs" style={{ color: 'var(--pitch-300)' }}>

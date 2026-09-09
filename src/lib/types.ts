@@ -62,6 +62,7 @@ export interface Partido {
   apertura: AperturaPartido
   grupo_id: string | null
   usa_equipos: boolean
+  subcapitan_id: string | null
 }
 
 export interface BajasTardias {
