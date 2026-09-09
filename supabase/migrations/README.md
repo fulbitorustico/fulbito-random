@@ -37,7 +37,7 @@ Postgres valida el cuerpo de una función cuando la crea. Si una función lee un
 
 ## Qué hay acá y qué falta
 
-Los archivos `0001` a `0009` son todo lo que se hizo desde el 9 de septiembre de 2026, en orden. Están corridos en producción salvo donde se diga lo contrario.
+Los archivos `0001` a `0012` son todo lo que se hizo desde el 9 de septiembre de 2026, en orden. **Las doce están corridas en producción y confirmadas**, salvo el pendiente que se nombra abajo.
 
 `pendientes_capa3_reputacion.sql.txt` está escrito pero **no corrido a propósito**: va después del link del partido. Cuando se corra, se renombra a `0010_capa3_reputacion.sql`.
 
