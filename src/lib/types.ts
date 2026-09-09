@@ -74,6 +74,8 @@ export interface Partido {
   subcapitan_id: string | null
   cancha_id: string | null
   mapa_url: string | null
+  nota: string | null
+  token: string | null
 }
 
 export interface BajasTardias {

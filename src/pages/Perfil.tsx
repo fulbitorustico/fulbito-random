@@ -38,6 +38,9 @@ export default function Perfil() {
   const [partidosJugados, setPartidosJugados] = useState(0)
   const [racha, setRacha] = useState({ actual: 0, mejor: 0 })
   const [abandonos, setAbandonos] = useState(0)
+  const [dandoDeBaja, setDandoDeBaja] = useState(false)
+  const [confirmandoBaja, setConfirmandoBaja] = useState(false)
+  const [errorBaja, setErrorBaja] = useState<string | null>(null)
   const [comentarios, setComentarios] = useState<{ comentario: string; created_at: string }[]>([])
   const [insignias, setInsignias] = useState<InsigniaConteo[]>([])
   const [reclutas, setReclutas] = useState(0)
@@ -78,6 +81,27 @@ export default function Perfil() {
       .rpc('reclutas_por_jugador', { p_jugador_id: jugador.id })
       .then(({ data }: { data: number | null }) => setReclutas(data ?? 0))
   }, [jugador])
+
+  async function darmeDeBaja() {
+    setConfirmandoBaja(true)
+    setErrorBaja(null)
+    const { data, error } = await supabase.rpc('borrar_mi_cuenta')
+    setConfirmandoBaja(false)
+
+    if (error) {
+      setErrorBaja('No pudimos darte de baja. Probá de nuevo en un rato.')
+      return
+    }
+    if (typeof data === 'string' && data.startsWith('tenes_partidos:')) {
+      const cuantos = data.split(':')[1]
+      setErrorBaja(
+        `Sos capitán de ${cuantos} partido${cuantos === '1' ? '' : 's'} que todavía no se jugó. Pasale la capitanía a alguien o cancelalo antes de irte: si no, queda gente esperando sin quién organice.`,
+      )
+      return
+    }
+    // La cuenta ya no existe: se cierra la sesión y la app vuelve a la landing.
+    await supabase.auth.signOut()
+  }
 
   if (!jugador) return null
 
@@ -514,6 +538,60 @@ export default function Perfil() {
       >
         Cerrar sesión
       </button>
+
+      {!dandoDeBaja ? (
+        <button
+          onClick={() => setDandoDeBaja(true)}
+          className="tap mt-3 w-full px-4 py-3 text-[13px] font-semibold"
+          style={{ color: 'var(--pitch-300)' }}
+        >
+          Darme de baja
+        </button>
+      ) : (
+        <div className="glass anim-rise mt-3 rounded-2xl p-5">
+          <p className="text-sm font-semibold" style={{ color: 'var(--error)' }}>
+            ¿Seguro que querés darte de baja?
+          </p>
+          <p className="mt-2 text-[13px] leading-relaxed" style={{ color: 'var(--pitch-700)' }}>
+            Se borran tu mail, tu nombre, tu apodo, tu foto, tu bio y tu ubicación, y no vas a poder volver a entrar
+            con esta cuenta. <strong>No tiene vuelta atrás.</strong>
+          </p>
+          <p className="mt-2 text-[12px] leading-relaxed" style={{ color: 'var(--pitch-300)' }}>
+            Tu paso por los partidos queda, sin tu nombre: también es el historial de los que jugaron con vos, y
+            borrarlo les rompería sus estadísticas y las valoraciones que recibieron.
+          </p>
+
+          {errorBaja && (
+            <p
+              className="mt-3 rounded-2xl px-4 py-3 text-[13px] leading-relaxed"
+              style={{ background: 'rgba(224,122,99,.14)', color: 'var(--error)' }}
+            >
+              {errorBaja}
+            </p>
+          )}
+
+          <div className="mt-4 flex gap-2">
+            <button
+              onClick={() => {
+                setDandoDeBaja(false)
+                setErrorBaja(null)
+              }}
+              className="tap flex-[2] rounded-2xl px-4 py-3 text-sm font-semibold"
+              style={{ background: 'var(--paper)', color: 'var(--ink-900)' }}
+            >
+              Mejor me quedo
+            </button>
+            <button
+              onClick={darmeDeBaja}
+              disabled={confirmandoBaja}
+              className="tap glass flex-1 rounded-2xl px-4 py-3 text-sm font-semibold disabled:opacity-50"
+              style={{ color: 'var(--error)' }}
+            >
+              {confirmandoBaja ? 'Borrando...' : 'Darme de baja'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { mensajeDeError } from '../lib/errores'
 import { useAuth } from '../context/AuthContext'
 import type { EstadoSolicitud, Grupo } from '../lib/types'
 
@@ -52,7 +53,13 @@ export default function UnirseGrupo() {
       setUniendo(false)
       return
     }
-    await supabase.from('grupo_miembros').insert({ grupo_id: id, jugador_id: jugador.id })
+    const { error: errorMiembro } = await supabase
+      .from('grupo_miembros')
+      .insert({ grupo_id: id, jugador_id: jugador.id })
+    if (errorMiembro) {
+      alert(mensajeDeError(errorMiembro, 'grupo'))
+      return
+    }
     navigate(`/grupos/${id}`)
   }
 

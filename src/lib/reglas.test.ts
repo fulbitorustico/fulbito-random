@@ -34,6 +34,8 @@ function partidoDePrueba(desfaseHoras: number, extra: Partial<Partido> = {}): Pa
     subcapitan_id: 'subcapitan',
     cancha_id: null,
     mapa_url: null,
+    nota: null,
+    token: null,
     ...extra,
   }
 }

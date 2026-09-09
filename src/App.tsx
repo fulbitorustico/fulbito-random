@@ -14,10 +14,12 @@ import Grupos from './pages/Grupos'
 import GrupoDetalle from './pages/GrupoDetalle'
 import Perfil from './pages/Perfil'
 import Sugerencias from './components/Sugerencias'
+import AnotarDelLink from './components/AnotarDelLink'
 
 // Se bajan cuando hacen falta y no antes. La landing con su demo es la
 // pantalla más pesada de todas y el que ya tiene sesión no la ve nunca.
 const Landing = lazy(() => import('./pages/Landing'))
+const PartidoPorLink = lazy(() => import('./pages/PartidoPorLink'))
 const Panel = lazy(() => import('./pages/Panel'))
 const Instalar = lazy(() => import('./pages/Instalar'))
 const Terminos = lazy(() => import('./pages/Terminos'))
@@ -71,6 +73,7 @@ function Shell() {
         </Routes>
         </Suspense>
       </div>
+      <AnotarDelLink />
       <Sugerencias />
       <BottomNav />
     </div>
@@ -85,6 +88,7 @@ function Router() {
   // mirar la landing aunque estés logueado).
   const esRutaPublica =
     location.pathname.startsWith('/reclamar/') ||
+    location.pathname.startsWith('/p/') ||
     location.pathname === '/terminos' ||
     location.pathname === '/privacidad' ||
     location.pathname === '/landing' ||
@@ -96,6 +100,7 @@ function Router() {
       <Suspense fallback={<Cargando />}>
       <Routes location={location} key={location.pathname}>
         <Route path="/reclamar/:id" element={<ReclamarPerfil />} />
+        <Route path="/p/:token" element={<PartidoPorLink />} />
         <Route path="/terminos" element={<Terminos />} />
         <Route path="/privacidad" element={<Privacidad />} />
         <Route path="/landing" element={<Landing />} />

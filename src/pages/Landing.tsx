@@ -491,6 +491,10 @@ const PREGUNTAS: { q: string; a: string }[] = [
     a: 'Sí, en todos los que quieras. Los del laburo, los del barrio y los del club pueden convivir sin mezclarse.',
   },
   {
+    q: 'Me pasaron un link de un partido y no tengo la app, ¿qué hago?',
+    a: 'Abrilo y listo. Vas a ver dónde y cuándo se juega, cuántos faltan y quién te invita. Si te sumás te pide el mail para confirmar que sos vos, y quedás anotado. No hay que instalar nada.',
+  },
+  {
     q: '¿Cuánto sale?',
     a: 'Nada. La app es gratis.',
   },

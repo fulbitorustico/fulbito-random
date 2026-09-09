@@ -7,6 +7,7 @@ import { formatPosiciones } from '../lib/posiciones'
 import { registrarBaja, fetchBajasTardiasMap } from '../lib/bajas'
 import ReaccionesPartido from '../components/ReaccionesPartido'
 import { linkComoLlegar } from '../lib/mapas'
+import { mensajeDeError } from '../lib/errores'
 import { calcularEstadoPartido } from '../lib/geo'
 import {
   puedeAdministrar,
@@ -65,6 +66,10 @@ export default function DetallePartido() {
   const [confirmados, setConfirmados] = useState<Record<string, boolean>>({})
   const [confirmando, setConfirmando] = useState(false)
   const [pasandoCapitania, setPasandoCapitania] = useState(false)
+  const [editandoNota, setEditandoNota] = useState(false)
+  const [nota, setNota] = useState('')
+  const [guardandoNota, setGuardandoNota] = useState(false)
+  const [linkCopiado, setLinkCopiado] = useState(false)
   const [mvp, setMvp] = useState<MvpDelPartido[]>([])
 
   useEffect(() => {
@@ -97,6 +102,7 @@ export default function DetallePartido() {
       setFecha(fecha)
       setHora(hora)
       setCupo(partidoData.cupo_total)
+      setNota(partidoData.nota ?? '')
     }
 
     const ids = (participantesData ?? []).map((p) => p.jugador_id)
@@ -156,6 +162,7 @@ export default function DetallePartido() {
 
   async function toggleAnotarse() {
     if (!jugador || !partido) return
+    setError(null)
     if (yoAnotado) {
       // El capitán no puede irse dejando el partido sin dueño: si hay a quién,
       // primero elige sucesor. Si está solo, no hay a quién pasarle nada.
@@ -166,7 +173,15 @@ export default function DetallePartido() {
       await supabase.from('participantes').delete().eq('partido_id', partido.id).eq('jugador_id', jugador.id)
       await registrarBaja(partido.id, jugador.id, partido.fecha_hora, esCapitan)
     } else {
-      await supabase.from('participantes').insert({ partido_id: partido.id, jugador_id: jugador.id })
+      const { error } = await supabase
+        .from('participantes')
+        .insert({ partido_id: partido.id, jugador_id: jugador.id })
+      // La base puede decir que no por cupo, por grupo, por confiabilidad o
+      // por fecha. Antes eso no se miraba y el botón simplemente no hacía nada.
+      if (error) {
+        setError(mensajeDeError(error, 'sumarse'))
+        return
+      }
       if (jugador.id !== partido.admin_id) {
         const nuevosAnotados = anotados.length + 1
         supabase.functions
@@ -203,15 +218,64 @@ export default function DetallePartido() {
     await cargar()
   }
 
+  async function guardarNota() {
+    if (!partido) return
+    setGuardandoNota(true)
+    const { error } = await supabase
+      .from('partidos')
+      .update({ nota: nota.trim() || null })
+      .eq('id', partido.id)
+    setGuardandoNota(false)
+    if (error) {
+      setError(mensajeDeError(error))
+      return
+    }
+    setEditandoNota(false)
+    await cargar()
+  }
+
+  async function compartirLink() {
+    if (!partido?.token) return
+    const url = `${window.location.origin}/p/${partido.token}`
+    const fecha = new Date(partido.fecha_hora).toLocaleString('es-AR', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+    const mensaje = `Jugamos en ${partido.cancha}, ${fecha}. Anotate acá: ${url}`
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ text: mensaje })
+        return
+      } catch {
+        // cancelado, seguimos al respaldo
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(mensaje)
+      setLinkCopiado(true)
+      setTimeout(() => setLinkCopiado(false), 2500)
+    } catch {
+      window.open(`https://wa.me/?text=${encodeURIComponent(mensaje)}`, '_blank')
+    }
+  }
+
   async function confirmarAsistencia() {
     if (!jugador || !partido) return
     setConfirmando(true)
-    await supabase
+    const { error } = await supabase
       .from('participantes')
       .update({ confirmado_at: new Date().toISOString() })
       .eq('partido_id', partido.id)
       .eq('jugador_id', jugador.id)
     setConfirmando(false)
+    if (error) {
+      setError(mensajeDeError(error))
+      return
+    }
     await cargar()
   }
 
@@ -237,7 +301,11 @@ export default function DetallePartido() {
   async function cancelarPartido() {
     if (!partido) return
     if (!confirm('¿Cancelar este partido? Los anotados van a dejar de verlo en la lista.')) return
-    await supabase.from('partidos').update({ estado: 'cancelado' }).eq('id', partido.id)
+    const { error } = await supabase.from('partidos').update({ estado: 'cancelado' }).eq('id', partido.id)
+    if (error) {
+      setError(mensajeDeError(error))
+      return
+    }
     navigate('/partidos')
   }
 
@@ -262,7 +330,8 @@ export default function DetallePartido() {
 
   async function designarSubcapitan(jugadorId: string | null) {
     if (!partido) return
-    await supabase.from('partidos').update({ subcapitan_id: jugadorId }).eq('id', partido.id)
+    const { error } = await supabase.from('partidos').update({ subcapitan_id: jugadorId }).eq('id', partido.id)
+    if (error) setError(mensajeDeError(error))
     await cargar()
   }
 
@@ -378,6 +447,63 @@ export default function DetallePartido() {
             </p>
           )}
 
+          {partido.nota && !editandoNota && (
+            <p
+              className="mt-3 rounded-2xl px-4 py-3 text-[13px] leading-relaxed"
+              style={{ background: 'rgba(237,197,141,.14)', color: 'var(--pitch-700)' }}
+            >
+              <span className="font-semibold" style={{ color: 'var(--gold-500)' }}>
+                Del capitán:{' '}
+              </span>
+              {partido.nota}
+            </p>
+          )}
+
+          {editandoNota && (
+            <div className="anim-rise mt-3">
+              <textarea
+                autoFocus
+                rows={3}
+                maxLength={400}
+                value={nota}
+                onChange={(e) => setNota(e.target.value)}
+                placeholder="Llevo las pecheras. Traigan cambio de $5.000. El que llega tarde no juega el primero."
+                className="w-full resize-none rounded-2xl border-0 bg-white/5 px-4 py-3 text-[14px] outline-none ring-1 ring-white/10 focus:ring-2"
+                style={{ color: 'var(--pitch-900)' }}
+              />
+              <div className="mt-2 flex gap-2">
+                <button
+                  onClick={() => {
+                    setNota(partido.nota ?? '')
+                    setEditandoNota(false)
+                  }}
+                  className="tap glass flex-1 rounded-2xl px-4 py-2.5 text-sm font-semibold"
+                  style={{ color: 'var(--pitch-700)' }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={guardarNota}
+                  disabled={guardandoNota}
+                  className="tap flex-[2] rounded-2xl px-4 py-2.5 text-sm font-semibold disabled:opacity-50"
+                  style={{ background: 'var(--paper)', color: 'var(--ink-900)' }}
+                >
+                  {guardandoNota ? 'Guardando...' : 'Guardar aviso'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {esAdmin && !editandoNota && estadoTiempo !== 'terminado' && (
+            <button
+              onClick={() => setEditandoNota(true)}
+              className="tap mt-2 text-[13px] font-semibold underline"
+              style={{ color: 'var(--gold-500)' }}
+            >
+              {partido.nota ? 'Editar el aviso' : 'Dejar un aviso para los que van'}
+            </button>
+          )}
+
           {partido.estado !== 'cancelado' && (
             <button
               onClick={toggleAnotarse}
@@ -391,6 +517,15 @@ export default function DetallePartido() {
             >
               {yoAnotado ? 'Bajarme' : restringido ? 'Solo confiables' : 'Sumarme'}
             </button>
+          )}
+
+          {error && (
+            <p
+              className="mt-3 rounded-2xl px-4 py-3 text-[13px] leading-relaxed"
+              style={{ background: 'rgba(224,122,99,.14)', color: 'var(--error)' }}
+            >
+              {error}
+            </p>
           )}
 
           {meFaltaConfirmar && (
@@ -601,6 +736,15 @@ export default function DetallePartido() {
               style={{ color: 'var(--acc-green)' }}
             >
               {generandoEquipos ? 'Armando...' : 'Generar equipos'}
+            </button>
+          )}
+          {lugares > 0 && estadoTiempo === 'programado' && (
+            <button
+              onClick={compartirLink}
+              className="tap glass flex-1 rounded-2xl px-4 py-2.5 text-sm font-semibold"
+              style={{ color: 'var(--gold-500)' }}
+            >
+              {linkCopiado ? 'Link copiado' : 'Pasar el link'}
             </button>
           )}
           {lugares > 0 && estadoTiempo === 'programado' && (

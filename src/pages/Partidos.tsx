@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { mensajeDeError } from '../lib/errores'
 import { useAuth } from '../context/AuthContext'
 import type { Partido } from '../lib/types'
 import {
@@ -117,6 +118,7 @@ export default function Partidos() {
   const [miUbicacion, setMiUbicacion] = useState<Coords | null>(null)
   const [ubicacionNegada, setUbicacionNegada] = useState(false)
   const [miConfiable, setMiConfiable] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!jugador) return
@@ -171,11 +173,16 @@ export default function Partidos() {
 
   async function toggleAnotarse(p: PartidoConCupo) {
     if (!jugador) return
+    setError(null)
     if (p.yo_anotado) {
       await supabase.from('participantes').delete().eq('partido_id', p.id).eq('jugador_id', jugador.id)
       await registrarBaja(p.id, jugador.id, p.fecha_hora)
     } else {
-      await supabase.from('participantes').insert({ partido_id: p.id, jugador_id: jugador.id })
+      const { error } = await supabase.from('participantes').insert({ partido_id: p.id, jugador_id: jugador.id })
+      if (error) {
+        setError(mensajeDeError(error, 'sumarse'))
+        return
+      }
     }
     await cargar(miUbicacion)
   }
@@ -199,6 +206,15 @@ export default function Partidos() {
           + Nuevo
         </Link>
       </div>
+
+      {error && (
+        <p
+          className="anim-rise mb-4 rounded-2xl px-4 py-3 text-[13px] leading-relaxed"
+          style={{ background: 'rgba(224,122,99,.14)', color: 'var(--error)' }}
+        >
+          {error}
+        </p>
+      )}
 
       <MisInvitaciones alResponder={() => cargar(miUbicacion)} />
 

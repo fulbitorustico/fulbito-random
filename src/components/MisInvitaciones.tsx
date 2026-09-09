@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { mensajeDeError } from '../lib/errores'
 import { useAuth } from '../context/AuthContext'
 import Icono from './Icono'
 import type { Invitacion, Partido } from '../lib/types'
@@ -59,7 +60,14 @@ export default function MisInvitaciones({ alResponder }: { alResponder: () => vo
         return
       }
 
-      await supabase.from('participantes').insert({ partido_id: inv.partido_id, jugador_id: jugador.id })
+      const { error } = await supabase
+        .from('participantes')
+        .insert({ partido_id: inv.partido_id, jugador_id: jugador.id })
+      if (error) {
+        alert(mensajeDeError(error, 'sumarse'))
+        setRespondiendo(null)
+        return
+      }
     }
     await supabase
       .from('invitaciones')
