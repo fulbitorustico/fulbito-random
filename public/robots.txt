@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+
+# Las páginas con un identificador adentro no van al buscador: son links
+# privados que alguien compartió, no contenido público.
+Disallow: /p/
+Disallow: /reclamar/
+Disallow: /partidos/
+Disallow: /jugadores/
+Disallow: /grupos/
+Disallow: /canchas/
+Disallow: /panel
+Disallow: /perfil
+Disallow: /buscar
+
+Sitemap: https://fulbito-random.vercel.app/sitemap.xml

@@ -32,6 +32,11 @@ const PASOS = [
 
 const FEATURES: { icono: NombreIcono; titulo: string; texto: string }[] = [
   {
+    icono: 'cumplidor',
+    titulo: 'Confirmá o liberás el lugar',
+    texto: 'El día antes te pregunta si vas. Si no confirmás, tu lugar queda libre y entra otro.',
+  },
+  {
     icono: 'rayo',
     titulo: 'Convocatoria abierta',
     texto: 'No dependas de juntar a las diez personas del grupo por WhatsApp.',
@@ -835,11 +840,21 @@ export default function Landing() {
                       <Icono name="mas" size={15} />
                     </span>
                   </button>
-                  {abierta && (
-                    <p className="anim-rise mt-2.5 text-sm leading-relaxed" style={{ color: 'var(--pitch-700)' }}>
-                      {p.a}
-                    </p>
-                  )}
+                  {/*
+                    Ojo: la respuesta se renderiza SIEMPRE y se oculta con
+                    `hidden`, no se desmonta. Las catorce preguntas son el
+                    mejor contenido de la página para las búsquedas —son
+                    justo lo que la gente escribe en Google— y si solo está
+                    en el HTML la que está abierta, las otras trece no
+                    existen para nadie.
+                  */}
+                  <p
+                    hidden={!abierta}
+                    className="anim-rise mt-2.5 text-sm leading-relaxed"
+                    style={{ color: 'var(--pitch-700)' }}
+                  >
+                    {p.a}
+                  </p>
                 </div>
               )
             })}

@@ -15,7 +15,7 @@
       href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <title>Fulbito Random</title>
+    <title>Fulbito Random · Organizá tu fútbol 5 y completá el cupo</title>
 
     <!--
       La vista previa que se ve al pegar un link en WhatsApp. Sin esto, un
@@ -30,14 +30,164 @@
     <meta name="description" content="Armá el partido, anotá a los tuyos y que cada uno valore a sus compañeros. Sin instalar nada." />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Fulbito Random" />
-    <meta property="og:title" content="Fulbito Random" />
+    <meta property="og:title" content="Fulbito Random · Organizá tu fútbol 5 y completá el cupo" />
     <meta property="og:description" content="Armá el partido, anotá a los tuyos y que cada uno valore a sus compañeros. Sin instalar nada." />
     <meta property="og:image" content="/icon-512.png" />
     <meta property="og:locale" content="es_AR" />
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="Fulbito Random" />
+    <meta name="twitter:title" content="Fulbito Random · Organizá tu fútbol 5 y completá el cupo" />
     <meta name="twitter:description" content="Armá el partido, anotá a los tuyos y que cada uno valore a sus compañeros. Sin instalar nada." />
     <meta name="twitter:image" content="/icon-512.png" />
+    <link rel="canonical" href="https://fulbito-random.vercel.app/" />
+    <meta property="og:url" content="https://fulbito-random.vercel.app/" />
+
+    <!--
+      Datos estructurados. El bloque de preguntas frecuentes es el que puede
+      hacer que Google muestre las preguntas desplegadas abajo del resultado.
+      Se genera desde la constante PREGUNTAS de Landing.tsx: si cambian las
+      preguntas de la página, hay que regenerarlo para que no queden distintas.
+    -->
+    <script type="application/ld+json">
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Fulbito Random",
+    "url": "https://fulbito-random.vercel.app/",
+    "applicationCategory": "SportsApplication",
+    "operatingSystem": "Web, Android, iOS",
+    "inLanguage": "es-AR",
+    "description": "App gratis para organizar partidos de fútbol 5 amateur en Argentina: armás el partido, pasás el link, se anotan solos y después cada uno valora a sus compañeros.",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "ARS"
+    },
+    "areaServed": {
+      "@type": "Country",
+      "name": "Argentina"
+    }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "¿Las valoraciones se ven con nombre y apellido?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No. Solo se muestra el promedio y la cantidad. Nadie sabe quién le puso qué a quién, y solo pueden valorarte los que jugaron ese partido con vos, dentro de las 24 horas siguientes."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Valoré a mis compañeros y no cambió nada, ¿falló?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No: es a propósito. Las valoraciones de un partido quedan guardadas pero no entran a ningún promedio hasta que pasan 24 horas del partido. Recién ahí aparecen todas juntas. Es para que nadie pueda mirar qué le pusieron y devolver el golpe: cuando te enterás, ya pasó el momento de responder. Mientras tanto podés dejarle una reacción al partido."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Por qué todos arrancan en 3 estrellas?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Para que el promedio signifique algo. Si cada uno arrancara en 5, la única forma de moverse sería para abajo y todos terminarían iguales. Arrancando en el medio, subir y bajar cuestan lo mismo."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Qué es ser \"confiable\"?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Se mide por las bajas de último momento: si te bajás con menos de 45 minutos, cuenta. Con una o ninguna sos confiable; después pasás a \"a prueba\" y a \"poco confiable\". El que arma el partido puede pedir que solo entren confiables."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Quién puede armar los equipos?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "El capitán y el subcapitán. Los equipos se arman solos, repartiendo por promedio en zigzag para que queden parejos."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Me invitaron a un partido de un grupo del que no soy parte, ¿puedo entrar?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Sí. La invitación te da ese partido, y solo ese: no te da el grupo ni los otros partidos del grupo. Para entrar al grupo tenés que pedirlo aparte, y ahí decide quien lo creó."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "El partido está lleno y quiero jugar, ¿qué pasa?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Por ahora entra el que llega primero. Estamos armando la lista de espera: si el cupo es 10 y ya están, te anotás igual como 11, 12 y así. Si alguien se baja, entra el 11. Si se baja otro, el 12. Es por orden, sin vueltas."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Estar en la lista de espera, ¿es estar en el banco?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No, es tener el lugar guardado. En el fulbito siempre se cae alguien, así que la lista se mueve. Y el que está en la lista tiene la misma responsabilidad que los diez: si te toca entrar, vas. Avisar que no podés estando 11 vale lo mismo que avisarlo estando entre los que juegan."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Dos nos anotamos al mismo tiempo para el último lugar, ¿quién entra?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Ahí, y solo ahí, mira el historial: entra el que más viene jugando ese partido, contando los últimos 4 encuentros. Es para no decidir por milésimas de segundo. El otro queda primero en la lista de espera, que es el primero en entrar si alguien se baja."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Soy el capitán y no puedo ir, ¿qué hago?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Antes de bajarte tenés que pasarle la capitanía a alguno de los anotados: si te vas sin dejar a nadie a cargo, quedan diez personas sin quién organice. Pasarla no te cuesta nada."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Qué son las tarjetas del capitán?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Bajarte de un partido que armaste vos es una amarilla, y se ve en tu perfil. Con dos amarillas en dos meses es roja: quedás dos fechas sin poder armar partidos. La suspensión se cumple jugando, no esperando: jugás dos partidos y volvés a poder ser capitán. Armar un partido es un compromiso con nueve personas más, y por eso es lo único que la app sanciona."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Puedo estar en varios grupos?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Sí, en todos los que quieras. Los del laburo, los del barrio y los del club pueden convivir sin mezclarse."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Me pasaron un link de un partido y no tengo la app, ¿qué hago?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Abrilo y listo. Vas a ver dónde y cuándo se juega, cuántos faltan y quién te invita. Si te sumás te pide el mail para confirmar que sos vos, y quedás anotado. No hay que instalar nada."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "¿Cuánto sale?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Nada. La app es gratis."
+        }
+      }
+    ]
+  }
+]
+    </script>
   </head>
   <body>
     <div id="root"></div>
