@@ -406,6 +406,16 @@ export default function Perfil() {
         )}
       </div>
 
+      {jugador.es_admin && (
+        <Link
+          to="/panel"
+          className="tap glass mt-5 block w-full rounded-2xl px-4 py-3 text-center text-sm font-semibold"
+          style={{ color: 'var(--gold-500)' }}
+        >
+          Panel del creador
+        </Link>
+      )}
+
       <p className="mt-5 text-center text-sm" style={{ color: 'var(--pitch-300)' }}>
         <Link to="/terminos" className="underline">
           Términos y condiciones

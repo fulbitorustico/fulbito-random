@@ -24,6 +24,7 @@ import GrupoPublico from './pages/GrupoPublico'
 import BuscarJugadores from './pages/BuscarJugadores'
 import CanchaDetalle from './pages/CanchaDetalle'
 import Instalar from './pages/Instalar'
+import Panel from './pages/Panel'
 
 function Shell() {
   const location = useLocation()
@@ -51,6 +52,7 @@ function Shell() {
           <Route path="/perfil" element={<PageTransition><Perfil /></PageTransition>} />
           <Route path="/buscar" element={<PageTransition><BuscarJugadores /></PageTransition>} />
           <Route path="/canchas/:id" element={<PageTransition><CanchaDetalle /></PageTransition>} />
+          <Route path="/panel" element={<PageTransition><Panel /></PageTransition>} />
           <Route path="*" element={<Navigate to="/partidos" replace />} />
         </Routes>
       </div>

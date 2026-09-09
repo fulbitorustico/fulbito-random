@@ -453,6 +453,41 @@ function PantallaEquipos() {
   )
 }
 
+const PREGUNTAS: { q: string; a: string }[] = [
+  {
+    q: '¿Las valoraciones se ven con nombre y apellido?',
+    a: 'No. Solo se muestra el promedio y la cantidad. Nadie sabe quién le puso qué a quién, y solo pueden valorarte los que jugaron ese partido con vos, dentro de las 24 horas siguientes.',
+  },
+  {
+    q: '¿Por qué todos arrancan en 3 estrellas?',
+    a: 'Para que el promedio signifique algo. Si cada uno arrancara en 5, la única forma de moverse sería para abajo y todos terminarían iguales. Arrancando en el medio, subir y bajar cuestan lo mismo.',
+  },
+  {
+    q: '¿Qué es ser "confiable"?',
+    a: 'Se mide por las bajas de último momento: si te bajás con menos de 45 minutos, cuenta. Con una o ninguna sos confiable; después pasás a "a prueba" y a "poco confiable". El que arma el partido puede pedir que solo entren confiables.',
+  },
+  {
+    q: '¿Quién puede armar los equipos?',
+    a: 'El capitán y el subcapitán. Los equipos se arman solos, repartiendo por promedio en zigzag para que queden parejos.',
+  },
+  {
+    q: 'Me invitaron a un partido de un grupo del que no soy parte, ¿puedo entrar?',
+    a: 'Sí. La invitación te da ese partido, y solo ese: no te da el grupo ni los otros partidos del grupo. Para entrar al grupo tenés que pedirlo aparte, y ahí decide quien lo creó.',
+  },
+  {
+    q: 'El partido está lleno y quiero jugar, ¿qué pasa?',
+    a: 'Por ahora entra el que llega primero. Estamos armando la lista de espera: cuando esté, si alguien se baja no va a entrar el más rápido en tocar el botón, sino el que más viene jugando ese partido. La cuenta se hace sobre los últimos 4 encuentros, así se mira quién está yendo ahora y no quién iba el año pasado. A igual cantidad, ahí sí desempata el orden de llegada.',
+  },
+  {
+    q: '¿Puedo estar en varios grupos?',
+    a: 'Sí, en todos los que quieras. Los del laburo, los del barrio y los del club pueden convivir sin mezclarse.',
+  },
+  {
+    q: '¿Cuánto sale?',
+    a: 'Nada. La app es gratis.',
+  },
+]
+
 export default function Landing() {
   return (
     <div className="min-h-svh">
@@ -742,6 +777,30 @@ export default function Landing() {
             >
               <Icono name="camara" size={16} /> @fulbitorustico
             </a>
+          </div>
+        </section>
+
+        <section className="mt-20">
+          <h2 className="mb-1 text-center text-2xl font-bold" style={{ color: 'var(--pitch-900)' }}>
+            Preguntas de siempre
+          </h2>
+          <p className="mb-6 text-center text-sm" style={{ color: 'var(--pitch-300)' }}>
+            Las reglas están a la vista: si no se entienden, parecen acomodo.
+          </p>
+          <div className="flex flex-col gap-2">
+            {PREGUNTAS.map((p) => (
+              <details key={p.q} className="glass anim-rise rounded-2xl p-5">
+                <summary
+                  className="cursor-pointer list-none text-[15px] font-semibold"
+                  style={{ color: 'var(--pitch-900)' }}
+                >
+                  {p.q}
+                </summary>
+                <p className="mt-2.5 text-sm leading-relaxed" style={{ color: 'var(--pitch-700)' }}>
+                  {p.a}
+                </p>
+              </details>
+            ))}
           </div>
         </section>
 

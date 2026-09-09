@@ -10,6 +10,7 @@ import { nivelDesdeBajasTardias } from '../lib/confiabilidad'
 import BadgeConfiabilidad from '../components/BadgeConfiabilidad'
 import Icono from '../components/Icono'
 import BotonCompartir from '../components/BotonCompartir'
+import { descargarIcs, linkGoogleCalendar, proximaFecha, FRECUENCIAS, type Frecuencia } from '../lib/calendario'
 import type { Jugador, MvpDelPartido, Partido, ValoracionPromedio } from '../lib/types'
 
 const HORARIOS = Array.from({ length: 48 }, (_, i) => {
@@ -51,6 +52,7 @@ export default function DetallePartido() {
   const [promedios, setPromedios] = useState<Record<string, number>>({})
   const [generandoEquipos, setGenerandoEquipos] = useState(false)
   const [duplicando, setDuplicando] = useState(false)
+  const [eligiendoFrecuencia, setEligiendoFrecuencia] = useState(false)
   const [mvp, setMvp] = useState<MvpDelPartido[]>([])
 
   useEffect(() => {
@@ -208,14 +210,10 @@ export default function DetallePartido() {
     await cargar()
   }
 
-  async function duplicarPartido() {
+  async function duplicarPartido(frecuencia: Frecuencia) {
     if (!partido || !jugador) return
     setDuplicando(true)
-    const nuevaFecha = new Date(partido.fecha_hora)
-    nuevaFecha.setDate(nuevaFecha.getDate() + 7)
-    // Si estás repitiendo un partido viejo, saltamos de a semanas hasta caer
-    // en el futuro: mismo día y misma hora, la próxima vez que toque.
-    while (nuevaFecha.getTime() <= Date.now()) nuevaFecha.setDate(nuevaFecha.getDate() + 7)
+    const nuevaFecha = proximaFecha(partido.fecha_hora, frecuencia)
     const { data, error } = await supabase
       .from('partidos')
       .insert({
@@ -233,7 +231,12 @@ export default function DetallePartido() {
       .select()
       .single()
     setDuplicando(false)
-    if (!error && data) {
+    setEligiendoFrecuencia(false)
+    if (error) {
+      setError(error.message)
+      return
+    }
+    if (data) {
       await supabase.from('participantes').insert({ partido_id: data.id, jugador_id: jugador.id })
       navigate(`/partidos/${data.id}`)
     }
@@ -322,6 +325,29 @@ export default function DetallePartido() {
             >
               {yoAnotado ? 'Bajarme' : restringido ? 'Solo confiables' : 'Sumarme'}
             </button>
+          )}
+
+          {yoAnotado && estadoTiempo === 'programado' && (
+            <div className="mt-2 flex items-center gap-2">
+              <button
+                onClick={() => descargarIcs(partido)}
+                className="tap glass flex-1 rounded-2xl px-4 py-3 text-[15px] font-semibold"
+                style={{ color: 'var(--acc-blue)' }}
+              >
+                <span className="inline-flex items-center justify-center gap-2">
+                  <Icono name="pin" size={15} /> Agendar con aviso
+                </span>
+              </button>
+              <a
+                href={linkGoogleCalendar(partido)}
+                target="_blank"
+                rel="noreferrer"
+                className="tap glass shrink-0 rounded-2xl px-4 py-3 text-[13px] font-semibold"
+                style={{ color: 'var(--pitch-700)' }}
+              >
+                Google
+              </a>
+            </div>
           )}
 
           {puedeValorar && (
@@ -495,12 +521,12 @@ export default function DetallePartido() {
             </Link>
           )}
           <button
-            onClick={duplicarPartido}
+            onClick={() => setEligiendoFrecuencia((v) => !v)}
             disabled={duplicando}
             className="tap glass flex-1 rounded-2xl px-4 py-2.5 text-sm font-semibold disabled:opacity-50"
             style={{ color: 'var(--pitch-700)' }}
           >
-            {duplicando ? 'Creando...' : 'Repetir la próxima semana'}
+            {duplicando ? 'Creando...' : 'Repetir'}
           </button>
           <button
             onClick={cancelarPartido}
@@ -509,6 +535,31 @@ export default function DetallePartido() {
           >
             Cancelar
           </button>
+        </div>
+      )}
+
+      {eligiendoFrecuencia && esAdmin && (
+        <div className="glass anim-rise mt-2 rounded-2xl p-4">
+          <p className="mb-2.5 text-sm font-semibold" style={{ color: 'var(--pitch-700)' }}>
+            ¿Cada cuánto se repite?
+          </p>
+          <div className="flex gap-2">
+            {FRECUENCIAS.map((f) => (
+              <button
+                key={f.valor}
+                onClick={() => duplicarPartido(f.valor)}
+                disabled={duplicando}
+                className="tap flex-1 rounded-2xl px-3 py-2.5 text-[13px] font-semibold disabled:opacity-50"
+                style={{ background: 'rgba(242,239,233,.07)', color: 'var(--pitch-900)' }}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+          <p className="mt-2.5 text-[12px]" style={{ color: 'var(--pitch-300)' }}>
+            Se crea el próximo partido con la misma cancha, el mismo cupo y la misma configuración. Si el partido que
+            estás repitiendo ya pasó, salta hasta la próxima fecha que caiga adelante.
+          </p>
         </div>
       )}
 

@@ -15,6 +15,7 @@ export interface Jugador {
   bio: string | null
   disponibilidad: string[] | null
   es_demo: boolean | null
+  es_admin: boolean | null
   created_at: string
 }
 
