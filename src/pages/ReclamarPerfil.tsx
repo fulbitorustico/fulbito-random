@@ -45,10 +45,22 @@ export default function ReclamarPerfil() {
     if (!id) return
     setReclamando(true)
     setError(null)
-    const { error } = await supabase.from('jugadores').update({ user_id: session!.user.id }).eq('id', id).is('user_id', null)
+    // El .select() no es decorativo: si la base rechaza el reclamo por permisos
+    // no devuelve error, devuelve cero filas. Sin esto el reclamo fallido
+    // parecía exitoso y te dejaba en una app vacía.
+    const { data, error } = await supabase
+      .from('jugadores')
+      .update({ user_id: session!.user.id })
+      .eq('id', id)
+      .is('user_id', null)
+      .select('id')
     setReclamando(false)
     if (error) {
       setError(error.message)
+      return
+    }
+    if (!data?.length) {
+      setError('Este perfil no se puede reclamar. Si creés que es un error, escribinos.')
       return
     }
     await refreshJugador()
@@ -64,7 +76,9 @@ export default function ReclamarPerfil() {
       </div>
     )
 
-  if (!placeholder || placeholder.user_id) {
+  // Los jugadores de demostración vienen con valoraciones e insignias puestas:
+  // no son de nadie y no se reclaman.
+  if (!placeholder || placeholder.user_id || placeholder.es_demo) {
     return (
       <div className="flex min-h-svh items-center justify-center px-5">
         <div className="glass-strong anim-pop w-full max-w-sm rounded-[28px] p-8 text-center">

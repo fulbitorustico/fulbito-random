@@ -14,6 +14,7 @@ export interface Jugador {
   zona: string | null
   bio: string | null
   disponibilidad: string[] | null
+  es_demo: boolean | null
   created_at: string
 }
 

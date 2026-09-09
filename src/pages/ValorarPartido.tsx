@@ -24,6 +24,7 @@ export default function ValorarPartido() {
   const [insigniaPorJugador, setInsigniaPorJugador] = useState<Record<string, string>>({})
   const [enviando, setEnviando] = useState<string | null>(null)
   const [mvpVotado, setMvpVotado] = useState<string | null>(null)
+  const [yoJugue, setYoJugue] = useState(true)
   const [votandoMvp, setVotandoMvp] = useState(false)
 
   const cargar = useCallback(async () => {
@@ -37,7 +38,9 @@ export default function ValorarPartido() {
       .from('participantes')
       .select('jugador_id')
       .eq('partido_id', id)
-    const idsCoequipers = (participantesData ?? []).map((p) => p.jugador_id).filter((jid) => jid !== jugador.id)
+    const idsAnotados = (participantesData ?? []).map((p) => p.jugador_id)
+    setYoJugue(idsAnotados.includes(jugador.id))
+    const idsCoequipers = idsAnotados.filter((jid) => jid !== jugador.id)
 
     const { data: yaValorados } = await supabase
       .from('valoraciones')
@@ -126,6 +129,18 @@ export default function ValorarPartido() {
         <BotonVolver id={id!} />
         <div className="glass rounded-2xl p-6 text-sm" style={{ color: 'var(--pitch-300)' }}>
           Todavía no se jugó este partido — vas a poder valorar a tus compañeros después.
+        </div>
+      </div>
+    )
+  }
+
+  if (!yoJugue) {
+    return (
+      <div>
+        <BotonVolver id={id!} />
+        <div className="glass rounded-2xl p-6 text-sm" style={{ color: 'var(--pitch-300)' }}>
+          No estabas anotado en este partido, así que no podés valorar a los que jugaron. Las valoraciones
+          las hacen entre ellos.
         </div>
       </div>
     )

@@ -28,6 +28,8 @@ function aFechaHora(iso: string) {
   return { fecha, hora }
 }
 
+const VENTANA_VALORAR_HORAS = 24
+
 export default function DetallePartido() {
   const { id } = useParams<{ id: string }>()
   const { jugador } = useAuth()
@@ -120,6 +122,11 @@ export default function DetallePartido() {
   const yoAnotado = anotados.some((a) => a.id === jugador?.id)
   const lugares = partido.cupo_total - anotados.length
   const estadoTiempo = calcularEstadoPartido(partido.fecha_hora, partido.estado)
+  // Valorar es solo para los que jugaron y mientras la ventana siga abierta.
+  // Antes alcanzaba con que la fecha hubiera pasado: el botón aparecía para
+  // cualquiera y llevaba a una pantalla que después rebotaba.
+  const horasDesdeInicio = (Date.now() - new Date(partido.fecha_hora).getTime()) / 3_600_000
+  const puedeValorar = estadoTiempo === 'terminado' && yoAnotado && horasDesdeInicio <= VENTANA_VALORAR_HORAS
   const miConfiable = !jugador || nivelDesdeBajasTardias(bajasTardiasMap[jugador.id] ?? 0) === 'confiable'
   const restringido = partido.apertura === 'solo_confiables' && !miConfiable && !yoAnotado
   const abierto = partido.estado === 'abierto' && lugares > 0 && !restringido
@@ -206,6 +213,9 @@ export default function DetallePartido() {
     setDuplicando(true)
     const nuevaFecha = new Date(partido.fecha_hora)
     nuevaFecha.setDate(nuevaFecha.getDate() + 7)
+    // Si estás repitiendo un partido viejo, saltamos de a semanas hasta caer
+    // en el futuro: mismo día y misma hora, la próxima vez que toque.
+    while (nuevaFecha.getTime() <= Date.now()) nuevaFecha.setDate(nuevaFecha.getDate() + 7)
     const { data, error } = await supabase
       .from('partidos')
       .insert({
@@ -314,7 +324,7 @@ export default function DetallePartido() {
             </button>
           )}
 
-          {estadoTiempo === 'terminado' && (
+          {puedeValorar && (
             <Link
               to={`/partidos/${partido.id}/valorar`}
               className="tap mt-2 block w-full rounded-2xl px-4 py-3 text-center text-[15px] font-semibold"
