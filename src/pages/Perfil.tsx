@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import CardJugador from '../components/CardJugador'
+import Objetivos from '../components/Objetivos'
 import Icono from '../components/Icono'
 import { AVATARES_DISPONIBLES } from '../lib/avatar'
 import { achicarParaAvatar } from '../lib/imagen'
@@ -196,6 +197,17 @@ export default function Perfil() {
           {session?.user.email}
         </p>
       </CardJugador>
+
+      <div className="mt-4">
+        <Objetivos
+          datos={{
+            partidos_jugados: partidosJugados,
+            valoraciones_recibidas: promedio?.cantidad ?? 0,
+            insignias_recibidas: insignias.reduce((t, i) => t + i.cantidad, 0),
+            partidos_sin_bajas: bajasTardias === 0 ? partidosJugados : 0,
+          }}
+        />
+      </div>
 
       {comentarios.length > 0 && (
         <div className="mb-4 mt-4">
