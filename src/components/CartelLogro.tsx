@@ -12,7 +12,7 @@ export default function CartelLogro({ datos }: { datos: DatosObjetivos }) {
 
   // Ojo: `datos` es un objeto nuevo en cada render, así que el efecto tiene que
   // depender de sus valores y no del objeto, o queda girando para siempre.
-  const { partidos_jugados, valoraciones_recibidas, insignias_recibidas, partidos_sin_bajas, mejor_racha } =
+  const { partidos_jugados, valoraciones_recibidas, insignias_recibidas, partidos_sin_bajas, mejor_racha, goles } =
     datos
 
   useEffect(() => {
@@ -24,6 +24,7 @@ export default function CartelLogro({ datos }: { datos: DatosObjetivos }) {
         insignias_recibidas,
         partidos_sin_bajas,
         mejor_racha,
+        goles,
       }).filter((p) => p.cumplido)
       if (cumplidos.length === 0) return
 
@@ -38,7 +39,7 @@ export default function CartelLogro({ datos }: { datos: DatosObjetivos }) {
       if (pendiente) setNuevo(pendiente)
     }
     revisar()
-  }, [jugador, partidos_jugados, valoraciones_recibidas, insignias_recibidas, partidos_sin_bajas, mejor_racha])
+  }, [jugador, partidos_jugados, valoraciones_recibidas, insignias_recibidas, partidos_sin_bajas, mejor_racha, goles])
 
   async function cerrar() {
     if (!jugador || !nuevo) return

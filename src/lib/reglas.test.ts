@@ -36,6 +36,8 @@ function partidoDePrueba(desfaseHoras: number, extra: Partial<Partido> = {}): Pa
     mapa_url: null,
     nota: null,
     token: null,
+    goles_a: null,
+    goles_b: null,
     ...extra,
   }
 }
@@ -194,6 +196,7 @@ describe('objetivos', () => {
       insignias_recibidas: 0,
       partidos_sin_bajas: 0,
       mejor_racha: 4,
+      goles: 0,
     })
     expect(progreso.find((p) => p.objetivo.id === 'racha_4')?.cumplido).toBe(true)
     expect(progreso.find((p) => p.objetivo.id === 'racha_10')?.cumplido).toBe(false)
@@ -206,6 +209,7 @@ describe('objetivos', () => {
       insignias_recibidas: 999,
       partidos_sin_bajas: 999,
       mejor_racha: 999,
+      goles: 999,
     })
     expect(progreso.every((p) => p.porcentaje === 100)).toBe(true)
   })

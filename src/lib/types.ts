@@ -76,6 +76,8 @@ export interface Partido {
   mapa_url: string | null
   nota: string | null
   token: string | null
+  goles_a: number | null
+  goles_b: number | null
 }
 
 export interface BajasTardias {

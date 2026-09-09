@@ -6,6 +6,7 @@ import Avatar from '../components/Avatar'
 import { formatPosiciones } from '../lib/posiciones'
 import { registrarBaja, fetchBajasTardiasMap } from '../lib/bajas'
 import ReaccionesPartido from '../components/ReaccionesPartido'
+import ResultadoPartido from '../components/ResultadoPartido'
 import { linkComoLlegar } from '../lib/mapas'
 import { mensajeDeError } from '../lib/errores'
 import { calcularEstadoPartido } from '../lib/geo'
@@ -713,6 +714,16 @@ export default function DetallePartido() {
             }}
           />
         </div>
+      )}
+
+      {estadoTiempo === 'terminado' && partido.estado !== 'cancelado' && (
+        <ResultadoPartido
+          partido={partido}
+          anotados={anotados}
+          equipos={equipos}
+          puedeCargar={esAdmin}
+          alGuardar={cargar}
+        />
       )}
 
       {estadoTiempo !== 'programado' && partido.estado !== 'cancelado' && (

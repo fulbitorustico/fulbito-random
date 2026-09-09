@@ -10,6 +10,7 @@ import CartelLogro from '../components/CartelLogro'
 import Icono from '../components/Icono'
 import BotonCompartir from '../components/BotonCompartir'
 import { calcularRacha, textoRacha } from '../lib/racha'
+import { LINK_COLABORAR, TEXTO_COLABORAR } from '../lib/apoyo'
 import PublicarmeEnBase from '../components/PublicarmeEnBase'
 import AvisosMail from '../components/AvisosMail'
 import { insigniaPorId } from '../lib/insignias'
@@ -39,6 +40,7 @@ export default function Perfil() {
   const [partidosJugados, setPartidosJugados] = useState(0)
   const [racha, setRacha] = useState({ actual: 0, mejor: 0 })
   const [sancion, setSancion] = useState<SancionCapitan>(SIN_SANCION)
+  const [goles, setGoles] = useState(0)
   const [dandoDeBaja, setDandoDeBaja] = useState(false)
   const [confirmandoBaja, setConfirmandoBaja] = useState(false)
   const [errorBaja, setErrorBaja] = useState<string | null>(null)
@@ -60,6 +62,7 @@ export default function Perfil() {
       })
     fetchBajasTardiasMap().then((map) => setBajasTardias(map[jugador.id] ?? 0))
     fetchSancionCapitan(jugador.id).then(setSancion)
+    supabase.rpc('goles_por_jugador', { p_jugador_id: jugador.id }).then(({ data }) => setGoles(Number(data ?? 0)))
     supabase
       .from('participantes')
       .select('partidos(fecha_hora, estado)')
@@ -117,6 +120,7 @@ export default function Perfil() {
     insignias_recibidas: insignias.reduce((t, i) => t + i.cantidad, 0),
     partidos_sin_bajas: bajasTardias === 0 ? partidosJugados : 0,
     mejor_racha: racha.mejor,
+    goles,
   }
   const objetivosCumplidos = calcularProgreso(datosObjetivos).filter((o) => o.cumplido).length
 
@@ -278,6 +282,18 @@ export default function Perfil() {
         </div>
       )}
 
+      {goles > 0 && (
+        <div className="mt-4 flex items-center gap-3 rounded-2xl px-4 py-3" style={{ background: 'rgba(242,239,233,.06)' }}>
+          <Icono name="pelota" size={18} />
+          <p className="text-sm font-semibold" style={{ color: 'var(--pitch-900)' }}>
+            {goles} {goles === 1 ? 'gol' : 'goles'}
+            <span className="ml-1.5 font-normal" style={{ color: 'var(--pitch-300)' }}>
+              que te anotaron los capitanes
+            </span>
+          </p>
+        </div>
+      )}
+
       {racha.actual > 1 && (
         <div
           className="anim-rise mt-4 flex items-center gap-3 rounded-2xl px-4 py-3"
@@ -343,6 +359,7 @@ export default function Perfil() {
                   derecha: `${(promedio?.promedio ?? 3).toFixed(1)} ★`,
                 },
                 { izquierda: 'Mejor racha', derecha: racha.mejor > 1 ? `${racha.mejor} semanas` : '—' },
+                ...(goles > 0 ? [{ izquierda: 'Goles', derecha: String(goles) }] : []),
                 {
                   izquierda: 'Insignias',
                   derecha: String(insignias.reduce((t, i) => t + i.cantidad, 0)),
@@ -527,6 +544,21 @@ export default function Perfil() {
           Panel del creador
         </Link>
       )}
+
+      <div className="glass mt-5 rounded-2xl p-5 text-center">
+        <p className="text-[13px] leading-relaxed" style={{ color: 'var(--pitch-700)' }}>
+          {TEXTO_COLABORAR}
+        </p>
+        <a
+          href={LINK_COLABORAR}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="tap glass-strong mt-3 inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold"
+          style={{ color: 'var(--pitch-900)' }}
+        >
+          <Icono name="fuego" size={15} /> Colaborar
+        </a>
+      </div>
 
       <p className="mt-5 text-center text-sm" style={{ color: 'var(--pitch-300)' }}>
         <Link to="/terminos" className="underline">

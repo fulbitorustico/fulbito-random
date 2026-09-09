@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import MockupTelefono from '../components/MockupTelefono'
 import Marca from '../components/Marca'
+import { LINK_COLABORAR, TEXTO_COLABORAR } from '../lib/apoyo'
 import LogoFR from '../components/LogoFR'
 import Icono, { type NombreIcono } from '../components/Icono'
 import { INSIGNIAS } from '../lib/insignias'
@@ -844,6 +845,21 @@ export default function Landing() {
             })}
           </div>
         </section>
+
+        <div className="glass anim-rise mt-16 rounded-2xl p-5 text-center">
+          <p className="text-[13px] leading-relaxed" style={{ color: 'var(--pitch-700)' }}>
+            {TEXTO_COLABORAR}
+          </p>
+          <a
+            href={LINK_COLABORAR}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="tap glass-strong mt-3 inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold"
+            style={{ color: 'var(--pitch-900)' }}
+          >
+            <Icono name="fuego" size={15} /> Colaborar
+          </a>
+        </div>
 
         <footer className="mt-10 text-center text-xs" style={{ color: 'var(--pitch-300)' }}>
           <p>

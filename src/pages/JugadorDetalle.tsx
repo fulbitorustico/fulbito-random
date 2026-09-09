@@ -23,6 +23,7 @@ export default function JugadorDetalle() {
   const [partidosJugados, setPartidosJugados] = useState(0)
   const [racha, setRacha] = useState({ actual: 0, mejor: 0 })
   const [sancion, setSancion] = useState<SancionCapitan>(SIN_SANCION)
+  const [goles, setGoles] = useState(0)
   const [comentarios, setComentarios] = useState<{ comentario: string; created_at: string }[]>([])
   const [bajasTardias, setBajasTardias] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -49,6 +50,8 @@ export default function JugadorDetalle() {
       const bajasMap = await fetchBajasTardiasMap()
       setBajasTardias(bajasMap[id] ?? 0)
       setSancion(await fetchSancionCapitan(id))
+      const { data: golesData } = await supabase.rpc('goles_por_jugador', { p_jugador_id: id })
+      setGoles(Number(golesData ?? 0))
 
       const { data: jugadosData } = await supabase
         .from('participantes')
@@ -127,6 +130,15 @@ export default function JugadorDetalle() {
           </p>
         )}
 
+        {goles > 0 && (
+          <p
+            className="mt-3 flex items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-center text-xs font-semibold"
+            style={{ background: 'rgba(242,239,233,.07)', color: 'var(--pitch-900)' }}
+          >
+            <Icono name="pelota" size={13} /> {goles} {goles === 1 ? 'gol' : 'goles'}
+          </p>
+        )}
+
         {racha.actual > 1 && (
           <p
             className="mt-5 flex items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-center text-xs font-semibold"
@@ -156,6 +168,7 @@ export default function JugadorDetalle() {
             insignias_recibidas: insignias.reduce((t, i) => t + i.cantidad, 0),
             partidos_sin_bajas: bajasTardias === 0 ? partidosJugados : 0,
             mejor_racha: racha.mejor,
+            goles,
           }}
         />
       </div>

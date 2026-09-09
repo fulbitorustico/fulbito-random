@@ -16,6 +16,7 @@ import { registrarBaja, fetchBajasTardiasMap } from '../lib/bajas'
 import { nivelDesdeBajasTardias } from '../lib/confiabilidad'
 import Icono from '../components/Icono'
 import MisInvitaciones from '../components/MisInvitaciones'
+import Novedades from '../components/Novedades'
 
 interface PartidoConCupo extends Partido {
   anotados: number
@@ -189,7 +190,10 @@ export default function Partidos() {
 
   const conEstado = partidos.map((p) => ({ p, estadoTiempo: calcularEstadoPartido(p.fecha_hora, p.estado) }))
   const enJuego = conEstado.filter((x) => x.estadoTiempo === 'en_juego')
-  const proximos = conEstado.filter((x) => x.estadoTiempo === 'programado')
+  // "¿Cuándo juego?" es la primera pregunta del que vuelve a abrir la app.
+  // Antes había que buscar los propios entre los de desconocidos.
+  const mios = conEstado.filter((x) => x.estadoTiempo === 'programado' && x.p.yo_anotado)
+  const cerca = conEstado.filter((x) => x.estadoTiempo === 'programado' && !x.p.yo_anotado)
   const jugados = conEstado.filter((x) => x.estadoTiempo === 'terminado' || x.estadoTiempo === 'cancelado')
 
   return (
@@ -215,6 +219,8 @@ export default function Partidos() {
           {error}
         </p>
       )}
+
+      <Novedades />
 
       <MisInvitaciones alResponder={() => cargar(miUbicacion)} />
 
@@ -251,12 +257,23 @@ export default function Partidos() {
           </div>
         )}
 
-        {proximos.length > 0 && (
+        {mios.length > 0 && (
+          <div className="flex flex-col gap-3">
+            <p className="text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--paper)' }}>
+              Jugás vos
+            </p>
+            {mios.map(({ p }, i) => (
+              <TarjetaPartido key={p.id} p={p} miConfiable={miConfiable} onToggle={toggleAnotarse} delayMs={i * 60} />
+            ))}
+          </div>
+        )}
+
+        {cerca.length > 0 && (
           <div className="flex flex-col gap-3">
             <p className="text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--pitch-300)' }}>
-              Próximos
+              {mios.length > 0 ? 'Cerca tuyo' : 'Próximos'}
             </p>
-            {proximos.map(({ p }, i) => (
+            {cerca.map(({ p }, i) => (
               <TarjetaPartido key={p.id} p={p} miConfiable={miConfiable} onToggle={toggleAnotarse} delayMs={i * 60} />
             ))}
           </div>
