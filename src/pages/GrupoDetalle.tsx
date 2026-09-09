@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import Avatar from '../components/Avatar'
 import BadgeConfiabilidad from '../components/BadgeConfiabilidad'
+import Icono from '../components/Icono'
 import { fetchBajasTardiasMap } from '../lib/bajas'
 import type { Grupo, Jugador, Partido, SolicitudGrupo } from '../lib/types'
 
@@ -193,7 +194,9 @@ export default function GrupoDetalle() {
           className="tap glass mb-4 w-full rounded-2xl px-4 py-2.5 text-sm font-semibold"
           style={{ color: 'var(--pitch-700)' }}
         >
-          🔗 Compartir vista pública del grupo
+          <span className="inline-flex items-center justify-center gap-2">
+            <Icono name="link" size={15} /> Compartir vista pública del grupo
+          </span>
         </button>
       )}
 
@@ -205,7 +208,7 @@ export default function GrupoDetalle() {
           <div className="flex flex-col gap-2">
             {solicitudes.map((s) => (
               <div key={s.id} className="glass flex items-center gap-3 rounded-2xl px-4 py-2.5">
-                <Avatar nombre={s.jugador.nombre} avatar={s.jugador.avatar} size="sm" />
+                <Avatar nombre={s.jugador.nombre} avatar={s.jugador.avatar} fotoUrl={s.jugador.foto_url} size="sm" />
                 <p className="flex-1 text-sm font-medium" style={{ color: 'var(--pitch-900)' }}>
                   {s.jugador.nombre}
                 </p>
@@ -301,14 +304,14 @@ export default function GrupoDetalle() {
           <div key={m.id} className="glass flex items-center gap-3 rounded-2xl px-4 py-2.5">
             {m.user_id ? (
               <Link to={`/jugadores/${m.id}`} className="flex flex-1 items-center gap-3">
-                <Avatar nombre={m.nombre} avatar={m.avatar} size="sm" />
+                <Avatar nombre={m.nombre} avatar={m.avatar} fotoUrl={m.foto_url} size="sm" />
                 <p className="flex-1 text-sm font-medium" style={{ color: 'var(--pitch-900)' }}>
                   {m.nombre} {m.id === jugador?.id && <span style={{ color: 'var(--pitch-300)' }}>(vos)</span>}
                 </p>
               </Link>
             ) : (
               <div className="flex flex-1 items-center gap-3">
-                <Avatar nombre={m.nombre} avatar={m.avatar} size="sm" />
+                <Avatar nombre={m.nombre} avatar={m.avatar} fotoUrl={m.foto_url} size="sm" />
                 <p className="flex-1 text-sm font-medium" style={{ color: 'var(--pitch-900)' }}>
                   {m.nombre} <span style={{ color: 'var(--pitch-300)', fontWeight: 400 }}>(sin reclamar)</span>
                 </p>

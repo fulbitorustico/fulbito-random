@@ -1,17 +1,19 @@
+import type { NombreIcono } from '../components/Icono'
+
 export interface Insignia {
   id: string
-  emoji: string
+  icono: NombreIcono
   label: string
 }
 
 export const INSIGNIAS: Insignia[] = [
-  { id: 'rayo', emoji: '⚡', label: 'Rayo' },
-  { id: 'killer', emoji: '🎯', label: 'Killer' },
-  { id: 'el_10', emoji: '🧠', label: 'El 10' },
-  { id: 'paredon', emoji: '🧱', label: 'Paredón' },
-  { id: 'gambeta', emoji: '🌀', label: 'Gambeta' },
-  { id: 'cumplidor', emoji: '✅', label: 'Cumplidor' },
-  { id: 'motor', emoji: '🔋', label: 'Motor' },
+  { id: 'rayo', icono: 'rayo', label: 'Rayo' },
+  { id: 'killer', icono: 'diana', label: 'Killer' },
+  { id: 'el_10', icono: 'pase', label: 'El 10' },
+  { id: 'paredon', icono: 'muralla', label: 'Paredón' },
+  { id: 'gambeta', icono: 'gambeta', label: 'Gambeta' },
+  { id: 'cumplidor', icono: 'cumplidor', label: 'Cumplidor' },
+  { id: 'motor', icono: 'motor', label: 'Motor' },
 ]
 
 const POR_ID: Record<string, Insignia> = Object.fromEntries(INSIGNIAS.map((i) => [i.id, i]))

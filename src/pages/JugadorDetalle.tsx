@@ -8,6 +8,7 @@ import BadgeConfiabilidad from '../components/BadgeConfiabilidad'
 import { formatPosiciones } from '../lib/posiciones'
 import { fetchBajasTardiasMap } from '../lib/bajas'
 import { insigniaPorId } from '../lib/insignias'
+import Icono from '../components/Icono'
 import type { DistribucionValoracion, InsigniaConteo, Jugador, ValoracionPromedio } from '../lib/types'
 
 export default function JugadorDetalle() {
@@ -88,7 +89,7 @@ export default function JugadorDetalle() {
       </Link>
 
       <div className="glass-strong anim-pop flex flex-col items-center rounded-[28px] p-8 text-center">
-        <Avatar nombre={jugador.nombre} avatar={jugador.avatar} size="lg" />
+        <Avatar nombre={jugador.nombre} avatar={jugador.avatar} fotoUrl={jugador.foto_url} size="lg" />
         <h1 className="mt-4 text-xl font-bold" style={{ color: 'var(--pitch-900)' }}>
           {jugador.nombre}
         </h1>
@@ -147,7 +148,7 @@ export default function JugadorDetalle() {
                   className="flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold"
                   style={{ background: 'rgba(237,197,141,.16)', color: 'var(--gold-500)' }}
                 >
-                  <span>{info.emoji}</span>
+                  <Icono name={info.icono} size={14} />
                   {info.label}
                   <span style={{ color: 'var(--pitch-300)' }}>×{i.cantidad}</span>
                 </div>

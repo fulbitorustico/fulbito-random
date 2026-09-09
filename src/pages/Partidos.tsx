@@ -6,6 +6,7 @@ import type { Partido } from '../lib/types'
 import { distanciaKm, formatCuentaRegresiva, formatDistancia, pedirUbicacion, type Coords } from '../lib/geo'
 import { registrarBaja, fetchBajasTardiasMap } from '../lib/bajas'
 import { nivelDesdeBajasTardias } from '../lib/confiabilidad'
+import Icono from '../components/Icono'
 
 interface PartidoConCupo extends Partido {
   anotados: number
@@ -150,7 +151,11 @@ export default function Partidos() {
                   </p>
                   {(p.distanciaKm != null || p.valor_cancha) && (
                     <p className="mt-0.5 flex items-center gap-2 text-[12.5px] font-medium" style={{ color: 'var(--acc-green)' }}>
-                      {p.distanciaKm != null && <span>📍 {formatDistancia(p.distanciaKm)}</span>}
+                      {p.distanciaKm != null && (
+                        <span className="inline-flex items-center gap-1">
+                          <Icono name="pin" size={13} /> {formatDistancia(p.distanciaKm)}
+                        </span>
+                      )}
                       {p.valor_cancha && <span>${Math.ceil(p.valor_cancha / p.cupo_total)}/jugador</span>}
                     </p>
                   )}
@@ -169,7 +174,7 @@ export default function Partidos() {
               <div className="mt-3 flex items-center justify-between">
                 <span className="text-[13px]" style={{ color: 'var(--pitch-300)' }}>
                   {p.anotados}/{p.cupo_total} anotados
-                  {p.apertura === 'solo_confiables' && ' · Solo confiables 🟢'}
+                  {p.apertura === 'solo_confiables' && ' · Solo confiables'}
                 </span>
                 <button
                   onClick={() => toggleAnotarse(p)}

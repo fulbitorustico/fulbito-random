@@ -7,6 +7,7 @@ import { formatPosiciones } from '../lib/posiciones'
 import { registrarBaja, fetchBajasTardiasMap } from '../lib/bajas'
 import { nivelDesdeBajasTardias } from '../lib/confiabilidad'
 import BadgeConfiabilidad from '../components/BadgeConfiabilidad'
+import Icono from '../components/Icono'
 import type { Jugador, Partido, ValoracionPromedio } from '../lib/types'
 
 const HORARIOS = Array.from({ length: 48 }, (_, i) => {
@@ -268,7 +269,7 @@ export default function DetallePartido() {
 
           {partido.apertura === 'solo_confiables' && (
             <p className="mt-2 text-[13px] font-medium" style={{ color: 'var(--acc-green)' }}>
-              🟢 Solo para jugadores confiables
+              Solo para jugadores confiables
             </p>
           )}
 
@@ -293,7 +294,9 @@ export default function DetallePartido() {
               className="tap mt-2 block w-full rounded-2xl px-4 py-3 text-center text-[15px] font-semibold"
               style={{ background: 'rgba(237,197,141,.16)', color: 'var(--gold-500)' }}
             >
-              ★ Valorar compañeros
+              <span className="inline-flex items-center justify-center gap-2">
+                <Icono name="estrella" size={15} /> Valorar compañeros
+              </span>
             </Link>
           )}
         </div>
@@ -429,7 +432,7 @@ export default function DetallePartido() {
                   {equipos[a.id]}
                 </span>
               )}
-              <Avatar nombre={a.nombre} avatar={a.avatar} size="sm" />
+              <Avatar nombre={a.nombre} avatar={a.avatar} fotoUrl={a.foto_url} size="sm" />
               <p className="flex-1 text-sm font-medium" style={{ color: 'var(--pitch-900)' }}>
                 {a.nombre} {a.apodo && <span style={{ color: 'var(--pitch-300)', fontWeight: 400 }}>"{a.apodo}"</span>}
               </p>

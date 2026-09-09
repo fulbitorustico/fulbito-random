@@ -1,3 +1,4 @@
+import Icono from './Icono'
 import type { DistribucionValoracion } from '../lib/types'
 
 function FilaEstrellas({ promedio, size }: { promedio: number; size: number }) {
@@ -72,9 +73,7 @@ export default function Estrellas({
                   <span className="w-2.5 text-right text-[11px] font-medium" style={{ color: 'var(--pitch-700)' }}>
                     {n}
                   </span>
-                  <span className="text-[11px]" style={{ color: 'var(--gold-500)' }}>
-                    ★
-                  </span>
+                  <Icono name="estrella" size={10} className="text-[color:var(--gold-500)]" />
                   <div className="h-1.5 flex-1 overflow-hidden rounded-full" style={{ background: 'rgba(242,239,233,.09)' }}>
                     <div
                       className="h-full rounded-full transition-all"

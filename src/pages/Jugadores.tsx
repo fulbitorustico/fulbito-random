@@ -7,6 +7,7 @@ import InvitarBoton from '../components/InvitarBoton'
 import BadgeConfiabilidad from '../components/BadgeConfiabilidad'
 import { formatPosiciones } from '../lib/posiciones'
 import { fetchBajasTardiasMap } from '../lib/bajas'
+import Icono from '../components/Icono'
 import type { Jugador, ValoracionPromedio } from '../lib/types'
 
 export default function Jugadores() {
@@ -121,7 +122,7 @@ export default function Jugadores() {
               className="glass anim-rise flex items-center gap-3 rounded-2xl px-4 py-3.5"
               style={{ animationDelay: `${i * 35}ms` }}
             >
-              <Avatar nombre={j.nombre} avatar={j.avatar} size="sm" />
+              <Avatar nombre={j.nombre} avatar={j.avatar} fotoUrl={j.foto_url} size="sm" />
               <div className="min-w-0 flex-1">
                 <p className="truncate font-semibold" style={{ color: 'var(--pitch-900)' }}>
                   {j.nombre}{' '}
@@ -133,8 +134,11 @@ export default function Jugadores() {
               </div>
               <div className="flex shrink-0 flex-col items-end gap-1">
                 {prom ? (
-                  <p className="text-sm font-semibold" style={{ color: 'var(--gold-500)' }}>
-                    ★ {prom.promedio.toFixed(1)}
+                  <p
+                    className="inline-flex items-center gap-1 text-sm font-semibold"
+                    style={{ color: 'var(--gold-500)' }}
+                  >
+                    <Icono name="estrella" size={13} /> {prom.promedio.toFixed(1)}
                   </p>
                 ) : (
                   <p className="text-xs" style={{ color: 'var(--pitch-300)' }}>

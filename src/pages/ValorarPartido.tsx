@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import Avatar from '../components/Avatar'
 import { INSIGNIAS } from '../lib/insignias'
+import Icono from '../components/Icono'
 import type { Jugador, Partido } from '../lib/types'
 
 const VENTANA_HORAS = 24
@@ -150,7 +151,7 @@ export default function ValorarPartido() {
           .map((p) => (
             <div key={p.id} className="glass-strong anim-rise rounded-[24px] p-5">
               <div className="mb-3 flex items-center gap-3">
-                <Avatar nombre={p.nombre} avatar={p.avatar} size="sm" />
+                <Avatar nombre={p.nombre} avatar={p.avatar} fotoUrl={p.foto_url} size="sm" />
                 <p className="font-semibold" style={{ color: 'var(--pitch-900)' }}>
                   {p.nombre} {p.apodo && <span style={{ color: 'var(--pitch-300)', fontWeight: 400 }}>"{p.apodo}"</span>}
                 </p>
@@ -202,7 +203,7 @@ export default function ValorarPartido() {
                         color: activa ? 'var(--ink-900)' : 'var(--pitch-700)',
                       }}
                     >
-                      <span>{ins.emoji}</span>
+                      <Icono name={ins.icono} size={13} />
                       {ins.label}
                     </button>
                   )

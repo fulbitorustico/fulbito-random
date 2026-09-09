@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { pedirUbicacion, type Coords } from '../lib/geo'
+import Icono from '../components/Icono'
 import type { AperturaPartido, Grupo } from '../lib/types'
 
 const HORARIOS = Array.from({ length: 48 }, (_, i) => {
@@ -127,7 +128,8 @@ export default function NuevoPartido() {
               : { background: 'rgba(242,239,233,.06)', color: 'var(--pitch-700)' }
           }
         >
-          {buscandoUbicacion ? 'Buscando...' : ubicacion ? '📍 Ubicación guardada' : '📍 Usar mi ubicación actual'}
+          <Icono name="pin" size={15} />
+          {buscandoUbicacion ? 'Buscando...' : ubicacion ? 'Ubicación guardada' : 'Usar mi ubicación actual'}
         </button>
 
         <div className="flex gap-3">
@@ -215,7 +217,7 @@ export default function NuevoPartido() {
                 color: apertura === 'solo_confiables' ? 'var(--ink-900)' : 'var(--pitch-700)',
               }}
             >
-              Solo confiables 🟢
+              Solo confiables
             </button>
           </div>
         </div>

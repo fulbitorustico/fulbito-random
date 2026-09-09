@@ -10,6 +10,7 @@ interface MiembroPublico {
   nombre: string
   apodo: string | null
   avatar: string | null
+  foto_url: string | null
   promedio: number | null
   cantidad: number
 }
@@ -68,7 +69,7 @@ export default function GrupoPublico() {
         <div className="mt-6 flex flex-col gap-2.5">
           {miembros.map((m) => (
             <div key={m.jugador_id} className="glass flex items-center gap-3 rounded-2xl px-4 py-3.5">
-              <Avatar nombre={m.nombre} avatar={m.avatar} size="sm" />
+              <Avatar nombre={m.nombre} avatar={m.avatar} fotoUrl={m.foto_url} size="sm" />
               <div className="min-w-0 flex-1">
                 <p className="truncate font-semibold" style={{ color: 'var(--pitch-900)' }}>
                   {m.nombre} {m.apodo && <span style={{ color: 'var(--pitch-300)', fontWeight: 400 }}>"{m.apodo}"</span>}

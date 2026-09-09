@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import MockupTelefono from '../components/MockupTelefono'
 import Marca from '../components/Marca'
 import LogoFR from '../components/LogoFR'
+import Icono, { type NombreIcono } from '../components/Icono'
 import { INSIGNIAS } from '../lib/insignias'
 
 const PASOS = [
@@ -23,37 +24,44 @@ const PASOS = [
   },
 ]
 
-const FEATURES = [
+const FEATURES: { icono: NombreIcono; titulo: string; texto: string }[] = [
   {
-    emoji: '⚡',
+    icono: 'rayo',
     titulo: 'Convocatoria abierta',
     texto: 'No dependas de juntar a las diez personas del grupo por WhatsApp.',
   },
   {
-    emoji: '⭐',
+    icono: 'estrella',
     titulo: 'Reputación portátil',
     texto: 'Valoración por estrellas entre compañeros, anónima y siempre con vos.',
   },
   {
-    emoji: '👥',
+    icono: 'personas',
     titulo: 'Grupos privados',
     texto: 'Tu grupo de siempre, o abierto a desconocidos cuando falte gente.',
   },
   {
-    emoji: '⚖️',
-    titulo: 'Equipos parejos',
-    texto: 'Un toque arma dos equipos equilibrados según el nivel de cada uno.',
+    icono: 'balanza',
+    titulo: 'Equipos parejos, si querés',
+    texto: 'Si lo activás al crear el partido, un toque arma dos equipos equilibrados.',
   },
   {
-    emoji: '📍',
+    icono: 'pin',
     titulo: 'Cerca tuyo',
     texto: 'Los partidos abiertos se ordenan por distancia real, con cuenta regresiva.',
   },
   {
-    emoji: '🆓',
+    icono: 'etiqueta',
     titulo: 'Gratis, sin vueltas',
     texto: 'El compromiso se cuida con reputación, no con multas.',
   },
+]
+
+const JUGADORES_DEMO = [
+  { id: 'pablo', nombre: 'Pablo', apodo: 'La Joya Fake', posicion: 'Delantero centro', color: 'var(--acc-coral)' },
+  { id: 'mario', nombre: 'Mario', apodo: 'El Enmascarado', posicion: 'Defensor central', color: 'var(--acc-purple)' },
+  { id: 'camilo', nombre: 'Camilo', apodo: 'Ninja', posicion: 'Volante ofensivo', color: 'var(--acc-blue)' },
+  { id: 'seba', nombre: 'Seba', apodo: 'Duffman', posicion: 'Arquero', color: 'var(--acc-orange)' },
 ]
 
 const PARTIDOS_DEMO = [
@@ -153,8 +161,12 @@ function PantallaPartidos() {
                   {p.cuando}
                   <span style={{ color: 'var(--gold-500)' }}> · {p.falta}</span>
                 </p>
-                <p className="mt-0.5 text-[9px] font-semibold" style={{ color: 'var(--acc-green)' }}>
-                  📍 {p.distancia}
+                <p
+                  className="mt-0.5 flex items-center gap-1 text-[9px] font-semibold"
+                  style={{ color: 'var(--acc-green)' }}
+                >
+                  <Icono name="pin" size={10} />
+                  {p.distancia}
                   {p.precio && ` · ${p.precio}/jugador`}
                 </p>
               </div>
@@ -194,102 +206,174 @@ function PantallaPartidos() {
 }
 
 function PantallaValorar() {
-  const [estrellas, setEstrellas] = useState(4)
-  const [insignia, setInsignia] = useState('killer')
+  const [indice, setIndice] = useState(0)
+  const [estrellas, setEstrellas] = useState(0)
+  const [insignia, setInsignia] = useState('')
+  const [puntajes, setPuntajes] = useState<Record<string, number>>({})
+
+  const actual = JUGADORES_DEMO[indice]
+  const termino = indice >= JUGADORES_DEMO.length
+
+  function valorar() {
+    if (!estrellas || !actual) return
+    setPuntajes((p) => ({ ...p, [actual.id]: estrellas }))
+    setIndice((i) => i + 1)
+    setEstrellas(0)
+    setInsignia('')
+  }
+
+  function reiniciar() {
+    setIndice(0)
+    setEstrellas(0)
+    setInsignia('')
+    setPuntajes({})
+  }
 
   return (
     <>
-      <p className="shrink-0 text-[15px] font-bold" style={{ color: 'var(--pitch-900)' }}>
+      <p className="shrink-0 text-[14px] font-bold" style={{ color: 'var(--pitch-900)' }}>
         Valorá a tus compañeros
       </p>
-      <p className="mb-3 shrink-0 text-[9px]" style={{ color: 'var(--pitch-300)' }}>
-        La Bombonerita · anónimo, solo se muestra el promedio
-      </p>
-
-      <div className="glass-strong shrink-0 rounded-[20px] p-3">
-        <div className="flex items-center gap-2">
-          <div
-            className="flex h-8 w-8 items-center justify-center rounded-full text-[12px] font-bold text-[color:var(--ink-900)]"
-            style={{ background: 'var(--paper)' }}
-          >
-            C
-          </div>
-          <div>
-            <p className="text-[11px] font-bold" style={{ color: 'var(--pitch-900)' }}>
-              Cami
-            </p>
-            <p className="text-[8.5px]" style={{ color: 'var(--pitch-300)' }}>
-              Volante ofensivo
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-2.5 flex gap-1">
-          {[1, 2, 3, 4, 5].map((n) => (
-            <button key={n} type="button" onClick={() => setEstrellas(n)} className="tap" aria-label={`${n} estrellas`}>
-              <svg width="26" height="26" viewBox="0 0 20 20">
-                <path
-                  d="M10 1.5 12.5 7 18.5 7.8 14 11.9 15.3 18 10 14.8 4.7 18 6 11.9 1.5 7.8 7.5 7Z"
-                  fill={estrellas >= n ? 'var(--gold-500)' : 'rgba(242,239,233,.14)'}
-                />
-              </svg>
-            </button>
-          ))}
-        </div>
-
-        <p className="mt-2.5 text-[8.5px] font-semibold" style={{ color: 'var(--pitch-300)' }}>
-          Insignia (opcional)
+      <div className="mb-3 flex shrink-0 items-baseline justify-between gap-2">
+        <p className="min-w-0 truncate text-[9px]" style={{ color: 'var(--pitch-300)' }}>
+          La Bombonerita · anónimo
         </p>
-        <div className="mt-1.5 flex flex-wrap gap-1">
-          {INSIGNIAS.slice(0, 5).map((ins) => {
-            const activa = insignia === ins.id
-            return (
-              <button
-                key={ins.id}
-                type="button"
-                onClick={() => setInsignia(activa ? '' : ins.id)}
-                className="tap rounded-full px-2 py-1 text-[8.5px] font-bold"
-                style={{
-                  background: activa ? 'var(--paper)' : 'rgba(242,239,233,.07)',
-                  color: activa ? 'var(--ink-900)' : 'var(--pitch-700)',
-                }}
-              >
-                {ins.emoji} {ins.label}
-              </button>
-            )
-          })}
-        </div>
-
-        <div
-          className="mt-3 rounded-xl py-1.5 text-center text-[10px] font-bold text-[color:var(--ink-900)]"
-          style={{ background: 'var(--paper)' }}
-        >
-          Valorar
-        </div>
+        <span className="shrink-0 text-[9px] font-bold" style={{ color: 'var(--gold-500)' }}>
+          {Math.min(indice + (termino ? 0 : 1), 4)} de 4
+        </span>
       </div>
 
-      {[
-        { inicial: 'N', nombre: 'Nico', color: 'var(--gold-500)' },
-        { inicial: 'S', nombre: 'Sofi', color: 'var(--pitch-700)' },
-        { inicial: 'L', nombre: 'Lucho', color: 'var(--acc-green)' },
-      ].map((j) => (
-        <div key={j.nombre} className="glass mt-2 shrink-0 rounded-2xl p-2.5">
+      {!termino && actual && (
+        <div key={actual.id} className="glass-strong anim-rise shrink-0 rounded-[20px] p-3">
           <div className="flex items-center gap-2">
             <div
-              className="flex h-7 w-7 items-center justify-center rounded-full text-[11px] font-bold text-[color:var(--ink-900)]"
-              style={{ background: j.color }}
+              className="flex h-8 w-8 items-center justify-center rounded-full text-[11px] font-bold text-[color:var(--ink-900)]"
+              style={{ background: actual.color }}
             >
-              {j.inicial}
+              {actual.nombre[0]}
             </div>
-            <p className="flex-1 text-[10.5px] font-semibold" style={{ color: 'var(--pitch-900)' }}>
-              {j.nombre}
-            </p>
-            <span className="text-[9px]" style={{ color: 'var(--pitch-300)' }}>
-              sin valorar
-            </span>
+            <div className="min-w-0">
+              <p className="truncate text-[11px] font-bold" style={{ color: 'var(--pitch-900)' }}>
+                {actual.nombre}{' '}
+                <span style={{ color: 'var(--pitch-300)', fontWeight: 400 }}>"{actual.apodo}"</span>
+              </p>
+              <p className="text-[8.5px]" style={{ color: 'var(--pitch-300)' }}>
+                {actual.posicion}
+              </p>
+            </div>
           </div>
+
+          <div className="mt-2.5 flex gap-1">
+            {[1, 2, 3, 4, 5].map((n) => (
+              <button
+                key={n}
+                type="button"
+                onClick={() => setEstrellas(n)}
+                className="tap"
+                aria-label={`${n} estrellas para ${actual.nombre}`}
+              >
+                <svg width="26" height="26" viewBox="0 0 20 20">
+                  <path
+                    d="M10 1.5 12.5 7 18.5 7.8 14 11.9 15.3 18 10 14.8 4.7 18 6 11.9 1.5 7.8 7.5 7Z"
+                    fill={estrellas >= n ? 'var(--gold-500)' : 'rgba(242,239,233,.14)'}
+                  />
+                </svg>
+              </button>
+            ))}
+          </div>
+
+          <p className="mt-2.5 text-[8.5px] font-semibold" style={{ color: 'var(--pitch-300)' }}>
+            Insignia (opcional)
+          </p>
+          <div className="mt-1.5 flex flex-wrap gap-1">
+            {INSIGNIAS.slice(0, 5).map((ins) => {
+              const activa = insignia === ins.id
+              return (
+                <button
+                  key={ins.id}
+                  type="button"
+                  onClick={() => setInsignia(activa ? '' : ins.id)}
+                  className="tap flex items-center gap-1 rounded-full px-2 py-1 text-[8.5px] font-bold"
+                  style={{
+                    background: activa ? 'var(--paper)' : 'rgba(242,239,233,.07)',
+                    color: activa ? 'var(--ink-900)' : 'var(--pitch-700)',
+                  }}
+                >
+                  <Icono name={ins.icono} size={11} />
+                  {ins.label}
+                </button>
+              )
+            })}
+          </div>
+
+          <button
+            type="button"
+            onClick={valorar}
+            disabled={!estrellas}
+            className="tap mt-3 w-full rounded-xl py-1.5 text-center text-[10px] font-bold text-[color:var(--ink-900)] disabled:opacity-40"
+            style={{ background: 'var(--paper)' }}
+          >
+            {estrellas ? `Valorar a ${actual.nombre}` : 'Tocá las estrellas'}
+          </button>
         </div>
-      ))}
+      )}
+
+      {termino && (
+        <div className="glass-strong anim-pop shrink-0 rounded-[20px] p-4 text-center">
+          <div className="flex justify-center" style={{ color: 'var(--acc-green)' }}>
+            <Icono name="cumplidor" size={26} />
+          </div>
+          <p className="mt-2 text-[11px] font-bold" style={{ color: 'var(--pitch-900)' }}>
+            Ya valoraste a todos
+          </p>
+          <p className="mt-1 text-[9px]" style={{ color: 'var(--pitch-300)' }}>
+            Nadie va a ver quién puso qué
+          </p>
+          <button
+            type="button"
+            onClick={reiniciar}
+            className="tap mt-3 w-full rounded-xl py-1.5 text-[10px] font-bold"
+            style={{ background: 'rgba(242,239,233,.08)', color: 'var(--pitch-700)' }}
+          >
+            Probar de nuevo
+          </button>
+        </div>
+      )}
+
+      <div className="mt-2 flex flex-col gap-2">
+        {JUGADORES_DEMO.map((j, i) => {
+          if (!termino && i === indice) return null
+          const puntaje = puntajes[j.id]
+          return (
+            <div key={j.id} className="glass shrink-0 rounded-2xl p-2.5">
+              <div className="flex items-center gap-2">
+                <div
+                  className="flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-bold text-[color:var(--ink-900)]"
+                  style={{ background: j.color, opacity: puntaje ? 1 : 0.45 }}
+                >
+                  {j.nombre[0]}
+                </div>
+                <p className="min-w-0 flex-1 truncate text-[10.5px] font-semibold" style={{ color: 'var(--pitch-900)' }}>
+                  {j.nombre} <span style={{ color: 'var(--pitch-300)', fontWeight: 400 }}>"{j.apodo}"</span>
+                </p>
+                {puntaje ? (
+                  <span
+                    className="flex items-center gap-1 text-[9px] font-bold"
+                    style={{ color: 'var(--gold-500)' }}
+                  >
+                    <Icono name="estrella" size={9} />
+                    {puntaje}
+                  </span>
+                ) : (
+                  <span className="text-[9px]" style={{ color: 'var(--pitch-300)' }}>
+                    en espera
+                  </span>
+                )}
+              </div>
+            </div>
+          )
+        })}
+      </div>
 
       <NavMockup activa="Partidos" />
     </>
@@ -305,8 +389,11 @@ function PantallaEquipos() {
       <p className="shrink-0 text-[9px]" style={{ color: 'var(--pitch-700)', opacity: 0.75 }}>
         sáb 13 sep, 20:30 · 10/10 anotados
       </p>
-      <p className="mb-3 shrink-0 text-[9px] font-semibold" style={{ color: 'var(--acc-green)' }}>
-        ⚖️ Equipos parejos · 0,1 ★ de diferencia
+      <p
+        className="mb-3 flex shrink-0 items-center gap-1 text-[9px] font-semibold"
+        style={{ color: 'var(--acc-green)' }}
+      >
+        <Icono name="balanza" size={10} /> Equipos parejos · 0,1 de diferencia
       </p>
 
       {(['a', 'b'] as const).map((lado) => {
@@ -324,8 +411,8 @@ function PantallaEquipos() {
                 </span>
                 Equipo {lado.toUpperCase()}
               </span>
-              <span className="text-[9px] font-semibold" style={{ color }}>
-                prom. ★ {equipo.promedio}
+              <span className="flex items-center gap-1 text-[9px] font-semibold" style={{ color }}>
+                prom. <Icono name="estrella" size={9} /> {equipo.promedio}
               </span>
             </div>
             {equipo.jugadores.map(([nombre, rating]) => (
@@ -333,8 +420,11 @@ function PantallaEquipos() {
                 <span className="text-[9.5px]" style={{ color: 'var(--pitch-700)' }}>
                   {nombre}
                 </span>
-                <span className="text-[9px] font-semibold" style={{ color: 'var(--gold-500)' }}>
-                  ★ {rating}
+                <span
+                  className="flex items-center gap-1 text-[9px] font-semibold"
+                  style={{ color: 'var(--gold-500)' }}
+                >
+                  <Icono name="estrella" size={9} /> {rating}
                 </span>
               </div>
             ))}
@@ -457,13 +547,14 @@ export default function Landing() {
         <section className="mt-20 md:grid md:grid-cols-2 md:items-center md:gap-10">
           <div className="text-center md:text-left">
             <p className="brand text-3xl leading-none" style={{ color: 'var(--pitch-900)' }}>
-              Y los equipos
+              Y si querés,
               <br />
-              se arman solos
+              te armamos los equipos
             </p>
             <p className="mx-auto mt-3 max-w-xs text-sm md:mx-0" style={{ color: 'var(--pitch-700)', opacity: 0.8 }}>
-              Con las valoraciones que ya tiene cada uno, la app reparte los dos equipos para que queden lo más
-              parejos posible. Un toque y listo, sin discutir en el vestuario.
+              Lo activás al crear el partido, solo si te sirve — no viene puesto de fábrica. Si lo prendés, con las
+              valoraciones que ya tiene cada uno la app reparte los dos equipos lo más parejos posible, y podés
+              volver a tirar el reparto las veces que quieras.
             </p>
           </div>
 
@@ -481,7 +572,7 @@ export default function Landing() {
           <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3">
             {FEATURES.map((f) => (
               <div key={f.titulo} className="glass anim-rise rounded-[22px] p-4">
-                <span className="text-2xl">{f.emoji}</span>
+                <Icono name={f.icono} size={24} className="text-[color:var(--acc-green)]" />
                 <p className="mt-2 text-sm font-bold" style={{ color: 'var(--pitch-900)' }}>
                   {f.titulo}
                 </p>
@@ -535,7 +626,7 @@ export default function Landing() {
               className="tap glass-strong mt-5 inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold"
               style={{ color: 'var(--pitch-900)' }}
             >
-              📸 @fulbitorustico
+              <Icono name="camara" size={16} /> @fulbitorustico
             </a>
           </div>
         </section>

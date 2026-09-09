@@ -1,11 +1,13 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import Avatar from '../components/Avatar'
 import Estrellas from '../components/Estrellas'
 import BadgeConfiabilidad from '../components/BadgeConfiabilidad'
+import Icono from '../components/Icono'
 import { AVATARES_DISPONIBLES } from '../lib/avatar'
+import { achicarParaAvatar } from '../lib/imagen'
 import SelectorPosiciones from '../components/SelectorPosiciones'
 import { fetchBajasTardiasMap } from '../lib/bajas'
 import { insigniaPorId } from '../lib/insignias'
@@ -28,6 +30,8 @@ export default function Perfil() {
   const [partidosJugados, setPartidosJugados] = useState(0)
   const [comentarios, setComentarios] = useState<{ comentario: string; created_at: string }[]>([])
   const [insignias, setInsignias] = useState<InsigniaConteo[]>([])
+  const [subiendoFoto, setSubiendoFoto] = useState(false)
+  const inputFoto = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (!jugador) return
@@ -59,6 +63,37 @@ export default function Perfil() {
     await refreshJugador()
   }
 
+  async function elegirFoto(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file || !jugador) return
+
+    setSubiendoFoto(true)
+    setMensaje(null)
+    const blob = await achicarParaAvatar(file)
+    const ruta = `${jugador.id}/${Date.now()}.jpg`
+    const { error: errorSubida } = await supabase.storage
+      .from('avatares')
+      .upload(ruta, blob, { contentType: 'image/jpeg', upsert: true })
+
+    if (errorSubida) {
+      setMensaje(`No se pudo subir la foto: ${errorSubida.message}`)
+      setSubiendoFoto(false)
+      return
+    }
+
+    const { data } = supabase.storage.from('avatares').getPublicUrl(ruta)
+    await supabase.from('jugadores').update({ foto_url: data.publicUrl }).eq('id', jugador.id)
+    await refreshJugador()
+    setSubiendoFoto(false)
+  }
+
+  async function quitarFoto() {
+    if (!jugador) return
+    await supabase.from('jugadores').update({ foto_url: null }).eq('id', jugador.id)
+    await refreshJugador()
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setGuardando(true)
@@ -82,7 +117,30 @@ export default function Perfil() {
       </h1>
 
       <div className="glass-strong anim-pop mb-4 flex flex-col items-center rounded-[28px] p-6 text-center">
-        <Avatar nombre={jugador.nombre} avatar={jugador.avatar} size="lg" />
+        <Avatar nombre={jugador.nombre} avatar={jugador.avatar} fotoUrl={jugador.foto_url} size="lg" />
+
+        <input ref={inputFoto} type="file" accept="image/*" onChange={elegirFoto} hidden />
+        <div className="mt-3 flex items-center gap-2">
+          <button
+            onClick={() => inputFoto.current?.click()}
+            disabled={subiendoFoto}
+            className="tap glass inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold disabled:opacity-50"
+            style={{ color: 'var(--pitch-700)' }}
+          >
+            <Icono name="camara" size={14} />
+            {subiendoFoto ? 'Subiendo...' : jugador.foto_url ? 'Cambiar foto' : 'Subir foto'}
+          </button>
+          {jugador.foto_url && (
+            <button
+              onClick={quitarFoto}
+              className="tap text-xs font-semibold"
+              style={{ color: 'var(--pitch-300)' }}
+            >
+              Quitar
+            </button>
+          )}
+        </div>
+
         <p className="mt-3 text-sm" style={{ color: 'var(--pitch-300)' }}>
           {session?.user.email}
         </p>
@@ -103,20 +161,29 @@ export default function Perfil() {
           {partidosJugados} {partidosJugados === 1 ? 'partido jugado' : 'partidos jugados'}
         </p>
 
-        <div className="mt-4 flex flex-wrap justify-center gap-2">
-          {AVATARES_DISPONIBLES.map((a) => (
-            <button
-              key={a}
-              onClick={() => guardarAvatar(a)}
-              className="tap flex h-10 w-10 items-center justify-center rounded-full text-lg"
-              style={{
-                background: avatar === a ? 'var(--paper)' : 'rgba(242,239,233,.07)',
-              }}
-            >
-              {a}
-            </button>
-          ))}
-        </div>
+        {!jugador.foto_url && (
+          <>
+            <p className="mt-5 text-xs" style={{ color: 'var(--pitch-300)' }}>
+              O elegí un símbolo
+            </p>
+            <div className="mt-2 flex flex-wrap justify-center gap-2">
+              {AVATARES_DISPONIBLES.map((a) => (
+                <button
+                  key={a}
+                  onClick={() => guardarAvatar(a)}
+                  aria-label={a}
+                  className="tap flex h-10 w-10 items-center justify-center rounded-full"
+                  style={{
+                    background: avatar === a ? 'var(--paper)' : 'rgba(242,239,233,.07)',
+                    color: avatar === a ? 'var(--ink-900)' : 'var(--pitch-700)',
+                  }}
+                >
+                  <Icono name={a} size={19} />
+                </button>
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       {insignias.length > 0 && (
@@ -134,7 +201,7 @@ export default function Perfil() {
                   className="flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold"
                   style={{ background: 'rgba(237,197,141,.16)', color: 'var(--gold-500)' }}
                 >
-                  <span>{info.emoji}</span>
+                  <Icono name={info.icono} size={14} />
                   {info.label}
                   <span style={{ color: 'var(--pitch-300)' }}>×{i.cantidad}</span>
                 </div>
