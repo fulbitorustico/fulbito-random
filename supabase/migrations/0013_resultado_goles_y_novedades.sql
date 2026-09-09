@@ -251,7 +251,8 @@ as $function$
     jsonb_agg(to_jsonb(e) order by e.prioridad, e.cuando),
     '[]'::jsonb
   )
-  from (select * from eventos limit 12) e;
+  -- El corte va DESPUÉS de ordenar: si no, podía descartar justo lo urgente.
+  from (select * from eventos order by prioridad, cuando limit 12) e;
 $function$;
 
 
