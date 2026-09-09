@@ -21,7 +21,15 @@ Todo lo que toca la base vive acá, numerado y dentro del repositorio. Antes viv
 5. Corrélo en Supabase → SQL Editor → Run.
 6. Commiteá el archivo **en el mismo commit** que el código de la app que lo necesita.
 
-## Dos trampas que ya nos mordieron
+### Las columnas primero, siempre
+
+Dentro de un mismo archivo, **todos los `alter table ... add column` van arriba de todo**, antes de cualquier función.
+
+Postgres valida el cuerpo de una función cuando la crea. Si una función lee una columna que el mismo script agrega más abajo, falla al crearla — y como el editor corre todo en una transacción, se cae el script entero y no queda nada aplicado. Nos pasó con la `0011`: `partido_por_token` leía `nota` y la columna se creaba cincuenta líneas después.
+
+## Tres trampas que ya nos mordieron
+
+**Correlas en orden y no te saltees ninguna.** La `0012` falló porque la `0008` nunca se había corrido, y la columna que la `0012` necesitaba no existía. El error que devuelve la base en ese caso —"column X does not exist"— no dice cuál fue la migración que faltó: hay que ir a buscarla.
 
 **El editor de Supabase corre todo en una transacción.** Si falla el último bloque, se deshacen también los anteriores. Es a favor: o entra todo o no entra nada. Pero cuando algo falla, no asumas que la mitad quedó aplicada — verificá.
 

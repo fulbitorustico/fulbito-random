@@ -7,6 +7,27 @@
 
 
 -- ============================================================
+-- 0. LAS COLUMNAS PRIMERO
+--
+-- Van todas juntas arriba a propósito: Postgres valida el cuerpo de una
+-- función cuando la crea, así que si `partido_por_token` lee una columna
+-- que se agrega más abajo, el script se cae entero. Nos pasó.
+-- ============================================================
+
+alter table partidos add column if not exists token text;
+alter table partidos add column if not exists nota text;
+
+-- "Cambió la cancha", "traigan cambio de $5.000", "llevo las pecheras".
+-- No es un chat: es un solo mensaje que se edita, y lo escribe quien manda.
+-- La escritura ya está cubierta por las políticas de editar el partido, que
+-- contemplan al capitán y al subcapitán.
+alter table partidos
+  drop constraint if exists partidos_nota_razonable,
+  add  constraint partidos_nota_razonable
+       check (nota is null or (char_length(nota) <= 400 and nota !~* '(https?://|www\.)'));
+
+
+-- ============================================================
 -- 1. EL LINK DEL PARTIDO
 --
 -- El que arma el partido comparte un link. El que lo abre ve lo justo para
@@ -17,8 +38,6 @@
 -- nada más: no la lista de jugadores, no sus valoraciones, no los otros
 -- partidos del grupo. Entrar al grupo sigue pasando por la regla del grupo.
 -- ============================================================
-
-alter table partidos add column if not exists token text;
 
 -- Token corto y apto para una URL. 9 bytes al azar son 72 bits: no se adivina.
 create or replace function generar_token_partido()
@@ -118,24 +137,7 @@ $$;
 
 
 -- ============================================================
--- 2. LA NOTA DEL CAPITÁN
---
--- "Cambió la cancha", "traigan cambio de $5.000", "llevo las pecheras".
--- No es un chat: es un solo mensaje que se edita, y lo escribe quien manda.
--- La escritura ya está cubierta por las políticas de editar el partido, que
--- contemplan al capitán y al subcapitán.
--- ============================================================
-
-alter table partidos add column if not exists nota text;
-
-alter table partidos
-  drop constraint if exists partidos_nota_razonable,
-  add  constraint partidos_nota_razonable
-       check (nota is null or (char_length(nota) <= 400 and nota !~* '(https?://|www\.)'));
-
-
--- ============================================================
--- 3. DARSE DE BAJA
+-- 2. DARSE DE BAJA
 --
 -- Se borra la identidad —mail, nombre, apodo, foto, bio, ubicación— y la
 -- cuenta de acceso. El paso por los partidos queda, sin nombre: también es
