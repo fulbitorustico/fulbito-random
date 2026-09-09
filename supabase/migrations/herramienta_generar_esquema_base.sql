@@ -14,8 +14,17 @@
 -- Es el reemplazo de `npx supabase db pull` para cuando no se puede abrir
 -- una terminal ni iniciar sesión.
 --
--- LO QUE NO CAPTURA: tipos propios (enums), secuencias sueltas y permisos
--- por rol. Si la base usara alguno, hay que agregarlo a mano.
+-- LO QUE NO CAPTURA: tipos propios (enums), secuencias sueltas, permisos por
+-- rol, disparadores de eventos, los buckets de Storage y la configuración de
+-- Auth. Si la base usara alguno, hay que agregarlo a mano.
+--
+-- LO QUE HAY QUE ORDENAR AL ARMAR EL ARCHIVO (el volcado sale alfabético):
+--   1. `set check_function_bodies = off;` arriba de todo. Sin eso hay que
+--      ordenar las funciones entre sí, porque varias se llaman entre ellas.
+--   2. Las funciones que usan los valores por defecto de una tabla van
+--      ANTES que esa tabla (acá: `generar_token_partido`, que usa
+--      `partidos.token`).
+--   3. Las políticas van DESPUÉS de las funciones: varias las llaman.
 -- ============================================================
 
 with tablas as (
@@ -69,8 +78,8 @@ politicas as (
   select
     5 as orden,
     tablename as nombre,
-    'drop policy if exists ' || quote_literal(policyname) || ' on public.' || quote_ident(tablename) || ';' || chr(10)
-      || 'create policy ' || quote_literal(policyname) || ' on public.' || quote_ident(tablename)
+    'drop policy if exists ' || quote_ident(policyname) || ' on public.' || quote_ident(tablename) || ';' || chr(10)
+      || 'create policy ' || quote_ident(policyname) || ' on public.' || quote_ident(tablename)
       || ' for ' || lower(cmd)
       || ' to ' || array_to_string(roles, ', ')
       || coalesce(' using (' || qual || ')', '')

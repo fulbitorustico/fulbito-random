@@ -41,7 +41,11 @@ Los archivos `0001` a `0012` son todo lo que se hizo desde el 9 de septiembre de
 
 `pendientes_capa3_reputacion.sql.txt` está escrito pero **no corrido a propósito**: va después del link del partido. Cuando se corra, se renombra a `0010_capa3_reputacion.sql`.
 
-**Falta el punto de partida.** El esquema original —las 16 tablas, sus claves y las políticas anteriores al 9 de septiembre— se creó antes de que existiera esta carpeta, así que no está versionado. Mientras eso siga así, esta carpeta sirve para repetir los cambios, no para reconstruir la base desde cero.
+**El punto de partida ya está.** `0000_esquema_base.sql` tiene el esquema completo al 9 de septiembre de 2026 con las migraciones 0001 a 0013 aplicadas: 19 tablas, 36 funciones, 55 políticas y 5 disparadores. Correrlo sobre una base vacía deja la base lista; después van las migraciones de la 0014 en adelante.
+
+Se generó con `herramienta_generar_esquema_base.sql`, que hace lo mismo que `npx supabase db pull` pero desde el editor de Supabase, sin terminal ni inicio de sesión. Si hay que volver a generarlo, correr esa herramienta y **ordenar a mano** lo que dice su encabezado: el volcado sale alfabético y hay tres cosas que dependen del orden.
+
+**Lo que el esquema base NO incluye y hay que recordar:** el bucket de Storage `avatares`, el disparador de eventos que engancha `rls_auto_enable`, y toda la configuración de Auth (proveedores, plantillas de mail, SMTP).
 
 ## Cómo cerrar ese hueco (una sola vez)
 
