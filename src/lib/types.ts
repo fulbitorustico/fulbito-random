@@ -8,6 +8,8 @@ export interface Jugador {
   foto_url: string | null
   avatar: string | null
   cambios_posiciones: number
+  cambios_nombre: number
+  avisos_mail: AvisosMail | null
   buscando: boolean
   zona: string | null
   bio: string | null
@@ -42,6 +44,13 @@ export interface Invitacion {
 }
 
 export const MAX_CAMBIOS_POSICIONES = 2
+
+export interface AvisosMail {
+  se_suman: boolean
+  completo: boolean
+  invitacion: boolean
+  aprobado_grupo: boolean
+}
 
 export type EstadoPartido = 'abierto' | 'cerrado' | 'cancelado'
 export type AperturaPartido = 'abierto' | 'solo_confiables'

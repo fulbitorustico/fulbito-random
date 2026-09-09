@@ -13,7 +13,7 @@ interface PartidoConCupo extends Partido {
   anotados: number
   yo_anotado: boolean
   distanciaKm: number | null
-  grupos: { nombre: string } | null
+  grupo_nombre: string | null
 }
 
 export default function Partidos() {
@@ -34,23 +34,22 @@ export default function Partidos() {
   const cargar = useCallback(
     async (ubicacion: Coords | null) => {
       setLoading(true)
-      const { data: partidosData } = await supabase
-        .from('partidos')
-        .select('*, grupos(nombre)')
-        .neq('estado', 'cancelado')
-        .order('fecha_hora', { ascending: true })
 
-      const { data: participantesData } = await supabase.from('participantes').select('partido_id, jugador_id')
+      // La base ya devuelve el conteo de anotados y si estoy yo: antes nos
+      // traíamos todos los anotados de todos los partidos para contarlos acá.
+      const { data } = await supabase.rpc('partidos_con_cupo')
 
-      let lista: PartidoConCupo[] = (partidosData ?? []).map((p) => {
-        const deEsePartido = (participantesData ?? []).filter((x) => x.partido_id === p.id)
-        return {
-          ...p,
-          anotados: deEsePartido.length,
-          yo_anotado: deEsePartido.some((x) => x.jugador_id === jugador?.id),
-          distanciaKm: ubicacion && p.lat != null && p.lng != null ? distanciaKm(ubicacion, { lat: p.lat, lng: p.lng }) : null,
-        }
-      })
+      let lista: PartidoConCupo[] = (
+        (data ?? []) as { partido: Partido & { grupo_nombre: string | null }; anotados: number; yo_anotado: boolean }[]
+      ).map((fila) => ({
+        ...fila.partido,
+        anotados: Number(fila.anotados),
+        yo_anotado: fila.yo_anotado,
+        distanciaKm:
+          ubicacion && fila.partido.lat != null && fila.partido.lng != null
+            ? distanciaKm(ubicacion, { lat: fila.partido.lat, lng: fila.partido.lng })
+            : null,
+      }))
 
       if (ubicacion) {
         lista = lista.sort((a, b) => {
@@ -136,9 +135,9 @@ export default function Partidos() {
                 <Link to={`/partidos/${p.id}`} className="min-w-0 flex-1">
                   <p className="truncate font-semibold" style={{ color: 'var(--pitch-900)' }}>
                     {p.cancha}
-                    {p.grupos && (
+                    {p.grupo_nombre && (
                       <span className="ml-2 text-[11px] font-semibold" style={{ color: 'var(--pitch-300)' }}>
-                        {p.grupos.nombre}
+                        {p.grupo_nombre}
                       </span>
                     )}
                   </p>

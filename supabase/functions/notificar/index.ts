@@ -31,9 +31,30 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
-async function emailDeJugador(jugadorId: string): Promise<string | null> {
-  const { data: jugador } = await admin.from('jugadores').select('user_id').eq('id', jugadorId).maybeSingle()
+const AVISOS_POR_DEFECTO: Record<string, boolean> = {
+  se_suman: false,
+  completo: true,
+  invitacion: true,
+  aprobado_grupo: true,
+}
+
+// Devuelve el mail solo si el jugador quiere recibir ese tipo de aviso.
+// Si dijo que no, no se manda nada: ni se gasta el envío ni se lo molesta.
+async function emailDeJugador(jugadorId: string, tipoAviso: string): Promise<string | null> {
+  const { data: jugador } = await admin
+    .from('jugadores')
+    .select('user_id, avisos_mail')
+    .eq('id', jugadorId)
+    .maybeSingle()
+
   if (!jugador?.user_id) return null
+
+  const avisos = { ...AVISOS_POR_DEFECTO, ...(jugador.avisos_mail ?? {}) }
+  if (avisos[tipoAviso] === false) {
+    console.log(`El jugador ${jugadorId} tiene apagado el aviso "${tipoAviso}"`)
+    return null
+  }
+
   const { data } = await admin.auth.admin.getUserById(jugador.user_id)
   return data.user?.email ?? null
 }
@@ -65,7 +86,7 @@ Deno.serve(async (req) => {
   try {
     switch (body.tipo) {
       case 'sumaron_partido': {
-        const email = await emailDeJugador(String(body.admin_id))
+        const email = await emailDeJugador(String(body.admin_id), 'se_suman')
         if (email) {
           await enviarMail(
             email,
@@ -76,7 +97,7 @@ Deno.serve(async (req) => {
         break
       }
       case 'partido_completo': {
-        const email = await emailDeJugador(String(body.admin_id))
+        const email = await emailDeJugador(String(body.admin_id), 'completo')
         if (email) {
           await enviarMail(
             email,
@@ -87,7 +108,7 @@ Deno.serve(async (req) => {
         break
       }
       case 'aprobado_grupo': {
-        const email = await emailDeJugador(String(body.jugador_id))
+        const email = await emailDeJugador(String(body.jugador_id), 'aprobado_grupo')
         if (email) {
           await enviarMail(
             email,
@@ -98,7 +119,7 @@ Deno.serve(async (req) => {
         break
       }
       case 'invitacion_partido': {
-        const email = await emailDeJugador(String(body.jugador_id))
+        const email = await emailDeJugador(String(body.jugador_id), 'invitacion')
         if (email) {
           await enviarMail(
             email,

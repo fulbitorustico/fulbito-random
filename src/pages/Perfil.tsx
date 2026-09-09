@@ -8,6 +8,7 @@ import CartelLogro from '../components/CartelLogro'
 import Icono from '../components/Icono'
 import BotonCompartir from '../components/BotonCompartir'
 import PublicarmeEnBase from '../components/PublicarmeEnBase'
+import AvisosMail from '../components/AvisosMail'
 import { insigniaPorId } from '../lib/insignias'
 import { nivelPorPartidos } from '../lib/nivel'
 import { AVATARES_DISPONIBLES } from '../lib/avatar'
@@ -69,6 +70,10 @@ export default function Perfil() {
   if (!jugador) return null
 
   const cambiosRestantes = Math.max(0, MAX_CAMBIOS_POSICIONES - (jugador.cambios_posiciones ?? 0))
+  const nombreBloqueado = (jugador.cambios_nombre ?? 0) >= 1
+  // El botón solo se prende si de verdad cambiaste algo.
+  const hayCambios =
+    !nombreBloqueado && (nombre.trim() !== jugador.nombre || (apodo.trim() || null) !== jugador.apodo)
   const datosObjetivos = {
     partidos_jugados: partidosJugados,
     valoraciones_recibidas: promedio?.cantidad ?? 0,
@@ -137,6 +142,9 @@ export default function Perfil() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
+    if (!hayCambios) return
+    if (!confirm('El nombre y el apodo se pueden cambiar una sola vez. ¿Confirmás?')) return
+
     setGuardando(true)
     setMensaje(null)
     const { error } = await supabase
@@ -244,6 +252,10 @@ export default function Perfil() {
       </div>
 
       <div className="mt-4">
+        <AvisosMail />
+      </div>
+
+      <div className="mt-4">
         <Objetivos datos={datosObjetivos} />
       </div>
 
@@ -262,30 +274,44 @@ export default function Perfil() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="glass-strong flex flex-col gap-3 rounded-[28px] p-6">
+      <form onSubmit={handleSubmit} className="glass-strong mt-4 flex flex-col gap-3 rounded-[28px] p-6">
+        <h2 className="text-sm font-semibold" style={{ color: 'var(--pitch-700)' }}>
+          Cómo te llamás
+        </h2>
         <input
           required
           placeholder="Nombre"
           value={nombre}
           onChange={(e) => setNombre(e.target.value)}
-          className={inputClass}
+          disabled={nombreBloqueado}
+          className={`${inputClass} disabled:opacity-60`}
           style={{ color: 'var(--pitch-900)' }}
         />
         <input
           placeholder="Apodo (opcional)"
           value={apodo}
           onChange={(e) => setApodo(e.target.value)}
-          className={inputClass}
+          disabled={nombreBloqueado}
+          className={`${inputClass} disabled:opacity-60`}
           style={{ color: 'var(--pitch-900)' }}
         />
-        <button
-          type="submit"
-          disabled={guardando}
-          className="tap rounded-2xl px-4 py-3.5 text-[15px] font-semibold text-[color:var(--ink-900)] shadow-sm disabled:opacity-50"
-          style={{ background: 'var(--paper)' }}
-        >
-          {guardando ? 'Guardando...' : 'Guardar cambios'}
-        </button>
+
+        <p className="text-xs" style={{ color: nombreBloqueado ? 'var(--pitch-300)' : 'var(--gold-500)' }}>
+          {nombreBloqueado
+            ? 'Ya usaste tu cambio: el nombre y el apodo quedaron fijos.'
+            : 'Ojo: el nombre y el apodo se pueden cambiar una sola vez.'}
+        </p>
+
+        {!nombreBloqueado && (
+          <button
+            type="submit"
+            disabled={guardando || !hayCambios}
+            className="tap rounded-2xl px-4 py-3.5 text-[15px] font-semibold text-[color:var(--ink-900)] shadow-sm disabled:opacity-40"
+            style={{ background: 'var(--paper)' }}
+          >
+            {guardando ? 'Guardando...' : hayCambios ? 'Guardar cambios' : 'No hay cambios para guardar'}
+          </button>
+        )}
         {mensaje && (
           <p className="text-sm" style={{ color: 'var(--pitch-700)' }}>
             {mensaje}
