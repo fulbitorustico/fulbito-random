@@ -84,7 +84,9 @@ export default function NuevoPartido() {
     // Si elegiste la cancha del buscador, queda ligada a su perfil: así el
     // catálogo de canchas se arma solo con el uso.
     let canchaId: string | null = null
-    if (canchaElegida) {
+    if (canchaElegida?.propia && canchaElegida.canchaId) {
+      canchaId = canchaElegida.canchaId
+    } else if (canchaElegida) {
       const { data: idCancha } = await supabase.rpc('buscar_o_crear_cancha', {
         p_nombre: canchaElegida.nombre,
         p_lat: canchaElegida.lat,
@@ -160,8 +162,8 @@ export default function NuevoPartido() {
                   className="flex w-full items-start gap-2 px-4 py-3 text-left"
                   style={{ borderBottom: '1px solid var(--line)' }}
                 >
-                  <span className="mt-0.5" style={{ color: 'var(--acc-green)' }}>
-                    <Icono name="pin" size={14} />
+                  <span className="mt-0.5" style={{ color: s.propia ? 'var(--gold-500)' : 'var(--acc-green)' }}>
+                    <Icono name={s.propia ? 'pelota' : 'pin'} size={14} />
                   </span>
                   <span className="min-w-0">
                     <span className="block truncate text-sm font-semibold" style={{ color: 'var(--pitch-900)' }}>
@@ -179,6 +181,12 @@ export default function NuevoPartido() {
         {buscandoCancha && (
           <p className="-mt-1 text-xs" style={{ color: 'var(--pitch-300)' }}>
             Buscando canchas...
+          </p>
+        )}
+        {!buscandoCancha && cancha.trim().length >= 3 && sugerencias.length === 0 && !sugerenciaElegida && (
+          <p className="-mt-1 text-xs leading-relaxed" style={{ color: 'var(--pitch-300)' }}>
+            No la encontramos en el mapa, pero podés dejar el nombre como lo escribiste. Queda guardada y la próxima
+            vez aparece sola.
           </p>
         )}
 

@@ -1,31 +1,43 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useLocation, Link } from 'react-router-dom'
 import Marca from './components/Marca'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import BottomNav from './components/BottomNav'
 import PageTransition from './components/PageTransition'
-import Landing from './pages/Landing'
 import Login from './pages/Login'
-import CompletarPerfil from './pages/CompletarPerfil'
 import Partidos from './pages/Partidos'
 import NuevoPartido from './pages/NuevoPartido'
 import DetallePartido from './pages/DetallePartido'
-import ValorarPartido from './pages/ValorarPartido'
 import Jugadores from './pages/Jugadores'
 import JugadorDetalle from './pages/JugadorDetalle'
 import Grupos from './pages/Grupos'
-import NuevoGrupo from './pages/NuevoGrupo'
 import GrupoDetalle from './pages/GrupoDetalle'
-import UnirseGrupo from './pages/UnirseGrupo'
-import ReclamarPerfil from './pages/ReclamarPerfil'
 import Perfil from './pages/Perfil'
-import Terminos from './pages/Terminos'
-import Privacidad from './pages/Privacidad'
-import GrupoPublico from './pages/GrupoPublico'
-import BuscarJugadores from './pages/BuscarJugadores'
-import CanchaDetalle from './pages/CanchaDetalle'
-import Instalar from './pages/Instalar'
-import Panel from './pages/Panel'
 import Sugerencias from './components/Sugerencias'
+
+// Se bajan cuando hacen falta y no antes. La landing con su demo es la
+// pantalla más pesada de todas y el que ya tiene sesión no la ve nunca.
+const Landing = lazy(() => import('./pages/Landing'))
+const Panel = lazy(() => import('./pages/Panel'))
+const Instalar = lazy(() => import('./pages/Instalar'))
+const Terminos = lazy(() => import('./pages/Terminos'))
+const Privacidad = lazy(() => import('./pages/Privacidad'))
+const GrupoPublico = lazy(() => import('./pages/GrupoPublico'))
+const ReclamarPerfil = lazy(() => import('./pages/ReclamarPerfil'))
+const CanchaDetalle = lazy(() => import('./pages/CanchaDetalle'))
+const BuscarJugadores = lazy(() => import('./pages/BuscarJugadores'))
+const ValorarPartido = lazy(() => import('./pages/ValorarPartido'))
+const NuevoGrupo = lazy(() => import('./pages/NuevoGrupo'))
+const UnirseGrupo = lazy(() => import('./pages/UnirseGrupo'))
+const CompletarPerfil = lazy(() => import('./pages/CompletarPerfil'))
+
+function Cargando() {
+  return (
+    <div className="flex min-h-svh items-center justify-center text-sm" style={{ color: 'var(--pitch-300)' }}>
+      Cargando...
+    </div>
+  )
+}
 
 function Shell() {
   const location = useLocation()
@@ -39,6 +51,7 @@ function Shell() {
         </Link>
       </header>
       <div className="mx-auto max-w-lg px-4 pb-28 pt-4">
+        <Suspense fallback={<Cargando />}>
         <Routes location={location} key={location.pathname}>
           <Route path="/partidos" element={<PageTransition><Partidos /></PageTransition>} />
           <Route path="/partidos/nuevo" element={<PageTransition><NuevoPartido /></PageTransition>} />
@@ -56,6 +69,7 @@ function Shell() {
           <Route path="/panel" element={<PageTransition><Panel /></PageTransition>} />
           <Route path="*" element={<Navigate to="/partidos" replace />} />
         </Routes>
+        </Suspense>
       </div>
       <Sugerencias />
       <BottomNav />
@@ -79,6 +93,7 @@ function Router() {
 
   if (esRutaPublica) {
     return (
+      <Suspense fallback={<Cargando />}>
       <Routes location={location} key={location.pathname}>
         <Route path="/reclamar/:id" element={<ReclamarPerfil />} />
         <Route path="/terminos" element={<Terminos />} />
@@ -87,6 +102,7 @@ function Router() {
         <Route path="/instalar" element={<Instalar />} />
         <Route path="/grupos/:id/publico" element={<GrupoPublico />} />
       </Routes>
+      </Suspense>
     )
   }
 
@@ -100,13 +116,20 @@ function Router() {
 
   if (!session) {
     return (
-      <Routes location={location} key={location.pathname}>
-        <Route path="/login" element={<Login />} />
-        <Route path="*" element={<Landing />} />
-      </Routes>
+      <Suspense fallback={<Cargando />}>
+        <Routes location={location} key={location.pathname}>
+          <Route path="/login" element={<Login />} />
+          <Route path="*" element={<Landing />} />
+        </Routes>
+      </Suspense>
     )
   }
-  if (!jugador) return <CompletarPerfil />
+  if (!jugador)
+    return (
+      <Suspense fallback={<Cargando />}>
+        <CompletarPerfil />
+      </Suspense>
+    )
 
   return <Shell />
 }

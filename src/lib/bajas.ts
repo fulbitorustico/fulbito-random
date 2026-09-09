@@ -18,7 +18,9 @@ export async function registrarBaja(
   })
 }
 
-export const ABANDONOS_PARA_MANCHA = 3
+// A la tercera, tarjeta amarilla. La sanción que funciona en el fulbito
+// no es un puntaje escondido: es que se sepa.
+export const ABANDONOS_PARA_AMARILLA = 3
 
 export async function fetchAbandonosCapitanMap(): Promise<Record<string, number>> {
   const { data } = await supabase.rpc('abandonos_de_capitan')

@@ -1,0 +1,57 @@
+-- ============================================================
+-- PUNTO 3 / CAPA 3 — Que la reputación se gane, no se declare
+--
+-- ⚠️ NO CORRER TODAVÍA. Va DESPUÉS del punto 5 (el link del partido).
+--
+-- Qué hace: un partido público creado por alguien que nunca jugó deja de
+-- aparecerle a los desconocidos. Lo ve él, lo ven los que invitó y lo ven
+-- los que ya están anotados. Corta de raíz el ataque de las dos cuentas:
+-- pueden inventar lo que quieran entre ellas, pero no lo ve nadie más.
+--
+-- Por qué esperar: hoy la única forma de que alguien vea un partido que no
+-- le aparece en la lista es que lo inviten, y para eso tiene que estar ya
+-- en la app. Hasta que exista el link del partido, alguien que se registra
+-- y crea su primer partido público queda encerrado: nadie lo ve, nadie se
+-- anota, nunca juega, nunca se establece. El link es la puerta de salida.
+-- ============================================================
+
+create or replace function jugador_establecido(p_jugador_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  -- Jugó al menos un partido que ya pasó y que juntó 4 o más personas.
+  -- Cuatro es el número a propósito: dos cuentas truchas no lo alcanzan,
+  -- y cualquier picadito de verdad lo pasa de sobra.
+  select exists (
+    select 1
+    from participantes pa
+    join partidos p on p.id = pa.partido_id
+    where pa.jugador_id = p_jugador_id
+      and p.fecha_hora < now()
+      and p.estado <> 'cancelado'
+      and (select count(*) from participantes pa2 where pa2.partido_id = p.id) >= 4
+  );
+$$;
+
+drop policy if exists "ver partidos" on partidos;
+
+create policy "ver partidos" on partidos
+for select
+using (
+  -- Los partidos abiertos se ven solo si el que los creó ya jugó de verdad.
+  (grupo_id is null and jugador_establecido(admin_id))
+  -- Los de tus grupos, siempre.
+  or grupo_id in (
+    select gm.grupo_id
+    from grupo_miembros gm
+    join jugadores j on j.id = gm.jugador_id
+    where j.user_id = auth.uid()
+  )
+  -- Y siempre los tuyos: los que creaste, los que te invitaron y en los que
+  -- estás anotado. Si no, el que recién llega no vería ni su propio partido.
+  or admin_id in (select id from jugadores where user_id = auth.uid())
+  or tengo_acceso_al_partido(id)
+);

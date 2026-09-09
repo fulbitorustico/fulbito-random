@@ -4,8 +4,9 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import CardJugador from '../components/CardJugador'
 import Objetivos from '../components/Objetivos'
+import Evolucion from '../components/Evolucion'
 import Icono from '../components/Icono'
-import { fetchBajasTardiasMap, fetchAbandonosCapitanMap, ABANDONOS_PARA_MANCHA } from '../lib/bajas'
+import { fetchBajasTardiasMap, fetchAbandonosCapitanMap, ABANDONOS_PARA_AMARILLA } from '../lib/bajas'
 import { calcularRacha, textoRacha } from '../lib/racha'
 import type { DistribucionValoracion, InsigniaConteo, Jugador, ValoracionPromedio } from '../lib/types'
 
@@ -111,12 +112,12 @@ export default function JugadorDetalle() {
         partidosJugados={partidosJugados}
         reclutas={reclutas}
       >
-        {abandonos >= ABANDONOS_PARA_MANCHA && (
+        {abandonos >= ABANDONOS_PARA_AMARILLA && (
           <p
             className="mt-3 rounded-full px-3 py-1.5 text-center text-xs font-semibold"
             style={{ background: 'rgba(224,122,99,.14)', color: 'var(--error)' }}
           >
-            Dejó {abandonos} partidos propios sin capitán en los últimos dos meses
+<span style={{ fontSize: 13 }}>🟨</span> Dejó {abandonos} partidos propios sin capitán en dos meses
           </p>
         )}
 
@@ -138,6 +139,8 @@ export default function JugadorDetalle() {
           </p>
         )}
       </CardJugador>
+
+      <Evolucion jugadorId={id!} />
 
       <div className="mt-4">
         <Objetivos

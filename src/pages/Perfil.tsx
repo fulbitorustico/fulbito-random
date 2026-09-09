@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import CardJugador from '../components/CardJugador'
 import Objetivos from '../components/Objetivos'
+import Evolucion from '../components/Evolucion'
 import { calcularProgreso } from '../lib/objetivos'
 import CartelLogro from '../components/CartelLogro'
 import Icono from '../components/Icono'
@@ -16,7 +17,7 @@ import { nivelPorPartidos } from '../lib/nivel'
 import { AVATARES_DISPONIBLES } from '../lib/avatar'
 import { achicarParaAvatar } from '../lib/imagen'
 import SelectorPosiciones from '../components/SelectorPosiciones'
-import { fetchBajasTardiasMap, fetchAbandonosCapitanMap, ABANDONOS_PARA_MANCHA } from '../lib/bajas'
+import { fetchBajasTardiasMap, fetchAbandonosCapitanMap, ABANDONOS_PARA_AMARILLA } from '../lib/bajas'
 import { MAX_CAMBIOS_POSICIONES } from '../lib/types'
 import type { DistribucionValoracion, InsigniaConteo, ValoracionPromedio } from '../lib/types'
 
@@ -235,10 +236,10 @@ export default function Perfil() {
         </p>
       </CardJugador>
 
-      {abandonos >= ABANDONOS_PARA_MANCHA && (
+      {abandonos >= ABANDONOS_PARA_AMARILLA && (
         <div className="mt-4 rounded-2xl px-4 py-3" style={{ background: 'rgba(224,122,99,.14)' }}>
           <p className="text-sm font-semibold" style={{ color: 'var(--error)' }}>
-            Dejaste {abandonos} partidos propios sin capitán
+            🟨 Tarjeta amarilla: dejaste {abandonos} partidos propios sin capitán
           </p>
           <p className="mt-0.5 text-[12px]" style={{ color: 'var(--pitch-700)' }}>
             En los últimos dos meses. Lo ve cualquiera que entre a tu perfil.
@@ -322,6 +323,8 @@ export default function Perfil() {
           />
         </div>
       )}
+
+      <Evolucion jugadorId={jugador.id} />
 
       <CartelLogro datos={datosObjetivos} />
 

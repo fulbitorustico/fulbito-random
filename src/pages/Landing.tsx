@@ -459,6 +459,10 @@ const PREGUNTAS: { q: string; a: string }[] = [
     a: 'No. Solo se muestra el promedio y la cantidad. Nadie sabe quién le puso qué a quién, y solo pueden valorarte los que jugaron ese partido con vos, dentro de las 24 horas siguientes.',
   },
   {
+    q: 'Valoré a mis compañeros y no cambió nada, ¿falló?',
+    a: 'No: es a propósito. Las valoraciones de un partido quedan guardadas pero no entran a ningún promedio hasta que pasan 24 horas del partido. Recién ahí aparecen todas juntas. Es para que nadie pueda mirar qué le pusieron y devolver el golpe: cuando te enterás, ya pasó el momento de responder. Mientras tanto podés dejarle una reacción al partido.',
+  },
+  {
     q: '¿Por qué todos arrancan en 3 estrellas?',
     a: 'Para que el promedio signifique algo. Si cada uno arrancara en 5, la única forma de moverse sería para abajo y todos terminarían iguales. Arrancando en el medio, subir y bajar cuestan lo mismo.',
   },
@@ -477,6 +481,10 @@ const PREGUNTAS: { q: string; a: string }[] = [
   {
     q: 'El partido está lleno y quiero jugar, ¿qué pasa?',
     a: 'Por ahora entra el que llega primero. Estamos armando la lista de espera: cuando esté, si alguien se baja no va a entrar el más rápido en tocar el botón, sino el que más viene jugando ese partido. La cuenta se hace sobre los últimos 4 encuentros, así se mira quién está yendo ahora y no quién iba el año pasado. A igual cantidad, ahí sí desempata el orden de llegada.',
+  },
+  {
+    q: 'Soy el capitán y no puedo ir, ¿qué hago?',
+    a: 'Antes de bajarte tenés que pasarle la capitanía a alguno de los anotados: si te vas sin dejar a nadie a cargo, quedan diez personas sin quién organice. Y si dejás tres partidos propios sin capitán en dos meses, te queda una tarjeta amarilla visible en tu perfil.',
   },
   {
     q: '¿Puedo estar en varios grupos?',

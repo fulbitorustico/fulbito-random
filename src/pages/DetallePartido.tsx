@@ -7,6 +7,14 @@ import { formatPosiciones } from '../lib/posiciones'
 import { registrarBaja, fetchBajasTardiasMap } from '../lib/bajas'
 import ReaccionesPartido from '../components/ReaccionesPartido'
 import { calcularEstadoPartido } from '../lib/geo'
+import {
+  puedeAdministrar,
+  puedeValorar as puedoValorarEste,
+  enVentanaDeConfirmar as enVentanaConfirmar,
+  debePasarLaCapitania,
+  esCapitan as soyCapitan,
+  LIBERAR_A_LAS_HORAS,
+} from '../lib/permisos'
 import { nivelDesdeBajasTardias } from '../lib/confiabilidad'
 import BadgeConfiabilidad from '../components/BadgeConfiabilidad'
 import Icono from '../components/Icono'
@@ -30,12 +38,6 @@ function aFechaHora(iso: string) {
   return { fecha, hora }
 }
 
-const VENTANA_VALORAR_HORAS = 24
-
-// Desde 24hs antes se pide confirmación; a las 12hs antes el lugar de quien
-// no confirmó se libera para que entre otro. La cuenta la hace la base.
-const CONFIRMAR_DESDE_HORAS = 24
-const LIBERAR_A_LAS_HORAS = 12
 
 export default function DetallePartido() {
   const { id } = useParams<{ id: string }>()
@@ -136,22 +138,15 @@ export default function DetallePartido() {
       </p>
     )
 
-  const esCapitan = jugador?.id === partido.admin_id
-  const esSubcapitan = jugador?.id === partido.subcapitan_id
-  // El subcapitán tiene los mismos poderes que el capitán sobre el partido.
-  const esAdmin = esCapitan || esSubcapitan
+  // Quién puede qué sale todo de lib/permisos.ts, que es el único lugar donde
+  // esto está escrito y donde cada regla nombra su política de la base.
+  const esCapitan = soyCapitan(partido, jugador)
+  const esAdmin = puedeAdministrar(partido, jugador)
   const yoAnotado = anotados.some((a) => a.id === jugador?.id)
   const lugares = partido.cupo_total - anotados.length
   const estadoTiempo = calcularEstadoPartido(partido.fecha_hora, partido.estado)
-  // Valorar es solo para los que jugaron y mientras la ventana siga abierta.
-  // Antes alcanzaba con que la fecha hubiera pasado: el botón aparecía para
-  // cualquiera y llevaba a una pantalla que después rebotaba.
-  const horasDesdeInicio = (Date.now() - new Date(partido.fecha_hora).getTime()) / 3_600_000
-  const puedeValorar = estadoTiempo === 'terminado' && yoAnotado && horasDesdeInicio <= VENTANA_VALORAR_HORAS
-  // Horas que faltan para que empiece. Negativo si ya arrancó.
-  const horasParaEmpezar = -horasDesdeInicio
-  const enVentanaDeConfirmar =
-    estadoTiempo === 'programado' && horasParaEmpezar <= CONFIRMAR_DESDE_HORAS && horasParaEmpezar > 0
+  const puedeValorar = puedoValorarEste(partido, yoAnotado)
+  const enVentanaDeConfirmar = enVentanaConfirmar(partido)
   const meFaltaConfirmar = yoAnotado && enVentanaDeConfirmar && jugador ? !confirmados[jugador.id] : false
   const horaLimite = new Date(new Date(partido.fecha_hora).getTime() - LIBERAR_A_LAS_HORAS * 3_600_000)
   const miConfiable = !jugador || nivelDesdeBajasTardias(bajasTardiasMap[jugador.id] ?? 0) === 'confiable'
@@ -163,7 +158,7 @@ export default function DetallePartido() {
     if (yoAnotado) {
       // El capitán no puede irse dejando el partido sin dueño: si hay a quién,
       // primero elige sucesor. Si está solo, no hay a quién pasarle nada.
-      if (esCapitan && anotados.length > 1) {
+      if (debePasarLaCapitania(partido, jugador, anotados.length)) {
         setPasandoCapitania(true)
         return
       }
