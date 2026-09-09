@@ -71,6 +71,8 @@ export default function DetallePartido() {
   const [nota, setNota] = useState('')
   const [guardandoNota, setGuardandoNota] = useState(false)
   const [linkCopiado, setLinkCopiado] = useState(false)
+  const [confirmandoCancelar, setConfirmandoCancelar] = useState(false)
+  const [cancelando, setCancelando] = useState(false)
   const [mvp, setMvp] = useState<MvpDelPartido[]>([])
 
   useEffect(() => {
@@ -301,10 +303,26 @@ export default function DetallePartido() {
 
   async function cancelarPartido() {
     if (!partido) return
-    if (!confirm('¿Cancelar este partido? Los anotados van a dejar de verlo en la lista.')) return
-    const { error } = await supabase.from('partidos').update({ estado: 'cancelado' }).eq('id', partido.id)
+    setCancelando(true)
+    setError(null)
+
+    // El .select() no es de adorno: si la base rechaza el cambio por permisos
+    // no devuelve error, devuelve cero filas. Sin esto, un rechazo se veía
+    // igual que un éxito.
+    const { data, error } = await supabase
+      .from('partidos')
+      .update({ estado: 'cancelado' })
+      .eq('id', partido.id)
+      .select('id')
+
+    setCancelando(false)
     if (error) {
       setError(mensajeDeError(error))
+      return
+    }
+    if (!data?.length) {
+      setError('No pudimos cancelarlo. Solo puede cancelar el partido quien lo armó.')
+      setConfirmandoCancelar(false)
       return
     }
     navigate('/partidos')
@@ -776,12 +794,56 @@ export default function DetallePartido() {
             {duplicando ? 'Creando...' : 'Repetir'}
           </button>
           <button
-            onClick={cancelarPartido}
+            onClick={() => setConfirmandoCancelar(true)}
             className="tap glass flex-1 rounded-2xl px-4 py-2.5 text-sm font-semibold"
             style={{ color: 'var(--error)' }}
           >
             Cancelar
           </button>
+        </div>
+      )}
+
+      {confirmandoCancelar && (
+        <div className="glass-strong anim-rise mt-3 rounded-2xl p-5">
+          <p className="text-sm font-semibold" style={{ color: 'var(--error)' }}>
+            ¿Cancelar este partido?
+          </p>
+          <p className="mt-2 text-[13px] leading-relaxed" style={{ color: 'var(--pitch-700)' }}>
+            {anotados.length > 1
+              ? `Los ${anotados.length} anotados van a dejar de verlo en la lista.`
+              : 'Va a dejar de aparecer en la lista.'}{' '}
+            No se puede deshacer: si después querés jugarlo, hay que armarlo de nuevo.
+          </p>
+
+          {error && (
+            <p
+              className="mt-3 rounded-2xl px-4 py-3 text-[13px] leading-relaxed"
+              style={{ background: 'rgba(224,122,99,.14)', color: 'var(--error)' }}
+            >
+              {error}
+            </p>
+          )}
+
+          <div className="mt-4 flex gap-2">
+            <button
+              onClick={() => {
+                setConfirmandoCancelar(false)
+                setError(null)
+              }}
+              className="tap flex-[2] rounded-2xl px-4 py-3 text-sm font-semibold"
+              style={{ background: 'var(--paper)', color: 'var(--ink-900)' }}
+            >
+              No, dejalo
+            </button>
+            <button
+              onClick={cancelarPartido}
+              disabled={cancelando}
+              className="tap glass flex-1 rounded-2xl px-4 py-3 text-sm font-semibold disabled:opacity-50"
+              style={{ color: 'var(--error)' }}
+            >
+              {cancelando ? 'Cancelando...' : 'Sí, cancelar'}
+            </button>
+          </div>
         </div>
       )}
 

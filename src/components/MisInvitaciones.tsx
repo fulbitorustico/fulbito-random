@@ -9,6 +9,7 @@ export default function MisInvitaciones({ alResponder }: { alResponder: () => vo
   const { jugador } = useAuth()
   const [invitaciones, setInvitaciones] = useState<(Invitacion & { partido: Partido })[]>([])
   const [respondiendo, setRespondiendo] = useState<string | null>(null)
+  const [aviso, setAviso] = useState<string | null>(null)
 
   const cargar = useCallback(async () => {
     if (!jugador) return
@@ -44,6 +45,7 @@ export default function MisInvitaciones({ alResponder }: { alResponder: () => vo
   async function responder(inv: Invitacion & { partido: Partido }, acepta: boolean) {
     if (!jugador) return
     setRespondiendo(inv.id)
+    setAviso(null)
 
     if (acepta) {
       // Entre que te invitaron y que aceptás, el partido se pudo llenar.
@@ -53,7 +55,7 @@ export default function MisInvitaciones({ alResponder }: { alResponder: () => vo
         .eq('partido_id', inv.partido_id)
 
       if ((count ?? 0) >= inv.partido.cupo_total) {
-        alert('Justo se llenó ese partido. Le avisamos al que te invitó.')
+        setAviso('Justo se llenó ese partido. Le avisamos al que te invitó.')
         await supabase.from('invitaciones').update({ estado: 'rechazada' }).eq('id', inv.id)
         setRespondiendo(null)
         await cargar()
@@ -64,7 +66,7 @@ export default function MisInvitaciones({ alResponder }: { alResponder: () => vo
         .from('participantes')
         .insert({ partido_id: inv.partido_id, jugador_id: jugador.id })
       if (error) {
-        alert(mensajeDeError(error, 'sumarse'))
+        setAviso(mensajeDeError(error, 'sumarse'))
         setRespondiendo(null)
         return
       }
@@ -87,6 +89,15 @@ export default function MisInvitaciones({ alResponder }: { alResponder: () => vo
         <Icono name="personas" size={16} />
         Te invitaron a jugar
       </h2>
+
+      {aviso && (
+        <p
+          className="anim-rise mb-2 rounded-2xl px-4 py-3 text-[13px] leading-relaxed"
+          style={{ background: 'rgba(224,122,99,.14)', color: 'var(--error)' }}
+        >
+          {aviso}
+        </p>
+      )}
 
       <div className="flex flex-col gap-2">
         {invitaciones.map((inv) => (

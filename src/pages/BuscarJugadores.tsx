@@ -25,6 +25,10 @@ export default function BuscarJugadores() {
   const [loading, setLoading] = useState(true)
   const [invitados, setInvitados] = useState<Set<string>>(new Set())
   const [accionando, setAccionando] = useState(false)
+  // Bloquear es irreversible desde la app: se pide un segundo toque, pero
+  // dentro de la pantalla y no con el cartel del navegador, que se puede
+  // bloquear en el iPhone y deja el botón muerto sin avisar.
+  const [confirmandoBloqueo, setConfirmandoBloqueo] = useState<string | null>(null)
 
   const buscar = useCallback(
     async (coords: Coords | null, pos: string) => {
@@ -82,7 +86,11 @@ export default function BuscarJugadores() {
 
   async function bloquear(j: JugadorDisponible) {
     if (!jugador) return
-    if (!confirm(`¿Bloquear a ${j.nombre}? No va a volver a aparecerte ni vos a él.`)) return
+    if (confirmandoBloqueo !== j.jugador_id) {
+      setConfirmandoBloqueo(j.jugador_id)
+      return
+    }
+    setConfirmandoBloqueo(null)
     setAccionando(true)
     await supabase.from('bloqueos').insert({ bloqueador_id: jugador.id, bloqueado_id: j.jugador_id })
     setAccionando(false)
@@ -238,13 +246,38 @@ export default function BuscarJugadores() {
             )}
           </div>
 
-          <button
-            onClick={() => bloquear(actual)}
-            className="tap mt-3 w-full text-center text-xs font-semibold"
-            style={{ color: 'var(--pitch-300)' }}
-          >
-            Bloquear a {actual.nombre}
-          </button>
+          {confirmandoBloqueo === actual.jugador_id ? (
+            <div className="anim-rise mt-3 rounded-2xl p-3" style={{ background: 'rgba(224,122,99,.12)' }}>
+              <p className="text-center text-xs leading-relaxed" style={{ color: 'var(--pitch-700)' }}>
+                Si bloqueás a {actual.nombre}, no se van a volver a ver ninguno de los dos.
+              </p>
+              <div className="mt-2.5 flex gap-2">
+                <button
+                  onClick={() => setConfirmandoBloqueo(null)}
+                  className="tap flex-[2] rounded-xl px-3 py-2 text-xs font-semibold"
+                  style={{ background: 'var(--paper)', color: 'var(--ink-900)' }}
+                >
+                  Mejor no
+                </button>
+                <button
+                  onClick={() => bloquear(actual)}
+                  disabled={accionando}
+                  className="tap flex-1 rounded-xl px-3 py-2 text-xs font-semibold disabled:opacity-50"
+                  style={{ background: 'rgba(242,239,233,.07)', color: 'var(--error)' }}
+                >
+                  Bloquear
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={() => bloquear(actual)}
+              className="tap mt-3 w-full text-center text-xs font-semibold"
+              style={{ color: 'var(--pitch-300)' }}
+            >
+              Bloquear a {actual.nombre}
+            </button>
+          )}
 
           <p className="mt-4 text-center text-xs" style={{ color: 'var(--pitch-300)' }}>
             {indice + 1} de {disponibles.length}

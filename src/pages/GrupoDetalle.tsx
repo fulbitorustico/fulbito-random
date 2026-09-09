@@ -20,6 +20,7 @@ export default function GrupoDetalle() {
   const [loading, setLoading] = useState(true)
   const [nombreNuevo, setNombreNuevo] = useState('')
   const [agregando, setAgregando] = useState(false)
+  const [linkCopiado, setLinkCopiado] = useState(false)
   const [linkReclamo, setLinkReclamo] = useState<{ nombre: string; url: string } | null>(null)
   const [solicitudes, setSolicitudes] = useState<(SolicitudGrupo & { jugador: Jugador })[]>([])
 
@@ -148,7 +149,8 @@ export default function GrupoDetalle() {
     }
     try {
       await navigator.clipboard.writeText(url)
-      alert('Link copiado al portapapeles')
+      setLinkCopiado(true)
+      setTimeout(() => setLinkCopiado(false), 2500)
     } catch {
       window.open(`https://wa.me/?text=${encodeURIComponent(mensaje)}`, '_blank')
     }
@@ -187,6 +189,23 @@ export default function GrupoDetalle() {
           Invitar
         </button>
       </div>
+
+      {linkCopiado && (
+
+        <p
+
+          className="anim-rise mt-3 rounded-2xl px-4 py-3 text-center text-[13px] font-semibold"
+
+          style={{ background: 'rgba(159,198,154,.16)', color: 'var(--acc-green)' }}
+
+        >
+
+          Link copiado. Pegalo en el grupo.
+
+        </p>
+
+      )}
+
 
       {esAdmin && (
         <button

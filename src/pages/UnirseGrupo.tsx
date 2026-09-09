@@ -14,6 +14,7 @@ export default function UnirseGrupo() {
   const [solicitudEstado, setSolicitudEstado] = useState<EstadoSolicitud | null>(null)
   const [loading, setLoading] = useState(true)
   const [uniendo, setUniendo] = useState(false)
+  const [aviso, setAviso] = useState<string | null>(null)
 
   useEffect(() => {
     async function cargar() {
@@ -57,7 +58,8 @@ export default function UnirseGrupo() {
       .from('grupo_miembros')
       .insert({ grupo_id: id, jugador_id: jugador.id })
     if (errorMiembro) {
-      alert(mensajeDeError(errorMiembro, 'grupo'))
+      setAviso(mensajeDeError(errorMiembro, 'grupo'))
+      setUniendo(false)
       return
     }
     navigate(`/grupos/${id}`)
@@ -86,7 +88,17 @@ export default function UnirseGrupo() {
           Te invitaron a este grupo en Fulbito Random
         </p>
 
+        {aviso && (
+          <p
+            className="anim-rise mt-3 rounded-2xl px-4 py-3 text-[13px] leading-relaxed"
+            style={{ background: 'rgba(224,122,99,.14)', color: 'var(--error)' }}
+          >
+            {aviso}
+          </p>
+        )}
+
         {yaSoyMiembro ? (
+
           <button
             onClick={() => navigate(`/grupos/${id}`)}
             className="tap mt-6 w-full rounded-2xl px-4 py-3.5 text-[15px] font-semibold text-[color:var(--ink-900)] shadow-sm"

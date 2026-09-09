@@ -141,6 +141,12 @@ Esconde los partidos públicos de quien nunca jugó. Pide haber jugado un partid
 
 **Cuidado con las horas negativas.** `registrarBaja` calcula las horas que faltaban para el partido; en uno pasado da negativo, y todo lo negativo cae por debajo del umbral de los 45 minutos. Un botón de "Bajarme" en un partido terminado le arruinaba la confiabilidad a quien lo tocara.
 
+**Nada de `confirm()` ni `alert()` del navegador.** Safari en iPhone le ofrece al usuario "no mostrar más avisos de esta página" cuando una página muestra varios seguidos. Una vez que lo bloquea, **`confirm()` devuelve `false` al instante y sin mostrar nada**: el botón queda muerto para siempre, en ese teléfono, sin ningún error. Le pasó al botón de cancelar un partido.
+
+Toda confirmación va **dentro de la pantalla**, en dos toques, como "pasar la capitanía" o "darme de baja". Todo aviso va como cartel en la página. En `src/` no debe quedar ningún `confirm(` ni `alert(`.
+
+**Toda escritura que puede ser rechazada por permisos necesita `.select()`.** Un `update` o `delete` bloqueado por RLS **no devuelve error**: devuelve cero filas. Sin `.select()` para contarlas, un rechazo se ve exactamente igual que un éxito.
+
 **El service worker de la PWA sirve la versión vieja** después de cada deploy. Para verificar hay que desregistrarlo y limpiar caches, o usar pestaña nueva.
 
 **Los degradados SVG con id fijo se pisan entre instancias:** usar `useId()`.

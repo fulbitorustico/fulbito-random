@@ -164,13 +164,10 @@ export default function Perfil() {
 
   async function guardarPosiciones() {
     if (!jugador || posiciones.length === 0) return
-    const restantes = MAX_CAMBIOS_POSICIONES - jugador.cambios_posiciones
-    const aviso =
-      restantes === 1
-        ? 'Este es tu último cambio: después las posiciones quedan fijas. ¿Confirmás?'
-        : `Después de este cambio te va a quedar ${restantes - 1}. ¿Confirmás?`
-    if (!confirm(aviso)) return
 
+    // El aviso de cuántos cambios quedan ya está a la vista en la pantalla,
+    // arriba de este botón. Antes se repetía en un cartel del navegador, que
+    // en el iPhone se puede bloquear y deja el botón muerto sin avisar.
     setGuardandoPosiciones(true)
     setMensajePosiciones(null)
     const { error } = await supabase.from('jugadores').update({ posiciones }).eq('id', jugador.id)
