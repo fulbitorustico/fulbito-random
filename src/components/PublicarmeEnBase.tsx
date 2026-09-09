@@ -24,8 +24,6 @@ export default function PublicarmeEnBase() {
     setGuardando(true)
     setMensaje(null)
 
-    // Ubicación redondeada a ~1 km: sirve para ordenar por cercanía sin
-    // decirle a nadie dónde vivís.
     const coords = await pedirUbicacion()
     const { error } = await supabase
       .from('jugadores')
@@ -34,10 +32,19 @@ export default function PublicarmeEnBase() {
         zona: zona.trim() || null,
         bio: bio.trim() || null,
         disponibilidad: dias,
-        lat_aprox: coords ? Math.round(coords.lat * 100) / 100 : null,
-        lng_aprox: coords ? Math.round(coords.lng * 100) / 100 : null,
       })
       .eq('id', jugador!.id)
+
+    // La ubicación va en su propia tabla, que solo puede leer su dueño:
+    // redondeada a ~1 km alcanza para ordenar por cercanía sin decirle a nadie
+    // dónde vivís.
+    if (coords) {
+      await supabase.from('jugadores_ubicacion').upsert({
+        jugador_id: jugador!.id,
+        lat_aprox: Math.round(coords.lat * 100) / 100,
+        lng_aprox: Math.round(coords.lng * 100) / 100,
+      })
+    }
 
     setGuardando(false)
     if (error) {
@@ -49,10 +56,8 @@ export default function PublicarmeEnBase() {
 
   async function despublicarme() {
     setGuardando(true)
-    await supabase
-      .from('jugadores')
-      .update({ buscando: false, lat_aprox: null, lng_aprox: null })
-      .eq('id', jugador!.id)
+    await supabase.from('jugadores').update({ buscando: false }).eq('id', jugador!.id)
+    await supabase.from('jugadores_ubicacion').delete().eq('jugador_id', jugador!.id)
     setGuardando(false)
     await refreshJugador()
   }

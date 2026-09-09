@@ -12,8 +12,6 @@ export interface Jugador {
   zona: string | null
   bio: string | null
   disponibilidad: string[] | null
-  lat_aprox: number | null
-  lng_aprox: number | null
   created_at: string
 }
 
