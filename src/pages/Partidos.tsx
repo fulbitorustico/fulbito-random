@@ -3,7 +3,14 @@ import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import type { Partido } from '../lib/types'
-import { distanciaKm, formatCuentaRegresiva, formatDistancia, pedirUbicacion, type Coords } from '../lib/geo'
+import {
+  calcularEstadoPartido,
+  distanciaKm,
+  formatCuentaRegresiva,
+  formatDistancia,
+  pedirUbicacion,
+  type Coords,
+} from '../lib/geo'
 import { registrarBaja, fetchBajasTardiasMap } from '../lib/bajas'
 import { nivelDesdeBajasTardias } from '../lib/confiabilidad'
 import Icono from '../components/Icono'
@@ -14,6 +21,93 @@ interface PartidoConCupo extends Partido {
   yo_anotado: boolean
   distanciaKm: number | null
   grupo_nombre: string | null
+}
+
+function TarjetaPartido({
+  p,
+  miConfiable,
+  onToggle,
+  delayMs,
+}: {
+  p: PartidoConCupo
+  miConfiable: boolean
+  onToggle: (p: PartidoConCupo) => void
+  delayMs: number
+}) {
+  const lugares = p.cupo_total - p.anotados
+  const restringido = p.apertura === 'solo_confiables' && !miConfiable && !p.yo_anotado
+  const abierto = p.estado === 'abierto' && lugares > 0 && !restringido
+  const estadoTiempo = calcularEstadoPartido(p.fecha_hora, p.estado)
+
+  return (
+    <div className="glass anim-rise rounded-3xl p-4" style={{ animationDelay: `${delayMs}ms` }}>
+      <div className="flex items-start justify-between gap-2">
+        <Link to={`/partidos/${p.id}`} className="min-w-0 flex-1">
+          <p className="truncate font-semibold" style={{ color: 'var(--pitch-900)' }}>
+            {p.cancha}
+            {p.grupo_nombre && (
+              <span className="ml-2 text-[11px] font-semibold" style={{ color: 'var(--pitch-300)' }}>
+                {p.grupo_nombre}
+              </span>
+            )}
+          </p>
+          <p className="mt-0.5 text-[13px]" style={{ color: 'var(--pitch-700)', opacity: 0.75 }}>
+            {new Date(p.fecha_hora).toLocaleString('es-AR', {
+              weekday: 'short',
+              day: 'numeric',
+              month: 'short',
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
+            {estadoTiempo !== 'cancelado' && (
+              <span style={{ color: estadoTiempo === 'en_juego' ? 'var(--acc-green)' : 'var(--gold-500)' }}>
+                {' '}
+                · {formatCuentaRegresiva(p.fecha_hora)}
+              </span>
+            )}
+          </p>
+          {(p.distanciaKm != null || p.valor_cancha) && (
+            <p className="mt-0.5 flex items-center gap-2 text-[12.5px] font-medium" style={{ color: 'var(--acc-green)' }}>
+              {p.distanciaKm != null && (
+                <span className="inline-flex items-center gap-1">
+                  <Icono name="pin" size={13} /> {formatDistancia(p.distanciaKm)}
+                </span>
+              )}
+              {p.valor_cancha && <span>${Math.ceil(p.valor_cancha / p.cupo_total)}/jugador</span>}
+            </p>
+          )}
+        </Link>
+        <span
+          className="shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold"
+          style={
+            abierto
+              ? { background: 'rgba(237,197,141,.18)', color: 'var(--gold-500)' }
+              : { background: 'rgba(242,239,233,.07)', color: 'var(--pitch-300)' }
+          }
+        >
+          {estadoTiempo === 'cancelado' ? 'Cancelado' : lugares > 0 ? `Faltan ${lugares}` : 'Completo'}
+        </span>
+      </div>
+      <div className="mt-3 flex items-center justify-between">
+        <span className="text-[13px]" style={{ color: 'var(--pitch-300)' }}>
+          {p.anotados}/{p.cupo_total} anotados
+          {p.apertura === 'solo_confiables' && ' · Solo confiables'}
+        </span>
+        <button
+          onClick={() => onToggle(p)}
+          disabled={!abierto && !p.yo_anotado}
+          className="tap rounded-full px-4 py-2 text-[13px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-40"
+          style={
+            p.yo_anotado
+              ? { background: 'rgba(242,239,233,.08)', color: 'var(--pitch-700)' }
+              : { background: 'var(--paper)', color: 'var(--ink-900)' }
+          }
+        >
+          {p.yo_anotado ? 'Bajarme' : restringido ? 'Solo confiables' : 'Sumarme'}
+        </button>
+      </div>
+    </div>
+  )
 }
 
 export default function Partidos() {
@@ -86,6 +180,11 @@ export default function Partidos() {
     await cargar(miUbicacion)
   }
 
+  const conEstado = partidos.map((p) => ({ p, estadoTiempo: calcularEstadoPartido(p.fecha_hora, p.estado) }))
+  const enJuego = conEstado.filter((x) => x.estadoTiempo === 'en_juego')
+  const proximos = conEstado.filter((x) => x.estadoTiempo === 'programado')
+  const jugados = conEstado.filter((x) => x.estadoTiempo === 'terminado' || x.estadoTiempo === 'cancelado')
+
   return (
     <div>
       <div className="mb-5 flex items-center justify-between">
@@ -120,80 +219,48 @@ export default function Partidos() {
         </div>
       )}
 
-      <div className="flex flex-col gap-3">
-        {partidos.map((p, i) => {
-          const lugares = p.cupo_total - p.anotados
-          const restringido = p.apertura === 'solo_confiables' && !miConfiable && !p.yo_anotado
-          const abierto = p.estado === 'abierto' && lugares > 0 && !restringido
-          return (
-            <div
-              key={p.id}
-              className="glass anim-rise rounded-3xl p-4"
-              style={{ animationDelay: `${i * 60}ms` }}
+      <div className="flex flex-col gap-5">
+        {enJuego.length > 0 && (
+          <div className="flex flex-col gap-3">
+            <p
+              className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide"
+              style={{ color: 'var(--acc-green)' }}
             >
-              <div className="flex items-start justify-between gap-2">
-                <Link to={`/partidos/${p.id}`} className="min-w-0 flex-1">
-                  <p className="truncate font-semibold" style={{ color: 'var(--pitch-900)' }}>
-                    {p.cancha}
-                    {p.grupo_nombre && (
-                      <span className="ml-2 text-[11px] font-semibold" style={{ color: 'var(--pitch-300)' }}>
-                        {p.grupo_nombre}
-                      </span>
-                    )}
-                  </p>
-                  <p className="mt-0.5 text-[13px]" style={{ color: 'var(--pitch-700)', opacity: 0.75 }}>
-                    {new Date(p.fecha_hora).toLocaleString('es-AR', {
-                      weekday: 'short',
-                      day: 'numeric',
-                      month: 'short',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                    <span style={{ color: 'var(--gold-500)' }}> · {formatCuentaRegresiva(p.fecha_hora)}</span>
-                  </p>
-                  {(p.distanciaKm != null || p.valor_cancha) && (
-                    <p className="mt-0.5 flex items-center gap-2 text-[12.5px] font-medium" style={{ color: 'var(--acc-green)' }}>
-                      {p.distanciaKm != null && (
-                        <span className="inline-flex items-center gap-1">
-                          <Icono name="pin" size={13} /> {formatDistancia(p.distanciaKm)}
-                        </span>
-                      )}
-                      {p.valor_cancha && <span>${Math.ceil(p.valor_cancha / p.cupo_total)}/jugador</span>}
-                    </p>
-                  )}
-                </Link>
-                <span
-                  className="shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold"
-                  style={
-                    abierto
-                      ? { background: 'rgba(237,197,141,.18)', color: 'var(--gold-500)' }
-                      : { background: 'rgba(242,239,233,.07)', color: 'var(--pitch-300)' }
-                  }
-                >
-                  {lugares > 0 ? `Faltan ${lugares}` : 'Completo'}
-                </span>
-              </div>
-              <div className="mt-3 flex items-center justify-between">
-                <span className="text-[13px]" style={{ color: 'var(--pitch-300)' }}>
-                  {p.anotados}/{p.cupo_total} anotados
-                  {p.apertura === 'solo_confiables' && ' · Solo confiables'}
-                </span>
-                <button
-                  onClick={() => toggleAnotarse(p)}
-                  disabled={!abierto && !p.yo_anotado}
-                  className="tap rounded-full px-4 py-2 text-[13px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-40"
-                  style={
-                    p.yo_anotado
-                      ? { background: 'rgba(242,239,233,.08)', color: 'var(--pitch-700)' }
-                      : { background: 'var(--paper)', color: 'var(--ink-900)' }
-                  }
-                >
-                  {p.yo_anotado ? 'Bajarme' : restringido ? 'Solo confiables' : 'Sumarme'}
-                </button>
-              </div>
+              <span className="h-1.5 w-1.5 rounded-full" style={{ background: 'var(--acc-green)' }} />
+              En juego
+            </p>
+            {enJuego.map(({ p }, i) => (
+              <TarjetaPartido key={p.id} p={p} miConfiable={miConfiable} onToggle={toggleAnotarse} delayMs={i * 60} />
+            ))}
+          </div>
+        )}
+
+        {proximos.length > 0 && (
+          <div className="flex flex-col gap-3">
+            <p className="text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--pitch-300)' }}>
+              Próximos
+            </p>
+            {proximos.map(({ p }, i) => (
+              <TarjetaPartido key={p.id} p={p} miConfiable={miConfiable} onToggle={toggleAnotarse} delayMs={i * 60} />
+            ))}
+          </div>
+        )}
+
+        {jugados.length > 0 && (
+          <details>
+            <summary
+              className="cursor-pointer text-xs font-bold uppercase tracking-wide"
+              style={{ color: 'var(--pitch-300)' }}
+            >
+              Jugados ({jugados.length})
+            </summary>
+            <div className="mt-3 flex flex-col gap-3">
+              {jugados.map(({ p }, i) => (
+                <TarjetaPartido key={p.id} p={p} miConfiable={miConfiable} onToggle={toggleAnotarse} delayMs={i * 60} />
+              ))}
             </div>
-          )
-        })}
+          </details>
+        )}
       </div>
     </div>
   )

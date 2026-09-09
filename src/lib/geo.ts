@@ -1,6 +1,20 @@
+import type { EstadoPartido } from './types'
+
 export interface Coords {
   lat: number
   lng: number
+}
+
+export type EstadoTiempoPartido = 'programado' | 'en_juego' | 'terminado' | 'cancelado'
+
+const DURACION_PARTIDO_MS = 2 * 60 * 60 * 1000
+
+export function calcularEstadoPartido(fechaHoraISO: string, estado: EstadoPartido): EstadoTiempoPartido {
+  if (estado === 'cancelado') return 'cancelado'
+  const diffMs = Date.now() - new Date(fechaHoraISO).getTime()
+  if (diffMs < 0) return 'programado'
+  if (diffMs < DURACION_PARTIDO_MS) return 'en_juego'
+  return 'terminado'
 }
 
 export function distanciaKm(a: Coords, b: Coords): number {
@@ -21,16 +35,25 @@ export function formatDistancia(km: number): string {
 
 export function formatCuentaRegresiva(fechaHoraISO: string): string {
   const diffMs = new Date(fechaHoraISO).getTime() - Date.now()
-  if (diffMs <= 0) return 'ya empezó'
-  const minutos = Math.round(diffMs / 60000)
-  if (minutos < 60) return `en ${minutos} min`
-  const horas = Math.floor(minutos / 60)
-  if (horas < 24) {
-    const restoMin = minutos % 60
-    return restoMin > 0 ? `en ${horas} h ${restoMin} min` : `en ${horas} h`
+
+  if (diffMs > 0) {
+    const minutos = Math.round(diffMs / 60000)
+    if (minutos < 60) return `en ${minutos} min`
+    const horas = Math.floor(minutos / 60)
+    if (horas < 24) {
+      const restoMin = minutos % 60
+      return restoMin > 0 ? `en ${horas} h ${restoMin} min` : `en ${horas} h`
+    }
+    const dias = Math.floor(horas / 24)
+    return `en ${dias} ${dias === 1 ? 'día' : 'días'}`
   }
+
+  const pasadoMs = -diffMs
+  if (pasadoMs < DURACION_PARTIDO_MS) return 'en juego'
+  const horas = Math.floor(pasadoMs / 3600000)
+  if (horas < 24) return `terminó hace ${horas} h`
   const dias = Math.floor(horas / 24)
-  return `en ${dias} ${dias === 1 ? 'día' : 'días'}`
+  return `terminó hace ${dias} ${dias === 1 ? 'día' : 'días'}`
 }
 
 export function pedirUbicacion(): Promise<Coords | null> {

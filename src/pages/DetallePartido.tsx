@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import Avatar from '../components/Avatar'
 import { formatPosiciones } from '../lib/posiciones'
 import { registrarBaja, fetchBajasTardiasMap } from '../lib/bajas'
+import { calcularEstadoPartido } from '../lib/geo'
 import { nivelDesdeBajasTardias } from '../lib/confiabilidad'
 import BadgeConfiabilidad from '../components/BadgeConfiabilidad'
 import Icono from '../components/Icono'
@@ -118,7 +119,7 @@ export default function DetallePartido() {
   const esAdmin = esCapitan || esSubcapitan
   const yoAnotado = anotados.some((a) => a.id === jugador?.id)
   const lugares = partido.cupo_total - anotados.length
-  const yaSeJugo = new Date(partido.fecha_hora).getTime() < Date.now()
+  const estadoTiempo = calcularEstadoPartido(partido.fecha_hora, partido.estado)
   const miConfiable = !jugador || nivelDesdeBajasTardias(bajasTardiasMap[jugador.id] ?? 0) === 'confiable'
   const restringido = partido.apertura === 'solo_confiables' && !miConfiable && !yoAnotado
   const abierto = partido.estado === 'abierto' && lugares > 0 && !restringido
@@ -313,7 +314,7 @@ export default function DetallePartido() {
             </button>
           )}
 
-          {yaSeJugo && partido.estado !== 'cancelado' && (
+          {estadoTiempo === 'terminado' && (
             <Link
               to={`/partidos/${partido.id}/valorar`}
               className="tap mt-2 block w-full rounded-2xl px-4 py-3 text-center text-[15px] font-semibold"
@@ -396,7 +397,7 @@ export default function DetallePartido() {
         </form>
       )}
 
-      {yaSeJugo && mvp.length > 0 && (
+      {estadoTiempo === 'terminado' && mvp.length > 0 && (
         <div className="glass-strong anim-rise mt-3 rounded-[24px] p-5">
           <div className="flex items-center gap-3">
             <div style={{ color: 'var(--gold-500)' }}>
@@ -420,7 +421,7 @@ export default function DetallePartido() {
         </div>
       )}
 
-      {yaSeJugo && partido.estado !== 'cancelado' && (
+      {estadoTiempo === 'terminado' && (
         <div
           className="glass-strong mt-3 rounded-[24px] p-5"
           style={{ border: '1px solid rgba(162,138,188,.3)' }}
@@ -474,7 +475,7 @@ export default function DetallePartido() {
               {generandoEquipos ? 'Armando...' : 'Generar equipos'}
             </button>
           )}
-          {lugares > 0 && !yaSeJugo && (
+          {lugares > 0 && estadoTiempo === 'programado' && (
             <Link
               to={`/buscar?partido=${partido.id}`}
               className="tap glass flex-1 rounded-2xl px-4 py-2.5 text-center text-sm font-semibold"
