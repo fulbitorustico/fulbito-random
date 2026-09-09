@@ -25,3 +25,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Los archivos fantasma que deja macOS en discos externos
+._*
+.Spotlight-V100
+.Trashes

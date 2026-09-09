@@ -35,6 +35,14 @@ Postgres valida el cuerpo de una función cuando la crea. Si una función lee un
 
 **El editor solo muestra el resultado del último bloque.** Por eso los scripts terminan en un solo `select` de confirmación, y por eso los de diagnóstico se escriben como **una sola consulta** con `union all` y una columna de sección.
 
+## Las tres herramientas
+
+No son migraciones: no se numeran y no hace falta correrlas en orden. Son de **solo lectura** salvo donde se diga.
+
+- **`herramienta_diagnostico.sql`** — muestra cómo está configurada la base: políticas, seguridad, restricciones, disparadores, cuánta data hay y un control de integridad. Correrla cuando algo no cierre.
+- **`herramienta_generar_esquema_base.sql`** — vuelca el esquema completo como texto, para regenerar el `0000`. Reemplaza a `npx supabase db pull` cuando no hay terminal a mano. Leer su encabezado: hay tres cosas que hay que ordenar a mano.
+- **`herramienta_respaldo_datos.sql`** — saca **el contenido** de la base en JSON. El repositorio guarda la forma; esto guarda los datos. **Una vez por semana, y siempre antes de una migración que borre o transforme datos.**
+
 ## Qué hay acá y qué falta
 
 Los archivos `0001` a `0012` son todo lo que se hizo desde el 9 de septiembre de 2026, en orden. **Las doce están corridas en producción y confirmadas**, salvo el pendiente que se nombra abajo.
