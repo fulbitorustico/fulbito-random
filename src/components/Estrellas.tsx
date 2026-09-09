@@ -38,13 +38,10 @@ export default function Estrellas({
   variant?: 'compacto' | 'completo'
   distribucion?: DistribucionValoracion[]
 }) {
-  if (promedio == null || cantidad === 0) {
-    return (
-      <span className="text-sm" style={{ color: 'var(--pitch-300)' }}>
-        Todavía sin valoraciones
-      </span>
-    )
-  }
+  // Todos arrancan en 3 estrellas: si todavía no lo valoró nadie, se muestran
+  // igual, pero aclarando que es el puntaje de arranque y no algo que ganó.
+  const puntaje = promedio ?? 3
+  const esArranque = cantidad === 0
 
   if (variant === 'completo') {
     const maxCantidad = Math.max(1, ...(distribucion ?? []).map((d) => d.cantidad))
@@ -52,17 +49,19 @@ export default function Estrellas({
       <div className="w-full">
         <div className="flex items-center gap-4">
           <span className="text-4xl font-bold leading-none" style={{ color: 'var(--pitch-900)' }}>
-            {promedio.toFixed(1)}
+            {puntaje.toFixed(1)}
           </span>
           <div className="flex flex-col gap-1">
-            <FilaEstrellas promedio={promedio} size={18} />
+            <FilaEstrellas promedio={puntaje} size={18} />
             <span className="text-[13px]" style={{ color: 'var(--pitch-300)' }}>
-              {cantidad} {cantidad === 1 ? 'valoración' : 'valoraciones'}
+              {esArranque
+                ? 'Puntaje de arranque'
+                : `${cantidad} ${cantidad === 1 ? 'valoración' : 'valoraciones'}`}
             </span>
           </div>
         </div>
 
-        {distribucion && (
+        {distribucion && !esArranque && (
           <div className="mt-4 flex flex-col gap-1.5">
             {[5, 4, 3, 2, 1].map((n) => {
               const fila = distribucion.find((d) => d.estrellas === n)
@@ -94,12 +93,12 @@ export default function Estrellas({
 
   return (
     <div className="flex items-center gap-1.5">
-      <FilaEstrellas promedio={promedio} size={size} />
+      <FilaEstrellas promedio={puntaje} size={size} />
       <span className="text-sm font-semibold" style={{ color: 'var(--pitch-900)' }}>
-        {promedio.toFixed(1)}
+        {puntaje.toFixed(1)}
       </span>
       <span className="text-[13px]" style={{ color: 'var(--pitch-300)' }}>
-        ({cantidad})
+        {esArranque ? 'de arranque' : `(${cantidad})`}
       </span>
     </div>
   )

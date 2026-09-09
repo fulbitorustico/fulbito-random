@@ -11,6 +11,7 @@ import { achicarParaAvatar } from '../lib/imagen'
 import SelectorPosiciones from '../components/SelectorPosiciones'
 import { fetchBajasTardiasMap } from '../lib/bajas'
 import { insigniaPorId } from '../lib/insignias'
+import { MAX_CAMBIOS_POSICIONES } from '../lib/types'
 import type { DistribucionValoracion, InsigniaConteo, ValoracionPromedio } from '../lib/types'
 
 const inputClass =
@@ -32,6 +33,9 @@ export default function Perfil() {
   const [insignias, setInsignias] = useState<InsigniaConteo[]>([])
   const [subiendoFoto, setSubiendoFoto] = useState(false)
   const inputFoto = useRef<HTMLInputElement>(null)
+  const [editandoPosiciones, setEditandoPosiciones] = useState(false)
+  const [guardandoPosiciones, setGuardandoPosiciones] = useState(false)
+  const [mensajePosiciones, setMensajePosiciones] = useState<string | null>(null)
 
   useEffect(() => {
     if (!jugador) return
@@ -56,6 +60,8 @@ export default function Perfil() {
   }, [jugador])
 
   if (!jugador) return null
+
+  const cambiosRestantes = Math.max(0, MAX_CAMBIOS_POSICIONES - (jugador.cambios_posiciones ?? 0))
 
   async function guardarAvatar(nuevo: string) {
     setAvatar(nuevo)
@@ -94,13 +100,35 @@ export default function Perfil() {
     await refreshJugador()
   }
 
+  async function guardarPosiciones() {
+    if (!jugador || posiciones.length === 0) return
+    const restantes = MAX_CAMBIOS_POSICIONES - jugador.cambios_posiciones
+    const aviso =
+      restantes === 1
+        ? 'Este es tu último cambio: después las posiciones quedan fijas. ¿Confirmás?'
+        : `Después de este cambio te va a quedar ${restantes - 1}. ¿Confirmás?`
+    if (!confirm(aviso)) return
+
+    setGuardandoPosiciones(true)
+    setMensajePosiciones(null)
+    const { error } = await supabase.from('jugadores').update({ posiciones }).eq('id', jugador.id)
+    setGuardandoPosiciones(false)
+
+    if (error) {
+      setMensajePosiciones(error.message)
+      return
+    }
+    await refreshJugador()
+    setEditandoPosiciones(false)
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setGuardando(true)
     setMensaje(null)
     const { error } = await supabase
       .from('jugadores')
-      .update({ nombre, apodo: apodo || null, posiciones })
+      .update({ nombre, apodo: apodo || null })
       .eq('id', jugador!.id)
     setGuardando(false)
     if (error) setMensaje(error.message)
@@ -242,7 +270,6 @@ export default function Perfil() {
           className={inputClass}
           style={{ color: 'var(--pitch-900)' }}
         />
-        <SelectorPosiciones value={posiciones} onChange={setPosiciones} />
         <button
           type="submit"
           disabled={guardando}
@@ -257,6 +284,93 @@ export default function Perfil() {
           </p>
         )}
       </form>
+
+      <div className="glass-strong mt-4 rounded-[28px] p-6">
+        <h2 className="text-sm font-semibold" style={{ color: 'var(--pitch-700)' }}>
+          Dónde jugás
+        </h2>
+
+        {!editandoPosiciones ? (
+          <>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {(jugador.posiciones ?? []).length === 0 ? (
+                <p className="text-sm" style={{ color: 'var(--pitch-300)' }}>
+                  Todavía no elegiste posición.
+                </p>
+              ) : (
+                (jugador.posiciones ?? []).map((p) => (
+                  <span
+                    key={p}
+                    className="rounded-full px-3.5 py-2 text-[13px] font-semibold"
+                    style={{ background: 'var(--paper)', color: 'var(--ink-900)' }}
+                  >
+                    {p}
+                  </span>
+                ))
+              )}
+            </div>
+
+            <p className="mt-3 text-xs" style={{ color: 'var(--pitch-300)' }}>
+              {cambiosRestantes > 0
+                ? `Te ${cambiosRestantes === 1 ? 'queda' : 'quedan'} ${cambiosRestantes} ${
+                    cambiosRestantes === 1 ? 'cambio' : 'cambios'
+                  }.`
+                : 'Ya usaste los dos cambios: tus posiciones quedaron fijas.'}
+            </p>
+
+            <button
+              type="button"
+              onClick={() => {
+                setPosiciones(jugador.posiciones ?? [])
+                setEditandoPosiciones(true)
+                setMensajePosiciones(null)
+              }}
+              disabled={cambiosRestantes === 0}
+              className="tap glass mt-3 w-full rounded-2xl px-4 py-3 text-sm font-semibold disabled:opacity-40"
+              style={{ color: 'var(--pitch-700)' }}
+            >
+              Cambiar posiciones
+            </button>
+          </>
+        ) : (
+          <div className="mt-3">
+            <SelectorPosiciones value={posiciones} onChange={setPosiciones} />
+            <p
+              className="mt-3 rounded-2xl p-3 text-xs leading-relaxed"
+              style={{ background: 'rgba(237,197,141,.14)', color: 'var(--gold-500)' }}
+            >
+              Pensalo bien: te {cambiosRestantes === 1 ? 'queda' : 'quedan'}{' '}
+              {cambiosRestantes} {cambiosRestantes === 1 ? 'cambio' : 'cambios'}. Cuando se terminen, tus
+              posiciones quedan fijas.
+            </p>
+            <div className="mt-3 flex gap-2">
+              <button
+                type="button"
+                onClick={guardarPosiciones}
+                disabled={guardandoPosiciones || posiciones.length === 0}
+                className="tap flex-1 rounded-2xl px-4 py-3 text-sm font-semibold text-[color:var(--ink-900)] disabled:opacity-40"
+                style={{ background: 'var(--paper)' }}
+              >
+                {guardandoPosiciones ? 'Guardando...' : 'Confirmar'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setEditandoPosiciones(false)}
+                className="tap rounded-2xl px-4 py-3 text-sm font-semibold"
+                style={{ background: 'rgba(242,239,233,.08)', color: 'var(--pitch-700)' }}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        )}
+
+        {mensajePosiciones && (
+          <p className="mt-3 text-sm" style={{ color: 'var(--error)' }}>
+            {mensajePosiciones}
+          </p>
+        )}
+      </div>
 
       <p className="mt-5 text-center text-sm" style={{ color: 'var(--pitch-300)' }}>
         <Link to="/terminos" className="underline">

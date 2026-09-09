@@ -133,18 +133,12 @@ export default function Jugadores() {
                 </p>
               </div>
               <div className="flex shrink-0 flex-col items-end gap-1">
-                {prom ? (
-                  <p
-                    className="inline-flex items-center gap-1 text-sm font-semibold"
-                    style={{ color: 'var(--gold-500)' }}
-                  >
-                    <Icono name="estrella" size={13} /> {prom.promedio.toFixed(1)}
-                  </p>
-                ) : (
-                  <p className="text-xs" style={{ color: 'var(--pitch-300)' }}>
-                    Sin valorar
-                  </p>
-                )}
+                <p
+                  className="inline-flex items-center gap-1 text-sm font-semibold"
+                  style={{ color: 'var(--gold-500)' }}
+                >
+                  <Icono name="estrella" size={13} /> {(prom?.promedio ?? 3).toFixed(1)}
+                </p>
                 <BadgeConfiabilidad bajasTardias={bajasTardiasMap[j.id] ?? 0} />
               </div>
             </Link>

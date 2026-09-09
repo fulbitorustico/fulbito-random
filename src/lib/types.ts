@@ -7,8 +7,11 @@ export interface Jugador {
   posiciones: string[] | null
   foto_url: string | null
   avatar: string | null
+  cambios_posiciones: number
   created_at: string
 }
+
+export const MAX_CAMBIOS_POSICIONES = 2
 
 export type EstadoPartido = 'abierto' | 'cerrado' | 'cancelado'
 export type AperturaPartido = 'abierto' | 'solo_confiables'
