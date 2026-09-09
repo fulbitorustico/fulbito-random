@@ -73,6 +73,7 @@ export interface Partido {
   usa_equipos: boolean
   subcapitan_id: string | null
   cancha_id: string | null
+  mapa_url: string | null
 }
 
 export interface BajasTardias {

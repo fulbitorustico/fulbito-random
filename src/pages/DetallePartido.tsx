@@ -6,6 +6,7 @@ import Avatar from '../components/Avatar'
 import { formatPosiciones } from '../lib/posiciones'
 import { registrarBaja, fetchBajasTardiasMap } from '../lib/bajas'
 import ReaccionesPartido from '../components/ReaccionesPartido'
+import { linkComoLlegar } from '../lib/mapas'
 import { calcularEstadoPartido } from '../lib/geo'
 import {
   puedeAdministrar,
@@ -344,6 +345,16 @@ export default function DetallePartido() {
               {partido.estado === 'cancelado' ? 'Cancelado' : lugares > 0 ? `Faltan ${lugares}` : 'Completo'}
             </span>
           </div>
+
+          <a
+            href={linkComoLlegar(partido)}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-2 mr-4 inline-flex items-center gap-1.5 text-[13px] font-semibold"
+            style={{ color: 'var(--acc-green)' }}
+          >
+            <Icono name="pin" size={13} /> Cómo llegar
+          </a>
 
           {partido.cancha_id && (
             <Link

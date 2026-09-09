@@ -5,6 +5,7 @@ import { nivelPorPartidos, progresoNivel } from './nivel'
 import { calcularProgreso } from './objetivos'
 import { puedeValorar, puedeAdministrar, enVentanaDeConfirmar, debePasarLaCapitania } from './permisos'
 import { nivelDesdeBajasTardias } from './confiabilidad'
+import { coordenadasDesdeLinkDeMapas, pareceLinkDeMapas, linkComoLlegar } from './mapas'
 import type { Jugador, Partido } from './types'
 
 // Estas pruebas cubren las reglas del negocio, que son las que duelen cuando
@@ -32,6 +33,7 @@ function partidoDePrueba(desfaseHoras: number, extra: Partial<Partido> = {}): Pa
     usa_equipos: false,
     subcapitan_id: 'subcapitan',
     cancha_id: null,
+    mapa_url: null,
     ...extra,
   }
 }
@@ -204,5 +206,46 @@ describe('objetivos', () => {
       mejor_racha: 999,
     })
     expect(progreso.every((p) => p.porcentaje === 100)).toBe(true)
+  })
+})
+
+
+describe('links de Google Maps', () => {
+  it('saca las coordenadas del marcador del lugar, que es el dato más preciso', () => {
+    const url =
+      'https://www.google.com/maps/place/Cancha/@-34.6037,-58.3816,17z/data=!3m1!4b1!4m6!3m5!1s0x0:0x0!8m2!3d-34.6100!4d-58.3900'
+    expect(coordenadasDesdeLinkDeMapas(url)).toEqual({ lat: -34.61, lng: -58.39 })
+  })
+
+  it('si no hay marcador, usa el centro de la vista', () => {
+    const url = 'https://www.google.com/maps/@-34.6037,-58.3816,17z'
+    expect(coordenadasDesdeLinkDeMapas(url)).toEqual({ lat: -34.6037, lng: -58.3816 })
+  })
+
+  it('entiende los links armados con coordenadas', () => {
+    expect(coordenadasDesdeLinkDeMapas('https://maps.google.com/?q=-34.5,-58.5')).toEqual({
+      lat: -34.5,
+      lng: -58.5,
+    })
+  })
+
+  it('del link corto del celular no se pueden sacar: hay que seguir el redireccionamiento', () => {
+    expect(coordenadasDesdeLinkDeMapas('https://maps.app.goo.gl/aBcDeF123')).toBeNull()
+  })
+
+  it('reconoce igual el link corto, para poder guardarlo', () => {
+    expect(pareceLinkDeMapas('https://maps.app.goo.gl/aBcDeF123')).toBe(true)
+    expect(pareceLinkDeMapas('https://www.instagram.com/algo')).toBe(false)
+  })
+
+  it('"Cómo llegar" siempre devuelve algo abrible', () => {
+    expect(linkComoLlegar({ cancha: 'La Bombonerita', lat: null, lng: null, mapa_url: null })).toContain(
+      'La%20Bombonerita',
+    )
+    expect(linkComoLlegar({ cancha: 'x', lat: -34.6, lng: -58.4, mapa_url: null })).toContain('-34.6,-58.4')
+    // El link que pegó el que armó el partido gana sobre todo lo demás.
+    expect(
+      linkComoLlegar({ cancha: 'x', lat: -34.6, lng: -58.4, mapa_url: 'https://maps.app.goo.gl/xyz' }),
+    ).toBe('https://maps.app.goo.gl/xyz')
   })
 })

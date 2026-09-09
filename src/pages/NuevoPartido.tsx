@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import { pedirUbicacion, type Coords } from '../lib/geo'
 import Icono from '../components/Icono'
 import { buscarCanchas, type CanchaEncontrada } from '../lib/canchas'
+import { coordenadasDesdeLinkDeMapas, geocodificarDireccion, pareceLinkDeMapas } from '../lib/mapas'
 import type { AperturaPartido, Grupo } from '../lib/types'
 
 const HORARIOS = Array.from({ length: 48 }, (_, i) => {
@@ -37,6 +38,13 @@ export default function NuevoPartido() {
   const [buscandoCancha, setBuscandoCancha] = useState(false)
   const [sugerenciaElegida, setSugerenciaElegida] = useState(false)
   const [canchaElegida, setCanchaElegida] = useState<CanchaEncontrada | null>(null)
+  // Las dos salidas para cuando el buscador no encuentra la cancha.
+  const [ubicandoAMano, setUbicandoAMano] = useState(false)
+  const [calle, setCalle] = useState('')
+  const [altura, setAltura] = useState('')
+  const [localidad, setLocalidad] = useState('')
+  const [mapaUrl, setMapaUrl] = useState('')
+  const [avisoUbicacion, setAvisoUbicacion] = useState<string | null>(null)
 
   // Se busca recién cuando dejás de escribir, para no castigar a OpenStreetMap.
   useEffect(() => {
@@ -96,17 +104,26 @@ export default function NuevoPartido() {
       canchaId = idCancha ?? null
     }
 
+    // Si no elegiste del buscador, todavía hay dos formas de ubicar la cancha:
+    // el link de Google Maps que hayas pegado, o la dirección escrita a mano.
+    let coords = ubicacion
+    if (!coords && mapaUrl.trim()) coords = coordenadasDesdeLinkDeMapas(mapaUrl.trim())
+    if (!coords && calle.trim()) coords = await geocodificarDireccion(calle, altura, localidad)
+
     const fecha_hora = new Date(`${fecha}T${hora}`).toISOString()
     const { data, error } = await supabase
       .from('partidos')
       .insert({
         cancha_id: canchaId,
-        cancha,
+        // La dirección escrita a mano se pega al nombre: es lo que se lee
+        // en la lista de partidos y en el aviso por mail.
+        cancha: calle.trim() ? `${cancha} — ${calle} ${altura}${localidad ? ', ' + localidad : ''}`.trim() : cancha,
         fecha_hora,
         cupo_total: cupo,
         admin_id: jugador.id,
-        lat: ubicacion?.lat ?? null,
-        lng: ubicacion?.lng ?? null,
+        lat: coords?.lat ?? null,
+        lng: coords?.lng ?? null,
+        mapa_url: mapaUrl.trim() || null,
         valor_cancha: valorCancha ? Number(valorCancha) : null,
         apertura,
         grupo_id: grupoId || null,
@@ -185,9 +202,74 @@ export default function NuevoPartido() {
         )}
         {!buscandoCancha && cancha.trim().length >= 3 && sugerencias.length === 0 && !sugerenciaElegida && (
           <p className="-mt-1 text-xs leading-relaxed" style={{ color: 'var(--pitch-300)' }}>
-            No la encontramos en el mapa, pero podés dejar el nombre como lo escribiste. Queda guardada y la próxima
-            vez aparece sola.
+            No la encontramos en el mapa, pero podés dejar el nombre como lo escribiste y decir dónde queda acá abajo.
           </p>
+        )}
+
+        <button
+          type="button"
+          onClick={() => setUbicandoAMano((v) => !v)}
+          className="tap -mt-1 self-start text-[13px] font-semibold underline"
+          style={{ color: 'var(--acc-blue)' }}
+        >
+          {ubicandoAMano ? 'Listo' : '¿No aparece? Decinos dónde queda'}
+        </button>
+
+        {ubicandoAMano && (
+          <div className="glass anim-rise flex flex-col gap-2.5 rounded-2xl p-4">
+            <p className="text-[13px] leading-relaxed" style={{ color: 'var(--pitch-700)' }}>
+              Con cualquiera de las dos alcanza. Si pegás el link de Google Maps, además queda el botón de
+              <strong> Cómo llegar</strong> para todos los que se anoten.
+            </p>
+
+            <input
+              placeholder="Link de Google Maps (pegalo acá)"
+              value={mapaUrl}
+              onChange={(e) => {
+                const v = e.target.value
+                setMapaUrl(v)
+                if (!v.trim()) return setAvisoUbicacion(null)
+                if (!pareceLinkDeMapas(v)) return setAvisoUbicacion('Ese link no parece de Google Maps.')
+                setAvisoUbicacion(
+                  coordenadasDesdeLinkDeMapas(v)
+                    ? 'Listo, sacamos la ubicación del link.'
+                    : 'Guardamos el link para "Cómo llegar". Para ordenar por cercanía, completá también la dirección.',
+                )
+              }}
+              className={`w-full ${inputClass}`}
+              style={{ color: 'var(--pitch-900)' }}
+            />
+            {avisoUbicacion && (
+              <p className="-mt-1 text-xs" style={{ color: 'var(--pitch-300)' }}>
+                {avisoUbicacion}
+              </p>
+            )}
+
+            <div className="flex gap-2">
+              <input
+                placeholder="Calle"
+                value={calle}
+                onChange={(e) => setCalle(e.target.value)}
+                className={`flex-[3] ${inputClass}`}
+                style={{ color: 'var(--pitch-900)' }}
+              />
+              <input
+                placeholder="Altura"
+                inputMode="numeric"
+                value={altura}
+                onChange={(e) => setAltura(e.target.value)}
+                className={`flex-1 ${inputClass}`}
+                style={{ color: 'var(--pitch-900)' }}
+              />
+            </div>
+            <input
+              placeholder="Localidad o barrio"
+              value={localidad}
+              onChange={(e) => setLocalidad(e.target.value)}
+              className={`w-full ${inputClass}`}
+              style={{ color: 'var(--pitch-900)' }}
+            />
+          </div>
         )}
 
         {misGrupos.length > 0 && (
