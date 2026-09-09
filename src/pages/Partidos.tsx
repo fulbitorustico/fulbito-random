@@ -95,18 +95,33 @@ function TarjetaPartido({
           {p.anotados}/{p.cupo_total} anotados
           {p.apertura === 'solo_confiables' && ' · Solo confiables'}
         </span>
-        <button
-          onClick={() => onToggle(p)}
-          disabled={!abierto && !p.yo_anotado}
-          className="tap rounded-full px-4 py-2 text-[13px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-40"
-          style={
-            p.yo_anotado
-              ? { background: 'rgba(242,239,233,.08)', color: 'var(--pitch-700)' }
-              : { background: 'var(--paper)', color: 'var(--ink-900)' }
-          }
-        >
-          {p.yo_anotado ? 'Bajarme' : restringido ? 'Solo confiables' : 'Sumarme'}
-        </button>
+
+        {/*
+          El botón existe solo mientras el partido no empezó. En uno terminado
+          no hay a qué sumarse, y "Bajarme" era directamente dañino: registraba
+          una baja con horas negativas, que cae por debajo del umbral de los
+          45 minutos y contaba como baja tardía.
+        */}
+        {estadoTiempo === 'programado' ? (
+          <button
+            onClick={() => onToggle(p)}
+            disabled={!abierto && !p.yo_anotado}
+            className="tap rounded-full px-4 py-2 text-[13px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-40"
+            style={
+              p.yo_anotado
+                ? { background: 'rgba(242,239,233,.08)', color: 'var(--pitch-700)' }
+                : { background: 'var(--paper)', color: 'var(--ink-900)' }
+            }
+          >
+            {p.yo_anotado ? 'Bajarme' : restringido ? 'Solo confiables' : 'Sumarme'}
+          </button>
+        ) : (
+          p.yo_anotado && (
+            <span className="text-[13px] font-semibold" style={{ color: 'var(--pitch-300)' }}>
+              {estadoTiempo === 'en_juego' ? 'Estás jugando' : 'Jugaste'}
+            </span>
+          )
+        )}
       </div>
     </div>
   )

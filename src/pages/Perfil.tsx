@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import CardJugador from '../components/CardJugador'
 import Objetivos from '../components/Objetivos'
+import Plegable from '../components/Plegable'
 import Evolucion from '../components/Evolucion'
 import { calcularProgreso } from '../lib/objetivos'
 import CartelLogro from '../components/CartelLogro'
@@ -403,10 +404,11 @@ export default function Perfil() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="glass-strong mt-4 flex flex-col gap-3 rounded-[28px] p-6">
-        <h2 className="text-sm font-semibold" style={{ color: 'var(--pitch-700)' }}>
-          Cómo te llamás
-        </h2>
+      <Plegable
+        titulo="Cómo te llamás"
+        resumen={jugador.apodo ? `${jugador.nombre} "${jugador.apodo}"` : jugador.nombre}
+      >
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <input
           required
           placeholder="Nombre"
@@ -447,12 +449,15 @@ export default function Perfil() {
           </p>
         )}
       </form>
+      </Plegable>
 
-      <div className="glass-strong mt-4 rounded-[28px] p-6">
-        <h2 className="text-sm font-semibold" style={{ color: 'var(--pitch-700)' }}>
-          Dónde jugás
-        </h2>
-
+      <Plegable
+        titulo="Dónde jugás"
+        // Si todavía no elegiste posición, la sección arranca abierta: es lo
+        // único del perfil que hace falta completar.
+        abiertoPorDefecto={(jugador.posiciones ?? []).length === 0}
+        resumen={(jugador.posiciones ?? []).join(' · ') || 'Sin elegir'}
+      >
         {!editandoPosiciones ? (
           <>
             <div className="mt-3 flex flex-wrap gap-2">
@@ -533,7 +538,7 @@ export default function Perfil() {
             {mensajePosiciones}
           </p>
         )}
-      </div>
+      </Plegable>
 
       {jugador.es_admin && (
         <Link

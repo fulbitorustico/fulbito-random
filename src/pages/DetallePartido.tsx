@@ -505,7 +505,7 @@ export default function DetallePartido() {
             </button>
           )}
 
-          {partido.estado !== 'cancelado' && (
+          {estadoTiempo === 'programado' && (
             <button
               onClick={toggleAnotarse}
               disabled={!abierto && !yoAnotado}

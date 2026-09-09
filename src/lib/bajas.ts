@@ -8,6 +8,13 @@ export async function registrarBaja(
   eraCapitan = false,
 ) {
   const horasAntes = (new Date(fechaHoraPartido).getTime() - Date.now()) / 3_600_000
+
+  // Si el partido ya arrancó, esto no es una baja: es alguien corrigiendo la
+  // lista después. Registrarlo contaría como baja tardía —las horas dan
+  // negativas y todo lo negativo está por debajo del umbral— y le arruinaría
+  // la confiabilidad a alguien que no hizo nada malo.
+  if (horasAntes < 0) return
+
   await supabase.from('bajas').insert({
     partido_id: partidoId,
     jugador_id: jugadorId,

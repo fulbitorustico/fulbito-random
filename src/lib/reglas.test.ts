@@ -6,6 +6,7 @@ import { calcularProgreso } from './objetivos'
 import { puedeValorar, puedeAdministrar, enVentanaDeConfirmar, debePasarLaCapitania } from './permisos'
 import { nivelDesdeBajasTardias } from './confiabilidad'
 import { coordenadasDesdeLinkDeMapas, pareceLinkDeMapas, linkComoLlegar } from './mapas'
+import { calcularEstadoPartido } from './geo'
 import type { Jugador, Partido } from './types'
 
 // Estas pruebas cubren las reglas del negocio, que son las que duelen cuando
@@ -253,5 +254,36 @@ describe('links de Google Maps', () => {
     expect(
       linkComoLlegar({ cancha: 'x', lat: -34.6, lng: -58.4, mapa_url: 'https://maps.app.goo.gl/xyz' }),
     ).toBe('https://maps.app.goo.gl/xyz')
+  })
+})
+
+
+// El estado del partido decide si el botón de sumarse/bajarse existe. Antes
+// aparecía en partidos terminados, y "Bajarme" registraba una baja con horas
+// negativas: quedaba por debajo del umbral de los 45 minutos y contaba como
+// baja tardía. Se arruinaba la confiabilidad tocando un botón que no debía
+// estar ahí.
+describe('estado del partido en el tiempo', () => {
+  const enHoras = (h: number) => new Date(Date.now() + h * HORA).toISOString()
+
+  it('todavía no empezó', () => {
+    expect(calcularEstadoPartido(enHoras(5), 'abierto')).toBe('programado')
+  })
+
+  it('arrancó hace una hora: está en juego', () => {
+    expect(calcularEstadoPartido(enHoras(-1), 'abierto')).toBe('en_juego')
+  })
+
+  it('a las dos horas ya terminó', () => {
+    expect(calcularEstadoPartido(enHoras(-3), 'abierto')).toBe('terminado')
+  })
+
+  it('el de hace nueve días está terminado, no programado', () => {
+    expect(calcularEstadoPartido(enHoras(-216), 'abierto')).toBe('terminado')
+  })
+
+  it('cancelado gana sobre la fecha', () => {
+    expect(calcularEstadoPartido(enHoras(5), 'cancelado')).toBe('cancelado')
+    expect(calcularEstadoPartido(enHoras(-216), 'cancelado')).toBe('cancelado')
   })
 })
