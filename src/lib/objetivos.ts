@@ -76,6 +76,22 @@ export const OBJETIVOS: Objetivo[] = [
     meta: 5,
     color: '#dd977b',
   },
+  {
+    id: 'racha_4',
+    icono: 'fuego',
+    titulo: 'En llamas',
+    detalle: 'Jugá 4 semanas seguidas',
+    meta: 4,
+    color: '#dd977b',
+  },
+  {
+    id: 'racha_10',
+    icono: 'rayo',
+    titulo: 'Inoxidable',
+    detalle: 'Jugá 10 semanas seguidas',
+    meta: 10,
+    color: '#edc58d',
+  },
 ]
 
 export interface ProgresoObjetivo {
@@ -90,6 +106,7 @@ export interface DatosObjetivos {
   valoraciones_recibidas: number
   insignias_recibidas: number
   partidos_sin_bajas: number
+  mejor_racha: number
 }
 
 export function calcularProgreso(datos: DatosObjetivos): ProgresoObjetivo[] {
@@ -102,6 +119,8 @@ export function calcularProgreso(datos: DatosObjetivos): ProgresoObjetivo[] {
     primera_insignia: datos.insignias_recibidas,
     coleccionista: datos.insignias_recibidas,
     cumplidor: datos.partidos_sin_bajas,
+    racha_4: datos.mejor_racha,
+    racha_10: datos.mejor_racha,
   }
 
   return OBJETIVOS.map((objetivo) => {

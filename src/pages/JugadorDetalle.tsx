@@ -4,7 +4,9 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import CardJugador from '../components/CardJugador'
 import Objetivos from '../components/Objetivos'
+import Icono from '../components/Icono'
 import { fetchBajasTardiasMap } from '../lib/bajas'
+import { calcularRacha, textoRacha } from '../lib/racha'
 import type { DistribucionValoracion, InsigniaConteo, Jugador, ValoracionPromedio } from '../lib/types'
 
 export default function JugadorDetalle() {
@@ -17,6 +19,7 @@ export default function JugadorDetalle() {
   const [reclutas, setReclutas] = useState(0)
   const [partidosJuntos, setPartidosJuntos] = useState(0)
   const [partidosJugados, setPartidosJugados] = useState(0)
+  const [racha, setRacha] = useState({ actual: 0, mejor: 0 })
   const [comentarios, setComentarios] = useState<{ comentario: string; created_at: string }[]>([])
   const [bajasTardias, setBajasTardias] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -43,11 +46,18 @@ export default function JugadorDetalle() {
       const bajasMap = await fetchBajasTardiasMap()
       setBajasTardias(bajasMap[id] ?? 0)
 
-      const { count: jugadosCount } = await supabase
+      const { data: jugadosData } = await supabase
         .from('participantes')
-        .select('*', { count: 'exact', head: true })
+        .select('partidos(fecha_hora, estado)')
         .eq('jugador_id', id)
-      setPartidosJugados(jugadosCount ?? 0)
+      const jugados = ((jugadosData ?? []) as unknown as { partidos: { fecha_hora: string; estado: string } | null }[])
+        .map((p) => p.partidos)
+        .filter(
+          (p): p is { fecha_hora: string; estado: string } =>
+            !!p && p.estado !== 'cancelado' && new Date(p.fecha_hora) < new Date(),
+        )
+      setPartidosJugados(jugados.length)
+      setRacha(calcularRacha(jugados.map((p) => p.fecha_hora)))
 
       const { data: comentariosData } = await supabase.rpc('comentarios_recibidos', { p_evaluado_id: id })
       setComentarios(comentariosData ?? [])
@@ -98,6 +108,15 @@ export default function JugadorDetalle() {
         partidosJugados={partidosJugados}
         reclutas={reclutas}
       >
+        {racha.actual > 1 && (
+          <p
+            className="mt-5 flex items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-center text-xs font-semibold"
+            style={{ background: 'rgba(221,151,123,.14)', color: 'var(--pitch-900)' }}
+          >
+            <Icono name="fuego" size={13} /> {textoRacha(racha.actual)} jugando
+          </p>
+        )}
+
         {yo && yo.id !== id && partidosJuntos > 0 && (
           <p
             className="mt-5 rounded-full px-3 py-1.5 text-center text-xs font-medium"
@@ -115,6 +134,7 @@ export default function JugadorDetalle() {
             valoraciones_recibidas: promedio?.cantidad ?? 0,
             insignias_recibidas: insignias.reduce((t, i) => t + i.cantidad, 0),
             partidos_sin_bajas: bajasTardias === 0 ? partidosJugados : 0,
+            mejor_racha: racha.mejor,
           }}
         />
       </div>

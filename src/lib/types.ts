@@ -85,6 +85,7 @@ export interface Participante {
   partido_id: string
   jugador_id: string
   equipo: 'A' | 'B' | null
+  confirmado_at: string | null
   created_at: string
 }
 

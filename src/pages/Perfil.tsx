@@ -4,9 +4,11 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import CardJugador from '../components/CardJugador'
 import Objetivos from '../components/Objetivos'
+import { calcularProgreso } from '../lib/objetivos'
 import CartelLogro from '../components/CartelLogro'
 import Icono from '../components/Icono'
 import BotonCompartir from '../components/BotonCompartir'
+import { calcularRacha, textoRacha } from '../lib/racha'
 import PublicarmeEnBase from '../components/PublicarmeEnBase'
 import AvisosMail from '../components/AvisosMail'
 import { insigniaPorId } from '../lib/insignias'
@@ -33,6 +35,7 @@ export default function Perfil() {
   const [distribucion, setDistribucion] = useState<DistribucionValoracion[]>([])
   const [bajasTardias, setBajasTardias] = useState(0)
   const [partidosJugados, setPartidosJugados] = useState(0)
+  const [racha, setRacha] = useState({ actual: 0, mejor: 0 })
   const [comentarios, setComentarios] = useState<{ comentario: string; created_at: string }[]>([])
   const [insignias, setInsignias] = useState<InsigniaConteo[]>([])
   const [reclutas, setReclutas] = useState(0)
@@ -52,9 +55,15 @@ export default function Perfil() {
     fetchBajasTardiasMap().then((map) => setBajasTardias(map[jugador.id] ?? 0))
     supabase
       .from('participantes')
-      .select('*', { count: 'exact', head: true })
+      .select('partidos(fecha_hora, estado)')
       .eq('jugador_id', jugador.id)
-      .then(({ count }) => setPartidosJugados(count ?? 0))
+      .then(({ data }) => {
+        const jugados = ((data ?? []) as unknown as { partidos: { fecha_hora: string; estado: string } | null }[])
+          .map((p) => p.partidos)
+          .filter((p): p is { fecha_hora: string; estado: string } => !!p && p.estado !== 'cancelado' && new Date(p.fecha_hora) < new Date())
+        setPartidosJugados(jugados.length)
+        setRacha(calcularRacha(jugados.map((p) => p.fecha_hora)))
+      })
     supabase.rpc('comentarios_recibidos', { p_evaluado_id: jugador.id }).then(({ data }) => setComentarios(data ?? []))
     supabase
       .rpc('distribucion_valoraciones', { p_evaluado_id: jugador.id })
@@ -79,7 +88,9 @@ export default function Perfil() {
     valoraciones_recibidas: promedio?.cantidad ?? 0,
     insignias_recibidas: insignias.reduce((t, i) => t + i.cantidad, 0),
     partidos_sin_bajas: bajasTardias === 0 ? partidosJugados : 0,
+    mejor_racha: racha.mejor,
   }
+  const objetivosCumplidos = calcularProgreso(datosObjetivos).filter((o) => o.cumplido).length
 
   async function guardarAvatar(nuevo: string) {
     setAvatar(nuevo)
@@ -222,6 +233,23 @@ export default function Perfil() {
         </p>
       </CardJugador>
 
+      {racha.actual > 1 && (
+        <div
+          className="anim-rise mt-4 flex items-center gap-3 rounded-2xl px-4 py-3"
+          style={{ background: 'rgba(221,151,123,.14)' }}
+        >
+          <Icono name="fuego" size={20} />
+          <div>
+            <p className="text-sm font-semibold" style={{ color: 'var(--pitch-900)' }}>
+              {textoRacha(racha.actual)} jugando
+            </p>
+            <p className="text-[12px]" style={{ color: 'var(--pitch-300)' }}>
+              {racha.actual >= racha.mejor ? 'Es tu mejor racha hasta ahora.' : `Tu récord es de ${racha.mejor}.`}
+            </p>
+          </div>
+        </div>
+      )}
+
       <BotonCompartir
         className="mt-4"
         etiquetaBoton="Compartir mi card"
@@ -237,13 +265,50 @@ export default function Perfil() {
               : `promedio en ${promedio!.cantidad} valoraciones`,
           filas: [
             { izquierda: 'Partidos jugados', derecha: String(partidosJugados) },
-            ...insignias.slice(0, 3).map((i) => ({
+            ...(racha.mejor > 1 ? [{ izquierda: 'Mejor racha', derecha: `${racha.mejor} semanas` }] : []),
+            ...insignias.slice(0, 2).map((i) => ({
               izquierda: insigniaPorId(i.insignia)?.label ?? i.insignia,
               derecha: `×${i.cantidad}`,
             })),
           ],
         }}
       />
+
+      {partidosJugados > 0 && (
+        <div className="glass-strong anim-rise mt-4 rounded-[24px] p-5">
+          <h2 className="text-sm font-semibold" style={{ color: 'var(--pitch-700)' }}>
+            Tu temporada
+          </h2>
+          <p className="mt-1 text-[13px] leading-relaxed" style={{ color: 'var(--pitch-300)' }}>
+            Todo tu año en una imagen, lista para la historia.
+          </p>
+          <BotonCompartir
+            className="mt-3"
+            etiquetaBoton="Armar mi temporada"
+            texto={`Mi temporada ${new Date().getFullYear()} en Fulbito Random`}
+            datos={{
+              etiqueta: `Temporada ${new Date().getFullYear()}`,
+              titulo: jugador.apodo ? `${jugador.nombre} "${jugador.apodo}"` : jugador.nombre,
+              subtitulo: nivelPorPartidos(partidosJugados).nombre,
+              destacado: String(partidosJugados),
+              pieDestacado: partidosJugados === 1 ? 'partido jugado' : 'partidos jugados',
+              filas: [
+                {
+                  izquierda: 'Promedio',
+                  derecha: `${(promedio?.promedio ?? 3).toFixed(1)} ★`,
+                },
+                { izquierda: 'Mejor racha', derecha: racha.mejor > 1 ? `${racha.mejor} semanas` : '—' },
+                {
+                  izquierda: 'Insignias',
+                  derecha: String(insignias.reduce((t, i) => t + i.cantidad, 0)),
+                },
+                { izquierda: 'Objetivos cumplidos', derecha: String(objetivosCumplidos) },
+                ...(reclutas > 0 ? [{ izquierda: 'Jugadores que trajiste', derecha: String(reclutas) }] : []),
+              ],
+            }}
+          />
+        </div>
+      )}
 
       <CartelLogro datos={datosObjetivos} />
 

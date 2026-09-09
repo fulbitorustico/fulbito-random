@@ -31,6 +31,11 @@ function aFechaHora(iso: string) {
 
 const VENTANA_VALORAR_HORAS = 24
 
+// Desde 24hs antes se pide confirmación; a las 12hs antes el lugar de quien
+// no confirmó se libera para que entre otro. La cuenta la hace la base.
+const CONFIRMAR_DESDE_HORAS = 24
+const LIBERAR_A_LAS_HORAS = 12
+
 export default function DetallePartido() {
   const { id } = useParams<{ id: string }>()
   const { jugador } = useAuth()
@@ -53,6 +58,8 @@ export default function DetallePartido() {
   const [generandoEquipos, setGenerandoEquipos] = useState(false)
   const [duplicando, setDuplicando] = useState(false)
   const [eligiendoFrecuencia, setEligiendoFrecuencia] = useState(false)
+  const [confirmados, setConfirmados] = useState<Record<string, boolean>>({})
+  const [confirmando, setConfirmando] = useState(false)
   const [mvp, setMvp] = useState<MvpDelPartido[]>([])
 
   useEffect(() => {
@@ -67,10 +74,15 @@ export default function DetallePartido() {
   const cargar = useCallback(async () => {
     if (!id) return
     setLoading(true)
+    // Antes de leer nada: la base libera los lugares de los que no confirmaron.
+    // No hay tarea programada corriendo de fondo, así que se hace cuando alguien
+    // abre el partido — que en la práctica es todo el tiempo.
+    await supabase.rpc('liberar_lugares_sin_confirmar', { p_partido_id: id })
+
     const { data: partidoData } = await supabase.from('partidos').select('*').eq('id', id).maybeSingle()
     const { data: participantesData } = await supabase
       .from('participantes')
-      .select('jugador_id, equipo')
+      .select('jugador_id, equipo, confirmado_at')
       .eq('partido_id', id)
 
     if (partidoData) {
@@ -91,8 +103,13 @@ export default function DetallePartido() {
     }
 
     const equiposMap: Record<string, 'A' | 'B'> = {}
-    for (const p of participantesData ?? []) if (p.equipo === 'A' || p.equipo === 'B') equiposMap[p.jugador_id] = p.equipo
+    const confirmadosMap: Record<string, boolean> = {}
+    for (const p of participantesData ?? []) {
+      if (p.equipo === 'A' || p.equipo === 'B') equiposMap[p.jugador_id] = p.equipo
+      confirmadosMap[p.jugador_id] = !!p.confirmado_at
+    }
     setEquipos(equiposMap)
+    setConfirmados(confirmadosMap)
 
     const { data: mvpData } = await supabase.rpc('mvp_del_partido', { p_partido_id: id })
     setMvp(mvpData ?? [])
@@ -129,6 +146,12 @@ export default function DetallePartido() {
   // cualquiera y llevaba a una pantalla que después rebotaba.
   const horasDesdeInicio = (Date.now() - new Date(partido.fecha_hora).getTime()) / 3_600_000
   const puedeValorar = estadoTiempo === 'terminado' && yoAnotado && horasDesdeInicio <= VENTANA_VALORAR_HORAS
+  // Horas que faltan para que empiece. Negativo si ya arrancó.
+  const horasParaEmpezar = -horasDesdeInicio
+  const enVentanaDeConfirmar =
+    estadoTiempo === 'programado' && horasParaEmpezar <= CONFIRMAR_DESDE_HORAS && horasParaEmpezar > 0
+  const meFaltaConfirmar = yoAnotado && enVentanaDeConfirmar && jugador ? !confirmados[jugador.id] : false
+  const horaLimite = new Date(new Date(partido.fecha_hora).getTime() - LIBERAR_A_LAS_HORAS * 3_600_000)
   const miConfiable = !jugador || nivelDesdeBajasTardias(bajasTardiasMap[jugador.id] ?? 0) === 'confiable'
   const restringido = partido.apertura === 'solo_confiables' && !miConfiable && !yoAnotado
   const abierto = partido.estado === 'abierto' && lugares > 0 && !restringido
@@ -156,6 +179,18 @@ export default function DetallePartido() {
           .catch(() => {})
       }
     }
+    await cargar()
+  }
+
+  async function confirmarAsistencia() {
+    if (!jugador || !partido) return
+    setConfirmando(true)
+    await supabase
+      .from('participantes')
+      .update({ confirmado_at: new Date().toISOString() })
+      .eq('partido_id', partido.id)
+      .eq('jugador_id', jugador.id)
+    setConfirmando(false)
     await cargar()
   }
 
@@ -325,6 +360,28 @@ export default function DetallePartido() {
             >
               {yoAnotado ? 'Bajarme' : restringido ? 'Solo confiables' : 'Sumarme'}
             </button>
+          )}
+
+          {meFaltaConfirmar && (
+            <div className="anim-rise mt-4 rounded-2xl p-4" style={{ background: 'rgba(237,197,141,.16)' }}>
+              <p className="text-sm font-semibold" style={{ color: 'var(--gold-500)' }}>
+                ¿Venís?
+              </p>
+              <p className="mt-1 text-[13px] leading-relaxed" style={{ color: 'var(--pitch-700)' }}>
+                Confirmá antes de las{' '}
+                {horaLimite.toLocaleString('es-AR', { hour: '2-digit', minute: '2-digit' })} de
+                {horaLimite.toDateString() === new Date().toDateString() ? ' hoy' : ' mañana'}. Si no, tu lugar queda
+                libre para que entre otro.
+              </p>
+              <button
+                onClick={confirmarAsistencia}
+                disabled={confirmando}
+                className="tap mt-3 w-full rounded-2xl px-4 py-3 text-[15px] font-semibold disabled:opacity-50"
+                style={{ background: 'var(--paper)', color: 'var(--ink-900)' }}
+              >
+                {confirmando ? 'Confirmando...' : 'Sí, voy'}
+              </button>
+            </div>
           )}
 
           {yoAnotado && estadoTiempo === 'programado' && (
@@ -627,6 +684,14 @@ export default function DetallePartido() {
                 {a.id === partido.subcapitan_id && (
                   <span title="Subcapitán" style={{ color: 'var(--acc-blue)' }}>
                     <Icono name="corona" size={13} />
+                  </span>
+                )}
+                {enVentanaDeConfirmar && !confirmados[a.id] && (
+                  <span
+                    className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                    style={{ background: 'rgba(237,197,141,.18)', color: 'var(--gold-500)' }}
+                  >
+                    sin confirmar
                   </span>
                 )}
               </p>
