@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import Avatar from '../components/Avatar'
 import { INSIGNIAS } from '../lib/insignias'
 import Icono from '../components/Icono'
+import ValorarCancha from '../components/ValorarCancha'
 import type { Jugador, Partido } from '../lib/types'
 
 const VENTANA_HORAS = 24
@@ -163,6 +164,10 @@ export default function ValorarPartido() {
         <div className="glass flex items-center gap-2 rounded-2xl p-6 text-sm" style={{ color: 'var(--acc-green)' }}>
           <Icono name="cumplidor" size={17} /> Ya valoraste a todos
         </div>
+      )}
+
+      {partido.cancha_id && (
+        <ValorarCancha canchaId={partido.cancha_id} partidoId={id!} nombreCancha={partido.cancha} />
       )}
 
       {pendientes.length > 0 && (

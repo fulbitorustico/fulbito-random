@@ -22,6 +22,7 @@ import Terminos from './pages/Terminos'
 import Privacidad from './pages/Privacidad'
 import GrupoPublico from './pages/GrupoPublico'
 import BuscarJugadores from './pages/BuscarJugadores'
+import CanchaDetalle from './pages/CanchaDetalle'
 import Instalar from './pages/Instalar'
 
 function Shell() {
@@ -49,6 +50,7 @@ function Shell() {
           <Route path="/grupos/:id" element={<PageTransition><GrupoDetalle /></PageTransition>} />
           <Route path="/perfil" element={<PageTransition><Perfil /></PageTransition>} />
           <Route path="/buscar" element={<PageTransition><BuscarJugadores /></PageTransition>} />
+          <Route path="/canchas/:id" element={<PageTransition><CanchaDetalle /></PageTransition>} />
           <Route path="*" element={<Navigate to="/partidos" replace />} />
         </Routes>
       </div>

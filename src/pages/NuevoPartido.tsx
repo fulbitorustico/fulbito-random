@@ -36,6 +36,7 @@ export default function NuevoPartido() {
   const [sugerencias, setSugerencias] = useState<CanchaEncontrada[]>([])
   const [buscandoCancha, setBuscandoCancha] = useState(false)
   const [sugerenciaElegida, setSugerenciaElegida] = useState(false)
+  const [canchaElegida, setCanchaElegida] = useState<CanchaEncontrada | null>(null)
 
   // Se busca recién cuando dejás de escribir, para no castigar a OpenStreetMap.
   useEffect(() => {
@@ -80,10 +81,24 @@ export default function NuevoPartido() {
     setGuardando(true)
     setError(null)
 
+    // Si elegiste la cancha del buscador, queda ligada a su perfil: así el
+    // catálogo de canchas se arma solo con el uso.
+    let canchaId: string | null = null
+    if (canchaElegida) {
+      const { data: idCancha } = await supabase.rpc('buscar_o_crear_cancha', {
+        p_nombre: canchaElegida.nombre,
+        p_lat: canchaElegida.lat,
+        p_lng: canchaElegida.lng,
+        p_zona: canchaElegida.detalle,
+      })
+      canchaId = idCancha ?? null
+    }
+
     const fecha_hora = new Date(`${fecha}T${hora}`).toISOString()
     const { data, error } = await supabase
       .from('partidos')
       .insert({
+        cancha_id: canchaId,
         cancha,
         fecha_hora,
         cupo_total: cupo,
@@ -138,6 +153,7 @@ export default function NuevoPartido() {
                   onClick={() => {
                     setCancha(s.nombre)
                     setUbicacion({ lat: s.lat, lng: s.lng })
+                    setCanchaElegida(s)
                     setSugerencias([])
                     setSugerenciaElegida(true)
                   }}

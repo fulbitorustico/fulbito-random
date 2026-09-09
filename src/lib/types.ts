@@ -70,6 +70,7 @@ export interface Partido {
   grupo_id: string | null
   usa_equipos: boolean
   subcapitan_id: string | null
+  cancha_id: string | null
 }
 
 export interface BajasTardias {

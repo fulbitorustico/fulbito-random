@@ -62,6 +62,10 @@ const FEATURES: { icono: NombreIcono; titulo: string; texto: string }[] = [
   },
 ]
 
+// Testimonios reales de gente que la usó. Si el array está vacío, la sección
+// no aparece: preferimos no mostrar nada antes que inventar frases.
+const TESTIMONIOS: { texto: string; nombre: string; detalle: string }[] = []
+
 const JUGADORES_DEMO = [
   { id: 'pablo', nombre: 'Pablo', apodo: 'La Joya Fake', posicion: 'Delantero centro', color: 'var(--acc-coral)' },
   { id: 'mario', nombre: 'Mario', apodo: 'El Enmascarado', posicion: 'Defensor central', color: 'var(--acc-purple)' },
@@ -590,6 +594,29 @@ export default function Landing() {
             </div>
           </Link>
         </section>
+
+        {TESTIMONIOS.length > 0 && (
+          <section className="mt-20">
+            <p className="brand text-xl" style={{ color: 'var(--pitch-900)' }}>
+              Los que ya juegan
+            </p>
+            <div className="mt-4 flex flex-col gap-3 md:grid md:grid-cols-3">
+              {TESTIMONIOS.map((t) => (
+                <div key={t.nombre} className="glass anim-rise rounded-[24px] p-5">
+                  <p className="text-[15px] leading-relaxed" style={{ color: 'var(--pitch-900)' }}>
+                    "{t.texto}"
+                  </p>
+                  <p className="mt-3 text-[13px] font-bold" style={{ color: 'var(--acc-green)' }}>
+                    {t.nombre}
+                  </p>
+                  <p className="text-xs" style={{ color: 'var(--pitch-300)' }}>
+                    {t.detalle}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         <section className="mt-20">
           <p className="brand text-xl" style={{ color: 'var(--pitch-900)' }}>

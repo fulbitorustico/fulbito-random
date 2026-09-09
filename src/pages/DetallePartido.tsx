@@ -276,6 +276,16 @@ export default function DetallePartido() {
             </span>
           </div>
 
+          {partido.cancha_id && (
+            <Link
+              to={`/canchas/${partido.cancha_id}`}
+              className="mt-2 inline-flex items-center gap-1.5 text-[13px] font-semibold"
+              style={{ color: 'var(--acc-blue)' }}
+            >
+              <Icono name="pin" size={13} /> Ver el perfil de la cancha
+            </Link>
+          )}
+
           {partido.valor_cancha && (
             <p className="mt-2 text-sm font-medium" style={{ color: 'var(--acc-green)' }}>
               ${Math.ceil(partido.valor_cancha / partido.cupo_total)} por jugador · ${partido.valor_cancha} total
@@ -411,9 +421,20 @@ export default function DetallePartido() {
       )}
 
       {yaSeJugo && partido.estado !== 'cancelado' && (
-        <BotonCompartir
-          className="mt-3"
-          etiquetaBoton="Compartir el partido"
+        <div
+          className="glass-strong mt-3 rounded-[24px] p-5"
+          style={{ border: '1px solid rgba(162,138,188,.3)' }}
+        >
+          <p className="flex items-center gap-2 text-sm font-bold" style={{ color: 'var(--acc-purple)' }}>
+            <Icono name="camara" size={16} /> Subilo a tu historia
+          </p>
+          <p className="mt-1.5 text-[13px] leading-relaxed" style={{ color: 'var(--pitch-700)', opacity: 0.85 }}>
+            La placa sale con el MVP, los equipos y la cancha, lista para Instagram. Sumale la foto del partido y
+            ya tenés la historia armada.
+          </p>
+          <BotonCompartir
+            className="mt-3"
+            etiquetaBoton="Armar la placa del partido"
           texto={`Jugamos en ${partido.cancha} 🏟️`}
           datos={{
             etiqueta: 'Fecha jugada',
@@ -425,12 +446,13 @@ export default function DetallePartido() {
             }),
             destacado: mvp.length > 0 ? mvp[0].nombre : `${anotados.length}`,
             pieDestacado: mvp.length > 0 ? 'MVP de la fecha' : 'jugadores en cancha',
-            filas: anotados.slice(0, 10).map((a) => ({
-              izquierda: a.nombre,
-              derecha: equipos[a.id] ? `Equipo ${equipos[a.id]}` : '—',
-            })),
-          }}
-        />
+              filas: anotados.slice(0, 10).map((a) => ({
+                izquierda: a.nombre,
+                derecha: equipos[a.id] ? `Equipo ${equipos[a.id]}` : '—',
+              })),
+            }}
+          />
+        </div>
       )}
 
       {esAdmin && partido.estado !== 'cancelado' && !editando && (
