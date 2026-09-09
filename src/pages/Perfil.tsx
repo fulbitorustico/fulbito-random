@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import CardJugador from '../components/CardJugador'
 import Objetivos from '../components/Objetivos'
+import CartelLogro from '../components/CartelLogro'
 import Icono from '../components/Icono'
 import BotonCompartir from '../components/BotonCompartir'
 import PublicarmeEnBase from '../components/PublicarmeEnBase'
@@ -33,6 +34,7 @@ export default function Perfil() {
   const [partidosJugados, setPartidosJugados] = useState(0)
   const [comentarios, setComentarios] = useState<{ comentario: string; created_at: string }[]>([])
   const [insignias, setInsignias] = useState<InsigniaConteo[]>([])
+  const [reclutas, setReclutas] = useState(0)
   const [subiendoFoto, setSubiendoFoto] = useState(false)
   const inputFoto = useRef<HTMLInputElement>(null)
   const [editandoPosiciones, setEditandoPosiciones] = useState(false)
@@ -59,11 +61,20 @@ export default function Perfil() {
     supabase
       .rpc('insignias_por_jugador', { p_jugador_id: jugador.id })
       .then(({ data }: { data: InsigniaConteo[] | null }) => setInsignias(data ?? []))
+    supabase
+      .rpc('reclutas_por_jugador', { p_jugador_id: jugador.id })
+      .then(({ data }: { data: number | null }) => setReclutas(data ?? 0))
   }, [jugador])
 
   if (!jugador) return null
 
   const cambiosRestantes = Math.max(0, MAX_CAMBIOS_POSICIONES - (jugador.cambios_posiciones ?? 0))
+  const datosObjetivos = {
+    partidos_jugados: partidosJugados,
+    valoraciones_recibidas: promedio?.cantidad ?? 0,
+    insignias_recibidas: insignias.reduce((t, i) => t + i.cantidad, 0),
+    partidos_sin_bajas: bajasTardias === 0 ? partidosJugados : 0,
+  }
 
   async function guardarAvatar(nuevo: string) {
     setAvatar(nuevo)
@@ -154,6 +165,7 @@ export default function Perfil() {
         insignias={insignias}
         bajasTardias={bajasTardias}
         partidosJugados={partidosJugados}
+        reclutas={reclutas}
       >
         <input ref={inputFoto} type="file" accept="image/*" onChange={elegirFoto} hidden />
         <div className="mt-5 flex items-center justify-center gap-2">
@@ -225,19 +237,14 @@ export default function Perfil() {
         }}
       />
 
+      <CartelLogro datos={datosObjetivos} />
+
       <div className="mt-4">
         <PublicarmeEnBase />
       </div>
 
       <div className="mt-4">
-        <Objetivos
-          datos={{
-            partidos_jugados: partidosJugados,
-            valoraciones_recibidas: promedio?.cantidad ?? 0,
-            insignias_recibidas: insignias.reduce((t, i) => t + i.cantidad, 0),
-            partidos_sin_bajas: bajasTardias === 0 ? partidosJugados : 0,
-          }}
-        />
+        <Objetivos datos={datosObjetivos} />
       </div>
 
       {comentarios.length > 0 && (

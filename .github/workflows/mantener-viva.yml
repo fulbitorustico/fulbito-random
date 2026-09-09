@@ -1,0 +1,34 @@
+# Supabase pausa los proyectos del plan gratis después de ~7 días sin
+# actividad, y despausarlo a mano es lento. Esto le hace una consulta mínima
+# cada 3 días para que nunca llegue a ese punto.
+#
+# La clave que se usa acá es la anon/public: es la misma que viaja en el código
+# de la web, está pensada para ser pública y no da acceso a nada que las
+# políticas de seguridad no permitan. Por eso no hace falta configurar secretos.
+
+name: Mantener el proyecto despierto
+
+on:
+  schedule:
+    # 09:00 (hora Argentina) cada 3 días
+    - cron: '0 12 */3 * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Consultar la base de datos
+        run: |
+          CODIGO=$(curl -s -o /dev/null -w "%{http_code}" \
+            "https://frygdjugegnjqhrdimgp.supabase.co/rest/v1/jugadores?select=id&limit=1" \
+            -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZyeWdkanVnZWduanFocmRpbWdwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4MDU1MzMsImV4cCI6MjEwNDM4MTUzM30.wndIEKvpbaBpcdU7Emq_SaR6_4yHmT5wIajYMWIRhWs")
+          echo "La base respondió: $CODIGO"
+          if [ "$CODIGO" != "200" ]; then
+            echo "::warning::La base no respondió 200. Revisar si el proyecto sigue activo."
+          fi
+
+      - name: Consultar la web
+        run: |
+          CODIGO=$(curl -s -o /dev/null -w "%{http_code}" https://fulbito-random.vercel.app/)
+          echo "La web respondió: $CODIGO"

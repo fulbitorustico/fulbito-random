@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import { pedirUbicacion, type Coords } from '../lib/geo'
 import Icono from '../components/Icono'
+import { buscarCanchas, type CanchaEncontrada } from '../lib/canchas'
 import type { AperturaPartido, Grupo } from '../lib/types'
 
 const HORARIOS = Array.from({ length: 48 }, (_, i) => {
@@ -32,6 +33,27 @@ export default function NuevoPartido() {
   const [buscandoUbicacion, setBuscandoUbicacion] = useState(false)
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [sugerencias, setSugerencias] = useState<CanchaEncontrada[]>([])
+  const [buscandoCancha, setBuscandoCancha] = useState(false)
+  const [sugerenciaElegida, setSugerenciaElegida] = useState(false)
+
+  // Se busca recién cuando dejás de escribir, para no castigar a OpenStreetMap.
+  useEffect(() => {
+    if (sugerenciaElegida || cancha.trim().length < 3) {
+      setSugerencias([])
+      return
+    }
+    setBuscandoCancha(true)
+    const t = setTimeout(async () => {
+      const encontradas = await buscarCanchas(cancha, ubicacion ?? undefined)
+      setSugerencias(encontradas)
+      setBuscandoCancha(false)
+    }, 600)
+    return () => {
+      clearTimeout(t)
+      setBuscandoCancha(false)
+    }
+  }, [cancha, sugerenciaElegida, ubicacion])
 
   useEffect(() => {
     async function cargarGrupos() {
@@ -92,14 +114,57 @@ export default function NuevoPartido() {
         Nuevo partido
       </h1>
       <form onSubmit={handleSubmit} className="glass-strong flex flex-col gap-3 rounded-[28px] p-6">
-        <input
-          required
-          placeholder="Cancha / lugar"
-          value={cancha}
-          onChange={(e) => setCancha(e.target.value)}
-          className={inputClass}
-          style={{ color: 'var(--pitch-900)' }}
-        />
+        <div className="relative">
+          <input
+            required
+            placeholder="Cancha / lugar"
+            value={cancha}
+            onChange={(e) => {
+              setCancha(e.target.value)
+              setSugerenciaElegida(false)
+            }}
+            className={`w-full ${inputClass}`}
+            style={{ color: 'var(--pitch-900)' }}
+          />
+          {sugerencias.length > 0 && !sugerenciaElegida && (
+            <div
+              className="glass-strong absolute left-0 right-0 top-full z-20 mt-1 overflow-hidden rounded-2xl"
+              style={{ maxHeight: 260, overflowY: 'auto' }}
+            >
+              {sugerencias.map((s) => (
+                <button
+                  key={`${s.lat}-${s.lng}`}
+                  type="button"
+                  onClick={() => {
+                    setCancha(s.nombre)
+                    setUbicacion({ lat: s.lat, lng: s.lng })
+                    setSugerencias([])
+                    setSugerenciaElegida(true)
+                  }}
+                  className="flex w-full items-start gap-2 px-4 py-3 text-left"
+                  style={{ borderBottom: '1px solid var(--line)' }}
+                >
+                  <span className="mt-0.5" style={{ color: 'var(--acc-green)' }}>
+                    <Icono name="pin" size={14} />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-semibold" style={{ color: 'var(--pitch-900)' }}>
+                      {s.nombre}
+                    </span>
+                    <span className="block truncate text-xs" style={{ color: 'var(--pitch-300)' }}>
+                      {s.detalle}
+                    </span>
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        {buscandoCancha && (
+          <p className="-mt-1 text-xs" style={{ color: 'var(--pitch-300)' }}>
+            Buscando canchas...
+          </p>
+        )}
 
         {misGrupos.length > 0 && (
           <select

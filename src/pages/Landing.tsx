@@ -9,18 +9,23 @@ import { INSIGNIAS } from '../lib/insignias'
 const PASOS = [
   {
     n: '01',
-    titulo: 'Armá el partido',
-    texto: 'Cancha, hora y cupo. Elegís si queda abierto a la comunidad o solo para tu grupo.',
+    titulo: 'Cargás el partido',
+    texto: 'Dónde, qué día, a qué hora y cuántos entran. Tarda menos que escribir el mensaje del grupo.',
   },
   {
     n: '02',
-    titulo: 'Falta gente, se completa sola',
-    texto: 'Si te quedan lugares vacíos, cualquiera cerca tuyo los puede ocupar con un toque.',
+    titulo: 'Pasás el link por WhatsApp',
+    texto: 'Cada uno toca y se anota solo. Vos ves en vivo cuántos hay y cuántos faltan, sin contar mensajes.',
   },
   {
     n: '03',
-    titulo: 'Jugás, valorás, repetís',
-    texto: 'Después del partido calificás a tus compañeros. La reputación te sigue a todos lados.',
+    titulo: 'Si falta uno, lo buscás',
+    texto: 'Entrás al buscador, filtrás por el puesto que te falta y lo invitás. Te contesta ahí mismo.',
+  },
+  {
+    n: '04',
+    titulo: 'Terminó: cada uno puntúa',
+    texto: 'Diez segundos por compañero. Nadie ve quién puso qué, solo queda el promedio.',
   },
 ]
 
@@ -496,7 +501,7 @@ export default function Landing() {
           <p className="brand text-xl" style={{ color: 'var(--pitch-900)' }}>
             Cómo funciona
           </p>
-          <div className="mt-4 flex flex-col gap-3 md:grid md:grid-cols-3">
+          <div className="mt-4 flex flex-col gap-3 md:grid md:grid-cols-2">
             {PASOS.map((p) => (
               <div key={p.n} className="glass anim-rise flex gap-4 rounded-[24px] p-5 md:flex-col md:gap-2">
                 <span className="brand shrink-0 text-3xl" style={{ color: 'var(--gold-500)' }}>
@@ -566,6 +571,59 @@ export default function Landing() {
         </section>
 
         <section className="mt-20">
+          <Link
+            to="/instalar"
+            className="tap glass-strong anim-rise flex items-center gap-4 rounded-[28px] p-6"
+            style={{ border: '1px solid rgba(157,204,218,.35)' }}
+          >
+            <LogoFR size={52} />
+            <div className="min-w-0 flex-1">
+              <p className="text-[15px] font-extrabold" style={{ color: 'var(--pitch-900)' }}>
+                Ponela en tu celular
+              </p>
+              <p className="mt-1 text-sm leading-snug" style={{ color: 'var(--pitch-700)', opacity: 0.85 }}>
+                Te queda el ícono en la pantalla como cualquier app. No hay que bajar nada de ninguna tienda.
+              </p>
+              <p className="mt-2 text-[13px] font-bold" style={{ color: 'var(--acc-blue)' }}>
+                Te explico paso a paso →
+              </p>
+            </div>
+          </Link>
+        </section>
+
+        <section className="mt-20">
+          <p className="brand text-xl" style={{ color: 'var(--pitch-900)' }}>
+            El que trae gente, suma
+          </p>
+          <div className="glass anim-rise mt-4 rounded-[28px] p-6">
+            <p className="text-sm leading-relaxed" style={{ color: 'var(--pitch-700)' }}>
+              Cada jugador que entra con tu invitación queda contado como tuyo. Con el primero ya sos{' '}
+              <strong style={{ color: 'var(--acc-green)' }}>Armador</strong>; a los tres,{' '}
+              <strong style={{ color: 'var(--acc-blue)' }}>Reclutador</strong>; a los diez,{' '}
+              <strong style={{ color: 'var(--gold-500)' }}>Cabecilla</strong>, y la chapa te queda en el perfil
+              para que la vea todo el grupo.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {[
+                { label: 'Armador', desc: '1 jugador', color: 'var(--acc-green)' },
+                { label: 'Reclutador', desc: '3 jugadores', color: 'var(--acc-blue)' },
+                { label: 'Cabecilla', desc: '10 jugadores', color: 'var(--gold-500)' },
+              ].map((r) => (
+                <span
+                  key={r.label}
+                  className="flex items-center gap-1.5 rounded-full px-3 py-2 text-[12.5px] font-bold"
+                  style={{ background: `${r.color}22`, color: r.color }}
+                >
+                  <Icono name="corona" size={13} />
+                  {r.label}
+                  <span style={{ color: 'var(--pitch-300)', fontWeight: 500 }}>{r.desc}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-20">
           <p className="brand text-xl" style={{ color: 'var(--pitch-900)' }}>
             Qué tiene la app
           </p>
@@ -589,7 +647,7 @@ export default function Landing() {
             <LogoFR size={54} />
           </div>
           <p className="brand text-2xl" style={{ color: 'var(--pitch-900)' }}>
-            ¿Organizás fulbito?
+            ¿Organizás un fulbito?
           </p>
           <p className="mt-2 text-sm" style={{ color: 'var(--pitch-700)', opacity: 0.8 }}>
             Entrá con tu email o con Google, sin contraseñas. Es gratis.
@@ -601,6 +659,35 @@ export default function Landing() {
           >
             Entrar
           </Link>
+        </section>
+
+        <section className="mt-20">
+          <div
+            className="glass-strong anim-rise rounded-[28px] p-7"
+            style={{ border: '1px solid rgba(237,197,141,.3)' }}
+          >
+            <p
+              className="text-[11px] font-semibold uppercase tracking-[0.18em]"
+              style={{ color: 'var(--gold-500)' }}
+            >
+              Para dueños de canchas
+            </p>
+            <p className="brand mt-3 text-2xl leading-none" style={{ color: 'var(--pitch-900)' }}>
+              ¿Tenés una cancha?
+            </p>
+            <p className="mt-3 text-sm leading-relaxed" style={{ color: 'var(--pitch-700)', opacity: 0.85 }}>
+              Estamos armando la parte para complejos y organizadores: cargar tu establecimiento, publicar tus
+              propios partidos abiertos o cerrados, y que la gente se anote sola con un link. Si querés estar
+              entre los primeros, escribime y lo vemos.
+            </p>
+            <a
+              href="mailto:info.fulbitorustico@gmail.com?subject=Tengo%20una%20cancha%20y%20quiero%20sumarme%20a%20Fulbito%20Random&body=Hola!%20Te%20cuento%20de%20mi%20cancha%3A%0A%0ANombre%20del%20complejo%3A%0AZona%3A%0ACu%C3%A1ntas%20canchas%3A%0ATel%C3%A9fono%20de%20contacto%3A%0A"
+              className="tap mt-5 inline-block w-full rounded-2xl px-4 py-3.5 text-center text-[15px] font-semibold text-[color:var(--ink-900)]"
+              style={{ background: 'var(--gold-500)' }}
+            >
+              Escribime por mi cancha
+            </a>
+          </div>
         </section>
 
         <section className="mt-20">

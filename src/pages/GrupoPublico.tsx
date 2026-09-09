@@ -82,7 +82,7 @@ export default function GrupoPublico() {
 
         <div className="glass-strong anim-pop mt-10 rounded-[28px] p-7 text-center">
           <p className="brand text-xl" style={{ color: 'var(--pitch-900)' }}>
-            ¿Organizás fulbito?
+            ¿Organizás un fulbito?
           </p>
           <p className="mt-2 text-sm" style={{ color: 'var(--pitch-700)', opacity: 0.8 }}>
             Sumá a tu grupo a Fulbito Random, es gratis.

@@ -14,6 +14,7 @@ export default function JugadorDetalle() {
   const [promedio, setPromedio] = useState<ValoracionPromedio | null>(null)
   const [distribucion, setDistribucion] = useState<DistribucionValoracion[]>([])
   const [insignias, setInsignias] = useState<InsigniaConteo[]>([])
+  const [reclutas, setReclutas] = useState(0)
   const [partidosJuntos, setPartidosJuntos] = useState(0)
   const [partidosJugados, setPartidosJugados] = useState(0)
   const [comentarios, setComentarios] = useState<{ comentario: string; created_at: string }[]>([])
@@ -35,6 +36,9 @@ export default function JugadorDetalle() {
 
       const { data: insigniasData } = await supabase.rpc('insignias_por_jugador', { p_jugador_id: id })
       setInsignias(insigniasData ?? [])
+
+      const { data: reclutasData } = await supabase.rpc('reclutas_por_jugador', { p_jugador_id: id })
+      setReclutas(reclutasData ?? 0)
 
       const bajasMap = await fetchBajasTardiasMap()
       setBajasTardias(bajasMap[id] ?? 0)
@@ -92,6 +96,7 @@ export default function JugadorDetalle() {
         insignias={insignias}
         bajasTardias={bajasTardias}
         partidosJugados={partidosJugados}
+        reclutas={reclutas}
       >
         {yo && yo.id !== id && partidosJuntos > 0 && (
           <p

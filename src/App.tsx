@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation, Link } from 'react-router-dom'
+import Marca from './components/Marca'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import BottomNav from './components/BottomNav'
 import PageTransition from './components/PageTransition'
@@ -21,13 +22,20 @@ import Terminos from './pages/Terminos'
 import Privacidad from './pages/Privacidad'
 import GrupoPublico from './pages/GrupoPublico'
 import BuscarJugadores from './pages/BuscarJugadores'
+import Instalar from './pages/Instalar'
 
 function Shell() {
   const location = useLocation()
 
   return (
     <div className="min-h-svh">
-      <div className="mx-auto max-w-lg px-4 pb-28 pt-6">
+      <header className="mx-auto flex max-w-lg items-center justify-between px-4 pt-5">
+        <Marca size="sm" />
+        <Link to="/instalar" className="text-[11px] font-semibold" style={{ color: 'var(--pitch-300)' }}>
+          Ponela en tu celu
+        </Link>
+      </header>
+      <div className="mx-auto max-w-lg px-4 pb-28 pt-4">
         <Routes location={location} key={location.pathname}>
           <Route path="/partidos" element={<PageTransition><Partidos /></PageTransition>} />
           <Route path="/partidos/nuevo" element={<PageTransition><NuevoPartido /></PageTransition>} />
@@ -60,6 +68,7 @@ function Router() {
     location.pathname === '/terminos' ||
     location.pathname === '/privacidad' ||
     location.pathname === '/landing' ||
+    location.pathname === '/instalar' ||
     /^\/grupos\/[^/]+\/publico$/.test(location.pathname)
 
   if (esRutaPublica) {
@@ -69,6 +78,7 @@ function Router() {
         <Route path="/terminos" element={<Terminos />} />
         <Route path="/privacidad" element={<Privacidad />} />
         <Route path="/landing" element={<Landing />} />
+        <Route path="/instalar" element={<Instalar />} />
         <Route path="/grupos/:id/publico" element={<GrupoPublico />} />
       </Routes>
     )

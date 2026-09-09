@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import SelectorPosiciones from '../components/SelectorPosiciones'
+import { limpiarInvitadoPor, tomarInvitadoPor } from '../lib/reclutamiento'
 
 export default function CompletarPerfil() {
   const { session, refreshJugador } = useAuth()
@@ -17,12 +18,15 @@ export default function CompletarPerfil() {
     if (!session) return
     setGuardando(true)
     setError(null)
+    const invitadoPor = tomarInvitadoPor()
     const { error } = await supabase.from('jugadores').insert({
       user_id: session.user.id,
       nombre,
       apodo: apodo || null,
       posiciones,
+      invitado_por_id: invitadoPor,
     })
+    if (!error) limpiarInvitadoPor()
     setGuardando(false)
     if (error) setError(error.message)
     else await refreshJugador()

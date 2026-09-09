@@ -45,6 +45,20 @@ export default function MisInvitaciones({ alResponder }: { alResponder: () => vo
     setRespondiendo(inv.id)
 
     if (acepta) {
+      // Entre que te invitaron y que aceptás, el partido se pudo llenar.
+      const { count } = await supabase
+        .from('participantes')
+        .select('*', { count: 'exact', head: true })
+        .eq('partido_id', inv.partido_id)
+
+      if ((count ?? 0) >= inv.partido.cupo_total) {
+        alert('Justo se llenó ese partido. Le avisamos al que te invitó.')
+        await supabase.from('invitaciones').update({ estado: 'rechazada' }).eq('id', inv.id)
+        setRespondiendo(null)
+        await cargar()
+        return
+      }
+
       await supabase.from('participantes').insert({ partido_id: inv.partido_id, jugador_id: jugador.id })
     }
     await supabase

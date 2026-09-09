@@ -4,6 +4,7 @@ import BadgeConfiabilidad from './BadgeConfiabilidad'
 import Icono from './Icono'
 import { insigniaPorId } from '../lib/insignias'
 import { progresoNivel } from '../lib/nivel'
+import { nivelReclutador } from '../lib/reclutamiento'
 import { formatPosiciones } from '../lib/posiciones'
 import type { DistribucionValoracion, InsigniaConteo, Jugador } from '../lib/types'
 
@@ -15,6 +16,7 @@ export default function CardJugador({
   insignias,
   bajasTardias,
   partidosJugados,
+  reclutas = 0,
   children,
 }: {
   jugador: Jugador
@@ -24,9 +26,11 @@ export default function CardJugador({
   insignias: InsigniaConteo[]
   bajasTardias: number
   partidosJugados: number
+  reclutas?: number
   children?: React.ReactNode
 }) {
   const { actual, siguiente, faltan, porcentaje } = progresoNivel(partidosJugados)
+  const chapaReclutador = nivelReclutador(reclutas)
 
   return (
     <div
@@ -51,12 +55,24 @@ export default function CardJugador({
               "{jugador.apodo}"
             </p>
           )}
-          <span
-            className="mt-1.5 inline-block rounded-full px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-[0.14em]"
-            style={{ background: `${actual.color}26`, color: actual.color }}
-          >
-            {actual.nombre}
-          </span>
+          <div className="mt-1.5 flex flex-wrap gap-1.5">
+            <span
+              className="inline-block rounded-full px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-[0.14em]"
+              style={{ background: `${actual.color}26`, color: actual.color }}
+            >
+              {actual.nombre}
+            </span>
+            {chapaReclutador && (
+              <span
+                className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-[0.14em]"
+                style={{ background: `${chapaReclutador.color}26`, color: chapaReclutador.color }}
+                title={`Trajo ${reclutas} ${reclutas === 1 ? 'jugador' : 'jugadores'}`}
+              >
+                <Icono name="corona" size={11} />
+                {chapaReclutador.label}
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
