@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import CardJugador from '../components/CardJugador'
 import Objetivos from '../components/Objetivos'
 import Icono from '../components/Icono'
-import { fetchBajasTardiasMap } from '../lib/bajas'
+import { fetchBajasTardiasMap, fetchAbandonosCapitanMap, ABANDONOS_PARA_MANCHA } from '../lib/bajas'
 import { calcularRacha, textoRacha } from '../lib/racha'
 import type { DistribucionValoracion, InsigniaConteo, Jugador, ValoracionPromedio } from '../lib/types'
 
@@ -20,6 +20,7 @@ export default function JugadorDetalle() {
   const [partidosJuntos, setPartidosJuntos] = useState(0)
   const [partidosJugados, setPartidosJugados] = useState(0)
   const [racha, setRacha] = useState({ actual: 0, mejor: 0 })
+  const [abandonos, setAbandonos] = useState(0)
   const [comentarios, setComentarios] = useState<{ comentario: string; created_at: string }[]>([])
   const [bajasTardias, setBajasTardias] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -45,6 +46,8 @@ export default function JugadorDetalle() {
 
       const bajasMap = await fetchBajasTardiasMap()
       setBajasTardias(bajasMap[id] ?? 0)
+      const abandonosMap = await fetchAbandonosCapitanMap()
+      setAbandonos(abandonosMap[id] ?? 0)
 
       const { data: jugadosData } = await supabase
         .from('participantes')
@@ -108,6 +111,15 @@ export default function JugadorDetalle() {
         partidosJugados={partidosJugados}
         reclutas={reclutas}
       >
+        {abandonos >= ABANDONOS_PARA_MANCHA && (
+          <p
+            className="mt-3 rounded-full px-3 py-1.5 text-center text-xs font-semibold"
+            style={{ background: 'rgba(224,122,99,.14)', color: 'var(--error)' }}
+          >
+            Dejó {abandonos} partidos propios sin capitán en los últimos dos meses
+          </p>
+        )}
+
         {racha.actual > 1 && (
           <p
             className="mt-5 flex items-center justify-center gap-1.5 rounded-full px-3 py-1.5 text-center text-xs font-semibold"

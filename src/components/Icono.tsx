@@ -25,6 +25,7 @@ export type NombreIcono =
   | 'guante'
   | 'botin'
   | 'punto'
+  | 'chat'
 
 const TRAZO = {
   fill: 'none',
@@ -149,6 +150,12 @@ const DIBUJOS: Record<NombreIcono, React.ReactNode> = {
     </>
   ),
   punto: <circle cx="12" cy="12" r="6" fill="currentColor" />,
+  chat: (
+    <path
+      d="M20.5 12c0 4.1-3.8 7.4-8.5 7.4-1 0-2-.15-2.9-.42L4 20.5l1.6-3.7C4.3 15.5 3.5 13.85 3.5 12 3.5 7.9 7.3 4.6 12 4.6s8.5 3.3 8.5 7.4Z"
+      {...TRAZO}
+    />
+  ),
 }
 
 export default function Icono({

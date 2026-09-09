@@ -182,8 +182,17 @@ function Embudo({ pasos }: { pasos: { label: string; valor: number }[] }) {
   )
 }
 
+interface Sugerencia {
+  id: string
+  texto: string
+  pantalla: string | null
+  estado: string
+  created_at: string
+}
+
 export default function Panel() {
   const [m, setM] = useState<Metricas | null>(null)
+  const [sugerencias, setSugerencias] = useState<Sugerencia[]>([])
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -193,7 +202,18 @@ export default function Panel() {
       else setM(data as Metricas)
       setLoading(false)
     })
+    supabase
+      .from('sugerencias')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(50)
+      .then(({ data }) => setSugerencias((data ?? []) as Sugerencia[]))
   }, [])
+
+  async function marcar(id: string, estado: string) {
+    await supabase.from('sugerencias').update({ estado }).eq('id', id)
+    setSugerencias((prev) => prev.map((s) => (s.id === id ? { ...s, estado } : s)))
+  }
 
   if (loading)
     return (
@@ -226,6 +246,47 @@ export default function Panel() {
       <p className="mb-5 text-[12px]" style={{ color: 'var(--pitch-300)' }}>
         Datos al {m.generado}. Todo agregado: no sale ningún nombre ni ningún mail.
       </p>
+
+      {sugerencias.length > 0 && (
+        <Bloque titulo={`Sugerencias (${sugerencias.filter((s) => s.estado === 'nueva').length} sin leer)`}>
+          <div className="flex flex-col gap-2.5">
+            {sugerencias.map((s) => (
+              <div
+                key={s.id}
+                className="rounded-2xl p-3.5"
+                style={{
+                  background: s.estado === 'nueva' ? 'rgba(237,197,141,.10)' : 'rgba(242,239,233,.05)',
+                }}
+              >
+                <p className="text-[13px] leading-relaxed" style={{ color: 'var(--pitch-900)' }}>
+                  {s.texto}
+                </p>
+                <div className="mt-2 flex items-center justify-between gap-2">
+                  <span className="text-[11px]" style={{ color: 'var(--pitch-300)' }}>
+                    {new Date(s.created_at).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })}
+                    {s.pantalla && ` · ${s.pantalla}`}
+                  </span>
+                  <div className="flex gap-1.5">
+                    {(['vista', 'hecha', 'descartada'] as const).map((e) => (
+                      <button
+                        key={e}
+                        onClick={() => marcar(s.id, e)}
+                        className="tap rounded-full px-2.5 py-1 text-[11px] font-semibold"
+                        style={{
+                          background: s.estado === e ? 'var(--paper)' : 'rgba(242,239,233,.07)',
+                          color: s.estado === e ? 'var(--ink-900)' : 'var(--pitch-700)',
+                        }}
+                      >
+                        {e}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Bloque>
+      )}
 
       <Bloque titulo="Gente">
         <div className="grid grid-cols-3 gap-4">

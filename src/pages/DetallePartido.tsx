@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext'
 import Avatar from '../components/Avatar'
 import { formatPosiciones } from '../lib/posiciones'
 import { registrarBaja, fetchBajasTardiasMap } from '../lib/bajas'
+import ReaccionesPartido from '../components/ReaccionesPartido'
 import { calcularEstadoPartido } from '../lib/geo'
 import { nivelDesdeBajasTardias } from '../lib/confiabilidad'
 import BadgeConfiabilidad from '../components/BadgeConfiabilidad'
@@ -60,6 +61,7 @@ export default function DetallePartido() {
   const [eligiendoFrecuencia, setEligiendoFrecuencia] = useState(false)
   const [confirmados, setConfirmados] = useState<Record<string, boolean>>({})
   const [confirmando, setConfirmando] = useState(false)
+  const [pasandoCapitania, setPasandoCapitania] = useState(false)
   const [mvp, setMvp] = useState<MvpDelPartido[]>([])
 
   useEffect(() => {
@@ -159,8 +161,14 @@ export default function DetallePartido() {
   async function toggleAnotarse() {
     if (!jugador || !partido) return
     if (yoAnotado) {
+      // El capitán no puede irse dejando el partido sin dueño: si hay a quién,
+      // primero elige sucesor. Si está solo, no hay a quién pasarle nada.
+      if (esCapitan && anotados.length > 1) {
+        setPasandoCapitania(true)
+        return
+      }
       await supabase.from('participantes').delete().eq('partido_id', partido.id).eq('jugador_id', jugador.id)
-      await registrarBaja(partido.id, jugador.id, partido.fecha_hora)
+      await registrarBaja(partido.id, jugador.id, partido.fecha_hora, esCapitan)
     } else {
       await supabase.from('participantes').insert({ partido_id: partido.id, jugador_id: jugador.id })
       if (jugador.id !== partido.admin_id) {
@@ -179,6 +187,23 @@ export default function DetallePartido() {
           .catch(() => {})
       }
     }
+    await cargar()
+  }
+
+  async function pasarCapitaniaYBajarme(nuevoCapitanId: string) {
+    if (!jugador || !partido) return
+    await supabase
+      .from('partidos')
+      .update({
+        admin_id: nuevoCapitanId,
+        // Si el sucesor era el subcapitán, el puesto queda vacante: no tiene
+        // sentido que sea capitán y subcapitán a la vez.
+        subcapitan_id: partido.subcapitan_id === nuevoCapitanId ? null : partido.subcapitan_id,
+      })
+      .eq('id', partido.id)
+    await supabase.from('participantes').delete().eq('partido_id', partido.id).eq('jugador_id', jugador.id)
+    await registrarBaja(partido.id, jugador.id, partido.fecha_hora, true)
+    setPasandoCapitania(false)
     await cargar()
   }
 
@@ -549,6 +574,10 @@ export default function DetallePartido() {
         </div>
       )}
 
+      {estadoTiempo !== 'programado' && partido.estado !== 'cancelado' && (
+        <ReaccionesPartido partidoId={partido.id} puedoReaccionar={yoAnotado} />
+      )}
+
       {esAdmin && partido.estado !== 'cancelado' && !editando && (
         <div className="mt-3 flex flex-wrap gap-2">
           <button
@@ -591,6 +620,47 @@ export default function DetallePartido() {
             style={{ color: 'var(--error)' }}
           >
             Cancelar
+          </button>
+        </div>
+      )}
+
+      {pasandoCapitania && (
+        <div className="glass-strong anim-rise mt-3 rounded-2xl p-5">
+          <p className="text-sm font-semibold" style={{ color: 'var(--pitch-900)' }}>
+            Sos el capitán de este partido
+          </p>
+          <p className="mt-1 text-[13px] leading-relaxed" style={{ color: 'var(--pitch-700)' }}>
+            Antes de bajarte, pasale la capitanía a alguien que sí vaya. Si te vas sin dejar a nadie a cargo, quedan
+            diez personas sin quién organice.
+          </p>
+          <div className="mt-3 flex flex-col gap-2">
+            {anotados
+              .filter((a) => a.id !== jugador?.id)
+              .map((a) => (
+                <button
+                  key={a.id}
+                  onClick={() => pasarCapitaniaYBajarme(a.id)}
+                  className="tap glass flex items-center gap-3 rounded-2xl px-4 py-2.5 text-left"
+                >
+                  <Avatar nombre={a.nombre} avatar={a.avatar} fotoUrl={a.foto_url} size="sm" />
+                  <span className="flex-1 text-sm font-medium" style={{ color: 'var(--pitch-900)' }}>
+                    {a.nombre}
+                    {a.id === partido.subcapitan_id && (
+                      <span className="ml-1.5 text-[11px]" style={{ color: 'var(--acc-blue)' }}>
+                        subcapitán
+                      </span>
+                    )}
+                  </span>
+                  <Icono name="corona" size={14} />
+                </button>
+              ))}
+          </div>
+          <button
+            onClick={() => setPasandoCapitania(false)}
+            className="tap mt-3 w-full rounded-2xl px-4 py-2.5 text-sm font-semibold"
+            style={{ background: 'rgba(242,239,233,.07)', color: 'var(--pitch-700)' }}
+          >
+            Mejor me quedo
           </button>
         </div>
       )}

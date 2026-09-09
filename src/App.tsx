@@ -25,6 +25,7 @@ import BuscarJugadores from './pages/BuscarJugadores'
 import CanchaDetalle from './pages/CanchaDetalle'
 import Instalar from './pages/Instalar'
 import Panel from './pages/Panel'
+import Sugerencias from './components/Sugerencias'
 
 function Shell() {
   const location = useLocation()
@@ -56,6 +57,7 @@ function Shell() {
           <Route path="*" element={<Navigate to="/partidos" replace />} />
         </Routes>
       </div>
+      <Sugerencias />
       <BottomNav />
     </div>
   )

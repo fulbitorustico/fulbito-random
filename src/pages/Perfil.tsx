@@ -16,7 +16,7 @@ import { nivelPorPartidos } from '../lib/nivel'
 import { AVATARES_DISPONIBLES } from '../lib/avatar'
 import { achicarParaAvatar } from '../lib/imagen'
 import SelectorPosiciones from '../components/SelectorPosiciones'
-import { fetchBajasTardiasMap } from '../lib/bajas'
+import { fetchBajasTardiasMap, fetchAbandonosCapitanMap, ABANDONOS_PARA_MANCHA } from '../lib/bajas'
 import { MAX_CAMBIOS_POSICIONES } from '../lib/types'
 import type { DistribucionValoracion, InsigniaConteo, ValoracionPromedio } from '../lib/types'
 
@@ -36,6 +36,7 @@ export default function Perfil() {
   const [bajasTardias, setBajasTardias] = useState(0)
   const [partidosJugados, setPartidosJugados] = useState(0)
   const [racha, setRacha] = useState({ actual: 0, mejor: 0 })
+  const [abandonos, setAbandonos] = useState(0)
   const [comentarios, setComentarios] = useState<{ comentario: string; created_at: string }[]>([])
   const [insignias, setInsignias] = useState<InsigniaConteo[]>([])
   const [reclutas, setReclutas] = useState(0)
@@ -53,6 +54,7 @@ export default function Perfil() {
         setPromedio((data ?? []).find((p) => p.evaluado_id === jugador.id) ?? null)
       })
     fetchBajasTardiasMap().then((map) => setBajasTardias(map[jugador.id] ?? 0))
+    fetchAbandonosCapitanMap().then((map) => setAbandonos(map[jugador.id] ?? 0))
     supabase
       .from('participantes')
       .select('partidos(fecha_hora, estado)')
@@ -232,6 +234,17 @@ export default function Perfil() {
           {session?.user.email}
         </p>
       </CardJugador>
+
+      {abandonos >= ABANDONOS_PARA_MANCHA && (
+        <div className="mt-4 rounded-2xl px-4 py-3" style={{ background: 'rgba(224,122,99,.14)' }}>
+          <p className="text-sm font-semibold" style={{ color: 'var(--error)' }}>
+            Dejaste {abandonos} partidos propios sin capitán
+          </p>
+          <p className="mt-0.5 text-[12px]" style={{ color: 'var(--pitch-700)' }}>
+            En los últimos dos meses. Lo ve cualquiera que entre a tu perfil.
+          </p>
+        </div>
+      )}
 
       {racha.actual > 1 && (
         <div
