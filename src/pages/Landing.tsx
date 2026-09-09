@@ -480,11 +480,23 @@ const PREGUNTAS: { q: string; a: string }[] = [
   },
   {
     q: 'El partido está lleno y quiero jugar, ¿qué pasa?',
-    a: 'Por ahora entra el que llega primero. Estamos armando la lista de espera: cuando esté, si alguien se baja no va a entrar el más rápido en tocar el botón, sino el que más viene jugando ese partido. La cuenta se hace sobre los últimos 4 encuentros, así se mira quién está yendo ahora y no quién iba el año pasado. A igual cantidad, ahí sí desempata el orden de llegada.',
+    a: 'Por ahora entra el que llega primero. Estamos armando la lista de espera: si el cupo es 10 y ya están, te anotás igual como 11, 12 y así. Si alguien se baja, entra el 11. Si se baja otro, el 12. Es por orden, sin vueltas.',
+  },
+  {
+    q: 'Estar en la lista de espera, ¿es estar en el banco?',
+    a: 'No, es tener el lugar guardado. En el fulbito siempre se cae alguien, así que la lista se mueve. Y el que está en la lista tiene la misma responsabilidad que los diez: si te toca entrar, vas. Avisar que no podés estando 11 vale lo mismo que avisarlo estando entre los que juegan.',
+  },
+  {
+    q: 'Dos nos anotamos al mismo tiempo para el último lugar, ¿quién entra?',
+    a: 'Ahí, y solo ahí, mira el historial: entra el que más viene jugando ese partido, contando los últimos 4 encuentros. Es para no decidir por milésimas de segundo. El otro queda primero en la lista de espera, que es el primero en entrar si alguien se baja.',
   },
   {
     q: 'Soy el capitán y no puedo ir, ¿qué hago?',
-    a: 'Antes de bajarte tenés que pasarle la capitanía a alguno de los anotados: si te vas sin dejar a nadie a cargo, quedan diez personas sin quién organice. Y si dejás tres partidos propios sin capitán en dos meses, te queda una tarjeta amarilla visible en tu perfil.',
+    a: 'Antes de bajarte tenés que pasarle la capitanía a alguno de los anotados: si te vas sin dejar a nadie a cargo, quedan diez personas sin quién organice. Pasarla no te cuesta nada.',
+  },
+  {
+    q: '¿Qué son las tarjetas del capitán?',
+    a: 'Bajarte de un partido que armaste vos es una amarilla, y se ve en tu perfil. Con dos amarillas en dos meses es roja: quedás dos fechas sin poder armar partidos. La suspensión se cumple jugando, no esperando: jugás dos partidos y volvés a poder ser capitán. Armar un partido es un compromiso con nueve personas más, y por eso es lo único que la app sanciona.',
   },
   {
     q: '¿Puedo estar en varios grupos?',
@@ -501,6 +513,8 @@ const PREGUNTAS: { q: string; a: string }[] = [
 ]
 
 export default function Landing() {
+  const [preguntaAbierta, setPreguntaAbierta] = useState<number | null>(null)
+
   return (
     <div className="min-h-svh">
       <div className="mx-auto max-w-lg px-5 pb-16 pt-8 md:max-w-4xl">
@@ -800,19 +814,34 @@ export default function Landing() {
             Las reglas están a la vista: si no se entienden, parecen acomodo.
           </p>
           <div className="flex flex-col gap-2">
-            {PREGUNTAS.map((p) => (
-              <details key={p.q} className="glass anim-rise rounded-2xl p-5">
-                <summary
-                  className="cursor-pointer list-none text-[15px] font-semibold"
-                  style={{ color: 'var(--pitch-900)' }}
-                >
-                  {p.q}
-                </summary>
-                <p className="mt-2.5 text-sm leading-relaxed" style={{ color: 'var(--pitch-700)' }}>
-                  {p.a}
-                </p>
-              </details>
-            ))}
+            {PREGUNTAS.map((p, i) => {
+              // Una sola abierta por vez: con diez preguntas abiertas, la
+              // página se vuelve un scroll interminable.
+              const abierta = preguntaAbierta === i
+              return (
+                <div key={p.q} className="glass anim-rise rounded-2xl p-5">
+                  <button
+                    onClick={() => setPreguntaAbierta(abierta ? null : i)}
+                    aria-expanded={abierta}
+                    className="tap flex w-full items-start justify-between gap-3 text-left text-[15px] font-semibold"
+                    style={{ color: 'var(--pitch-900)' }}
+                  >
+                    <span>{p.q}</span>
+                    <span
+                      className="mt-0.5 shrink-0 transition-transform duration-200"
+                      style={{ color: 'var(--pitch-300)', transform: abierta ? 'rotate(45deg)' : 'none' }}
+                    >
+                      <Icono name="mas" size={15} />
+                    </span>
+                  </button>
+                  {abierta && (
+                    <p className="anim-rise mt-2.5 text-sm leading-relaxed" style={{ color: 'var(--pitch-700)' }}>
+                      {p.a}
+                    </p>
+                  )}
+                </div>
+              )
+            })}
           </div>
         </section>
 

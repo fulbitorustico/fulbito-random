@@ -7,6 +7,7 @@ import Icono from '../components/Icono'
 import { buscarCanchas, type CanchaEncontrada } from '../lib/canchas'
 import { coordenadasDesdeLinkDeMapas, geocodificarDireccion, pareceLinkDeMapas } from '../lib/mapas'
 import type { AperturaPartido, Grupo } from '../lib/types'
+import { fetchSancionCapitan, SIN_SANCION, type SancionCapitan } from '../lib/sanciones'
 
 const HORARIOS = Array.from({ length: 48 }, (_, i) => {
   const h = String(Math.floor(i / 2)).padStart(2, '0')
@@ -45,6 +46,7 @@ export default function NuevoPartido() {
   const [localidad, setLocalidad] = useState('')
   const [mapaUrl, setMapaUrl] = useState('')
   const [avisoUbicacion, setAvisoUbicacion] = useState<string | null>(null)
+  const [sancion, setSancion] = useState<SancionCapitan>(SIN_SANCION)
 
   // Se busca recién cuando dejás de escribir, para no castigar a OpenStreetMap.
   useEffect(() => {
@@ -63,6 +65,12 @@ export default function NuevoPartido() {
       setBuscandoCancha(false)
     }
   }, [cancha, sugerenciaElegida, ubicacion])
+
+  // Se pregunta al entrar y no al guardar: que la base te rechace después de
+  // llenar el formulario entero es la peor forma de enterarte.
+  useEffect(() => {
+    if (jugador) fetchSancionCapitan(jugador.id).then(setSancion)
+  }, [jugador])
 
   useEffect(() => {
     async function cargarGrupos() {
@@ -147,7 +155,27 @@ export default function NuevoPartido() {
       <h1 className="mb-5 text-2xl font-bold" style={{ color: 'var(--pitch-900)' }}>
         Nuevo partido
       </h1>
-      <form onSubmit={handleSubmit} className="glass-strong flex flex-col gap-3 rounded-[28px] p-6">
+      {sancion.roja && (
+        <div className="glass-strong anim-rise rounded-[28px] p-6">
+          <p className="text-lg font-bold" style={{ color: 'var(--error)' }}>
+            🟥 Estás suspendido
+          </p>
+          <p className="mt-2 text-sm leading-relaxed" style={{ color: 'var(--pitch-700)' }}>
+            Dejaste dos partidos propios sin capitán en los últimos dos meses. Te{' '}
+            {sancion.partidosParaVolver === 1 ? 'falta jugar un partido' : `faltan ${sancion.partidosParaVolver} partidos`}{' '}
+            para volver a armar partidos.
+          </p>
+          <p className="mt-2 text-[13px] leading-relaxed" style={{ color: 'var(--pitch-300)' }}>
+            La suspensión se cumple jugando, no esperando. Podés sumarte a los partidos de otros como siempre.
+          </p>
+        </div>
+      )}
+
+      <form
+        onSubmit={handleSubmit}
+        className="glass-strong flex flex-col gap-3 rounded-[28px] p-6"
+        style={{ display: sancion.roja ? 'none' : undefined }}
+      >
         <div className="relative">
           <input
             required

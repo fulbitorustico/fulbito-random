@@ -6,7 +6,8 @@ import CardJugador from '../components/CardJugador'
 import Objetivos from '../components/Objetivos'
 import Evolucion from '../components/Evolucion'
 import Icono from '../components/Icono'
-import { fetchBajasTardiasMap, fetchAbandonosCapitanMap, ABANDONOS_PARA_AMARILLA } from '../lib/bajas'
+import { fetchBajasTardiasMap } from '../lib/bajas'
+import { fetchSancionCapitan, SIN_SANCION, type SancionCapitan } from '../lib/sanciones'
 import { calcularRacha, textoRacha } from '../lib/racha'
 import type { DistribucionValoracion, InsigniaConteo, Jugador, ValoracionPromedio } from '../lib/types'
 
@@ -21,7 +22,7 @@ export default function JugadorDetalle() {
   const [partidosJuntos, setPartidosJuntos] = useState(0)
   const [partidosJugados, setPartidosJugados] = useState(0)
   const [racha, setRacha] = useState({ actual: 0, mejor: 0 })
-  const [abandonos, setAbandonos] = useState(0)
+  const [sancion, setSancion] = useState<SancionCapitan>(SIN_SANCION)
   const [comentarios, setComentarios] = useState<{ comentario: string; created_at: string }[]>([])
   const [bajasTardias, setBajasTardias] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -47,8 +48,7 @@ export default function JugadorDetalle() {
 
       const bajasMap = await fetchBajasTardiasMap()
       setBajasTardias(bajasMap[id] ?? 0)
-      const abandonosMap = await fetchAbandonosCapitanMap()
-      setAbandonos(abandonosMap[id] ?? 0)
+      setSancion(await fetchSancionCapitan(id))
 
       const { data: jugadosData } = await supabase
         .from('participantes')
@@ -112,12 +112,18 @@ export default function JugadorDetalle() {
         partidosJugados={partidosJugados}
         reclutas={reclutas}
       >
-        {abandonos >= ABANDONOS_PARA_AMARILLA && (
+        {sancion.amarillas > 0 && (
           <p
             className="mt-3 rounded-full px-3 py-1.5 text-center text-xs font-semibold"
-            style={{ background: 'rgba(224,122,99,.14)', color: 'var(--error)' }}
+            style={{
+              background: sancion.roja ? 'rgba(224,122,99,.16)' : 'rgba(237,197,141,.16)',
+              color: sancion.roja ? 'var(--error)' : 'var(--gold-500)',
+            }}
           >
-<span style={{ fontSize: 13 }}>🟨</span> Dejó {abandonos} partidos propios sin capitán en dos meses
+            <span style={{ fontSize: 13 }}>{sancion.roja ? '🟥' : '🟨'}</span>{' '}
+            {sancion.roja
+              ? 'Suspendido: no puede armar partidos'
+              : `${sancion.amarillas} ${sancion.amarillas === 1 ? 'amarilla' : 'amarillas'} por dejar partidos propios sin capitán`}
           </p>
         )}
 

@@ -17,7 +17,8 @@ import { nivelPorPartidos } from '../lib/nivel'
 import { AVATARES_DISPONIBLES } from '../lib/avatar'
 import { achicarParaAvatar } from '../lib/imagen'
 import SelectorPosiciones from '../components/SelectorPosiciones'
-import { fetchBajasTardiasMap, fetchAbandonosCapitanMap, ABANDONOS_PARA_AMARILLA } from '../lib/bajas'
+import { fetchBajasTardiasMap } from '../lib/bajas'
+import { fetchSancionCapitan, textoSancion, SIN_SANCION, type SancionCapitan } from '../lib/sanciones'
 import { MAX_CAMBIOS_POSICIONES } from '../lib/types'
 import type { DistribucionValoracion, InsigniaConteo, ValoracionPromedio } from '../lib/types'
 
@@ -37,7 +38,7 @@ export default function Perfil() {
   const [bajasTardias, setBajasTardias] = useState(0)
   const [partidosJugados, setPartidosJugados] = useState(0)
   const [racha, setRacha] = useState({ actual: 0, mejor: 0 })
-  const [abandonos, setAbandonos] = useState(0)
+  const [sancion, setSancion] = useState<SancionCapitan>(SIN_SANCION)
   const [dandoDeBaja, setDandoDeBaja] = useState(false)
   const [confirmandoBaja, setConfirmandoBaja] = useState(false)
   const [errorBaja, setErrorBaja] = useState<string | null>(null)
@@ -58,7 +59,7 @@ export default function Perfil() {
         setPromedio((data ?? []).find((p) => p.evaluado_id === jugador.id) ?? null)
       })
     fetchBajasTardiasMap().then((map) => setBajasTardias(map[jugador.id] ?? 0))
-    fetchAbandonosCapitanMap().then((map) => setAbandonos(map[jugador.id] ?? 0))
+    fetchSancionCapitan(jugador.id).then(setSancion)
     supabase
       .from('participantes')
       .select('partidos(fecha_hora, estado)')
@@ -260,13 +261,19 @@ export default function Perfil() {
         </p>
       </CardJugador>
 
-      {abandonos >= ABANDONOS_PARA_AMARILLA && (
-        <div className="mt-4 rounded-2xl px-4 py-3" style={{ background: 'rgba(224,122,99,.14)' }}>
-          <p className="text-sm font-semibold" style={{ color: 'var(--error)' }}>
-            🟨 Tarjeta amarilla: dejaste {abandonos} partidos propios sin capitán
+      {sancion.amarillas > 0 && (
+        <div
+          className="mt-4 rounded-2xl px-4 py-3"
+          style={{ background: sancion.roja ? 'rgba(224,122,99,.18)' : 'rgba(237,197,141,.16)' }}
+        >
+          <p className="text-sm font-semibold" style={{ color: sancion.roja ? 'var(--error)' : 'var(--gold-500)' }}>
+            {sancion.roja ? '🟥 ' : '🟨 '}
+            {textoSancion(sancion)}
           </p>
-          <p className="mt-0.5 text-[12px]" style={{ color: 'var(--pitch-700)' }}>
-            En los últimos dos meses. Lo ve cualquiera que entre a tu perfil.
+          <p className="mt-1 text-[12px] leading-relaxed" style={{ color: 'var(--pitch-700)' }}>
+            {sancion.roja
+              ? 'La suspensión se cumple jugando, no esperando. Podés sumarte a los partidos de otros como siempre.'
+              : 'Con dos amarillas en dos meses es roja: dos fechas sin poder armar partidos.'}
           </p>
         </div>
       )}
