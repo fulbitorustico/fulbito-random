@@ -1,22 +1,29 @@
+import { useId } from 'react'
 import Icono from './Icono'
 import type { DistribucionValoracion } from '../lib/types'
 
 function FilaEstrellas({ promedio, size }: { promedio: number; size: number }) {
+  // El id del degradado tiene que ser único por instancia: si dos jugadores
+  // comparten id, todas las estrellas de la pantalla se dibujan con el relleno
+  // del primero.
+  const idBase = useId()
+
   return (
     <div className="flex" style={{ gap: 1 }}>
       {[1, 2, 3, 4, 5].map((n) => {
         const fill = Math.max(0, Math.min(1, promedio - (n - 1)))
+        const id = `estrella${idBase}-${n}`
         return (
           <svg key={n} width={size} height={size} viewBox="0 0 20 20">
             <defs>
-              <linearGradient id={`estrella-${n}-${size}`}>
+              <linearGradient id={id}>
                 <stop offset={`${fill * 100}%`} stopColor="var(--gold-500)" />
                 <stop offset={`${fill * 100}%`} stopColor="rgba(242,239,233,.14)" />
               </linearGradient>
             </defs>
             <path
               d="M10 1.5 12.5 7 18.5 7.8 14 11.9 15.3 18 10 14.8 4.7 18 6 11.9 1.5 7.8 7.5 7Z"
-              fill={`url(#estrella-${n}-${size})`}
+              fill={`url(#${id})`}
             />
           </svg>
         )

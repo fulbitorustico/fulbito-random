@@ -2,15 +2,12 @@ import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'r
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-import Avatar from '../components/Avatar'
-import Estrellas from '../components/Estrellas'
-import BadgeConfiabilidad from '../components/BadgeConfiabilidad'
+import CardJugador from '../components/CardJugador'
 import Icono from '../components/Icono'
 import { AVATARES_DISPONIBLES } from '../lib/avatar'
 import { achicarParaAvatar } from '../lib/imagen'
 import SelectorPosiciones from '../components/SelectorPosiciones'
 import { fetchBajasTardiasMap } from '../lib/bajas'
-import { insigniaPorId } from '../lib/insignias'
 import { MAX_CAMBIOS_POSICIONES } from '../lib/types'
 import type { DistribucionValoracion, InsigniaConteo, ValoracionPromedio } from '../lib/types'
 
@@ -144,11 +141,17 @@ export default function Perfil() {
         Mi perfil
       </h1>
 
-      <div className="glass-strong anim-pop mb-4 flex flex-col items-center rounded-[28px] p-6 text-center">
-        <Avatar nombre={jugador.nombre} avatar={jugador.avatar} fotoUrl={jugador.foto_url} size="lg" />
-
+      <CardJugador
+        jugador={jugador}
+        promedio={promedio?.promedio ?? null}
+        cantidad={promedio?.cantidad ?? 0}
+        distribucion={distribucion}
+        insignias={insignias}
+        bajasTardias={bajasTardias}
+        partidosJugados={partidosJugados}
+      >
         <input ref={inputFoto} type="file" accept="image/*" onChange={elegirFoto} hidden />
-        <div className="mt-3 flex items-center gap-2">
+        <div className="mt-5 flex items-center justify-center gap-2">
           <button
             onClick={() => inputFoto.current?.click()}
             disabled={subiendoFoto}
@@ -159,39 +162,15 @@ export default function Perfil() {
             {subiendoFoto ? 'Subiendo...' : jugador.foto_url ? 'Cambiar foto' : 'Subir foto'}
           </button>
           {jugador.foto_url && (
-            <button
-              onClick={quitarFoto}
-              className="tap text-xs font-semibold"
-              style={{ color: 'var(--pitch-300)' }}
-            >
+            <button onClick={quitarFoto} className="tap text-xs font-semibold" style={{ color: 'var(--pitch-300)' }}>
               Quitar
             </button>
           )}
         </div>
 
-        <p className="mt-3 text-sm" style={{ color: 'var(--pitch-300)' }}>
-          {session?.user.email}
-        </p>
-        <div className="mt-3 w-full">
-          <Estrellas
-            promedio={promedio?.promedio ?? null}
-            cantidad={promedio?.cantidad ?? 0}
-            variant="completo"
-            distribucion={distribucion}
-          />
-        </div>
-
-        <div className="mt-2">
-          <BadgeConfiabilidad bajasTardias={bajasTardias} />
-        </div>
-
-        <p className="mt-3 text-xs" style={{ color: 'var(--pitch-300)' }}>
-          {partidosJugados} {partidosJugados === 1 ? 'partido jugado' : 'partidos jugados'}
-        </p>
-
         {!jugador.foto_url && (
           <>
-            <p className="mt-5 text-xs" style={{ color: 'var(--pitch-300)' }}>
+            <p className="mt-4 text-center text-xs" style={{ color: 'var(--pitch-300)' }}>
               O elegí un símbolo
             </p>
             <div className="mt-2 flex flex-wrap justify-center gap-2">
@@ -212,35 +191,14 @@ export default function Perfil() {
             </div>
           </>
         )}
-      </div>
 
-      {insignias.length > 0 && (
-        <div className="glass-strong mb-4 rounded-[28px] p-5">
-          <h2 className="mb-3 text-sm font-semibold" style={{ color: 'var(--pitch-700)' }}>
-            Medallero — insignias que te votó el grupo
-          </h2>
-          <div className="flex flex-wrap gap-2">
-            {insignias.map((i) => {
-              const info = insigniaPorId(i.insignia)
-              if (!info) return null
-              return (
-                <div
-                  key={i.insignia}
-                  className="flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold"
-                  style={{ background: 'rgba(237,197,141,.16)', color: 'var(--gold-500)' }}
-                >
-                  <Icono name={info.icono} size={14} />
-                  {info.label}
-                  <span style={{ color: 'var(--pitch-300)' }}>×{i.cantidad}</span>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      )}
+        <p className="mt-4 text-center text-xs" style={{ color: 'var(--pitch-300)' }}>
+          {session?.user.email}
+        </p>
+      </CardJugador>
 
       {comentarios.length > 0 && (
-        <div className="mb-4">
+        <div className="mb-4 mt-4">
           <h2 className="mb-2 text-sm font-semibold" style={{ color: 'var(--pitch-700)' }}>
             Comentarios recibidos
           </h2>

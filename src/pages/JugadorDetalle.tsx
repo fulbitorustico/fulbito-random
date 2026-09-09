@@ -2,13 +2,8 @@ import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
-import Avatar from '../components/Avatar'
-import Estrellas from '../components/Estrellas'
-import BadgeConfiabilidad from '../components/BadgeConfiabilidad'
-import { formatPosiciones } from '../lib/posiciones'
+import CardJugador from '../components/CardJugador'
 import { fetchBajasTardiasMap } from '../lib/bajas'
-import { insigniaPorId } from '../lib/insignias'
-import Icono from '../components/Icono'
 import type { DistribucionValoracion, InsigniaConteo, Jugador, ValoracionPromedio } from '../lib/types'
 
 export default function JugadorDetalle() {
@@ -88,75 +83,24 @@ export default function JugadorDetalle() {
         ← Volver a jugadores
       </Link>
 
-      <div className="glass-strong anim-pop flex flex-col items-center rounded-[28px] p-8 text-center">
-        <Avatar nombre={jugador.nombre} avatar={jugador.avatar} fotoUrl={jugador.foto_url} size="lg" />
-        <h1 className="mt-4 text-xl font-bold" style={{ color: 'var(--pitch-900)' }}>
-          {jugador.nombre}
-        </h1>
-        {jugador.apodo && (
-          <p className="text-sm" style={{ color: 'var(--pitch-300)' }}>
-            "{jugador.apodo}"
-          </p>
-        )}
-        <p className="mt-1 text-sm font-medium" style={{ color: 'var(--acc-green)' }}>
-          {formatPosiciones(jugador.posiciones)}
-        </p>
-
-        <div className="mt-5 w-full">
-          <Estrellas
-            promedio={promedio?.promedio ?? null}
-            cantidad={promedio?.cantidad ?? 0}
-            variant="completo"
-            distribucion={distribucion}
-          />
-        </div>
-
-        <div className="mt-3">
-          <BadgeConfiabilidad bajasTardias={bajasTardias} />
-        </div>
-
-        <div className="mt-5 flex gap-6">
-          <div>
-            <p className="text-xl font-bold" style={{ color: 'var(--pitch-900)' }}>
-              {partidosJugados}
-            </p>
-            <p className="text-[11px]" style={{ color: 'var(--pitch-300)' }}>
-              Partidos jugados
-            </p>
-          </div>
-        </div>
-
+      <CardJugador
+        jugador={jugador}
+        promedio={promedio?.promedio ?? null}
+        cantidad={promedio?.cantidad ?? 0}
+        distribucion={distribucion}
+        insignias={insignias}
+        bajasTardias={bajasTardias}
+        partidosJugados={partidosJugados}
+      >
         {yo && yo.id !== id && partidosJuntos > 0 && (
-          <p className="mt-4 rounded-full px-3 py-1.5 text-xs font-medium" style={{ background: 'rgba(159,198,154,.14)', color: 'var(--pitch-700)' }}>
+          <p
+            className="mt-5 rounded-full px-3 py-1.5 text-center text-xs font-medium"
+            style={{ background: 'rgba(159,198,154,.14)', color: 'var(--pitch-700)' }}
+          >
             Jugaron juntos {partidosJuntos} {partidosJuntos === 1 ? 'vez' : 'veces'}
           </p>
         )}
-      </div>
-
-      {insignias.length > 0 && (
-        <div className="glass-strong mt-4 rounded-[28px] p-5">
-          <h2 className="mb-3 text-sm font-semibold" style={{ color: 'var(--pitch-700)' }}>
-            Medallero
-          </h2>
-          <div className="flex flex-wrap gap-2">
-            {insignias.map((i) => {
-              const info = insigniaPorId(i.insignia)
-              if (!info) return null
-              return (
-                <div
-                  key={i.insignia}
-                  className="flex items-center gap-1.5 rounded-full px-3 py-2 text-sm font-semibold"
-                  style={{ background: 'rgba(237,197,141,.16)', color: 'var(--gold-500)' }}
-                >
-                  <Icono name={info.icono} size={14} />
-                  {info.label}
-                  <span style={{ color: 'var(--pitch-300)' }}>×{i.cantidad}</span>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      )}
+      </CardJugador>
 
       {comentarios.length > 0 && (
         <div className="mt-4">
