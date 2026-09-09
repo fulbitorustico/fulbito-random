@@ -20,6 +20,7 @@ import Perfil from './pages/Perfil'
 import Terminos from './pages/Terminos'
 import Privacidad from './pages/Privacidad'
 import GrupoPublico from './pages/GrupoPublico'
+import BuscarJugadores from './pages/BuscarJugadores'
 
 function Shell() {
   const location = useLocation()
@@ -39,6 +40,7 @@ function Shell() {
           <Route path="/grupos/unirse/:id" element={<PageTransition><UnirseGrupo /></PageTransition>} />
           <Route path="/grupos/:id" element={<PageTransition><GrupoDetalle /></PageTransition>} />
           <Route path="/perfil" element={<PageTransition><Perfil /></PageTransition>} />
+          <Route path="/buscar" element={<PageTransition><BuscarJugadores /></PageTransition>} />
           <Route path="*" element={<Navigate to="/partidos" replace />} />
         </Routes>
       </div>

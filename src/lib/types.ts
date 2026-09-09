@@ -8,6 +8,38 @@ export interface Jugador {
   foto_url: string | null
   avatar: string | null
   cambios_posiciones: number
+  buscando: boolean
+  zona: string | null
+  bio: string | null
+  disponibilidad: string[] | null
+  lat_aprox: number | null
+  lng_aprox: number | null
+  created_at: string
+}
+
+export interface JugadorDisponible {
+  jugador_id: string
+  nombre: string
+  apodo: string | null
+  avatar: string | null
+  foto_url: string | null
+  posiciones: string[] | null
+  zona: string | null
+  bio: string | null
+  disponibilidad: string[] | null
+  promedio: number | null
+  cantidad: number
+  distancia_km: number | null
+}
+
+export type EstadoInvitacion = 'pendiente' | 'aceptada' | 'rechazada'
+
+export interface Invitacion {
+  id: string
+  partido_id: string
+  invitado_id: string
+  invitado_por_id: string
+  estado: EstadoInvitacion
   created_at: string
 }
 

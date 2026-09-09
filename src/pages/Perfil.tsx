@@ -6,6 +6,7 @@ import CardJugador from '../components/CardJugador'
 import Objetivos from '../components/Objetivos'
 import Icono from '../components/Icono'
 import BotonCompartir from '../components/BotonCompartir'
+import PublicarmeEnBase from '../components/PublicarmeEnBase'
 import { insigniaPorId } from '../lib/insignias'
 import { nivelPorPartidos } from '../lib/nivel'
 import { AVATARES_DISPONIBLES } from '../lib/avatar'
@@ -223,6 +224,10 @@ export default function Perfil() {
           ],
         }}
       />
+
+      <div className="mt-4">
+        <PublicarmeEnBase />
+      </div>
 
       <div className="mt-4">
         <Objetivos

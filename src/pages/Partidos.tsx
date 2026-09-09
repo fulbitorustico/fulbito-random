@@ -7,6 +7,7 @@ import { distanciaKm, formatCuentaRegresiva, formatDistancia, pedirUbicacion, ty
 import { registrarBaja, fetchBajasTardiasMap } from '../lib/bajas'
 import { nivelDesdeBajasTardias } from '../lib/confiabilidad'
 import Icono from '../components/Icono'
+import MisInvitaciones from '../components/MisInvitaciones'
 
 interface PartidoConCupo extends Partido {
   anotados: number
@@ -100,6 +101,8 @@ export default function Partidos() {
           + Nuevo
         </Link>
       </div>
+
+      <MisInvitaciones alResponder={() => cargar(miUbicacion)} />
 
       {ubicacionNegada && (
         <div className="glass mb-4 rounded-2xl px-4 py-3 text-xs" style={{ color: 'var(--pitch-700)' }}>

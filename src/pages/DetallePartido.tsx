@@ -443,6 +443,15 @@ export default function DetallePartido() {
               {generandoEquipos ? 'Armando...' : 'Generar equipos'}
             </button>
           )}
+          {lugares > 0 && !yaSeJugo && (
+            <Link
+              to={`/buscar?partido=${partido.id}`}
+              className="tap glass flex-1 rounded-2xl px-4 py-2.5 text-center text-sm font-semibold"
+              style={{ color: 'var(--acc-blue)' }}
+            >
+              Buscar {lugares === 1 ? 'un jugador' : 'jugadores'}
+            </Link>
+          )}
           <button
             onClick={duplicarPartido}
             disabled={duplicando}

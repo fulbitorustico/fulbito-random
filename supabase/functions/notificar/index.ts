@@ -97,6 +97,17 @@ Deno.serve(async (req) => {
         }
         break
       }
+      case 'invitacion_partido': {
+        const email = await emailDeJugador(String(body.jugador_id))
+        if (email) {
+          await enviarMail(
+            email,
+            `${body.invitado_por} te invitó a jugar`,
+            `<p><strong>${body.invitado_por}</strong> te invitó a un partido en <strong>${body.cancha}</strong>. Entrá a Fulbito Random para aceptar o rechazar la invitación.</p>`,
+          )
+        }
+        break
+      }
       default:
         return new Response('Tipo desconocido', { status: 400, headers: CORS_HEADERS })
     }

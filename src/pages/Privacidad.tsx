@@ -60,14 +60,34 @@ export default function Privacidad() {
           </ul>
         </Seccion>
 
-        <Seccion titulo="2. Qué es obligatorio y qué es opcional">
+        <Seccion titulo="2. Si te publicás para que te encuentren">
+          <p>
+            La app tiene un buscador de jugadores para cuando a alguien le falta gente para un partido.{' '}
+            <strong>Aparecer ahí es una decisión tuya y viene apagada por defecto</strong>: solo entrás si activás
+            "Publicarme en la base" desde tu perfil, y podés salir cuando quieras.
+          </p>
+          <p>
+            Mientras estés publicado, otros jugadores registrados pueden ver tu nombre, apodo, foto o avatar,
+            posiciones, promedio de valoraciones, la zona que escribiste y tus días disponibles.{' '}
+            <strong>Nunca se muestra tu mail, tu teléfono ni tu ubicación exacta.</strong> Para poder ordenar por
+            cercanía guardamos tu ubicación redondeada a aproximadamente un kilómetro, y se borra en cuanto salís
+            de la base.
+          </p>
+          <p>
+            El contacto siempre pasa por dentro de la app: la única acción posible es invitarte a un partido
+            concreto, que vos aceptás o rechazás. Además podés bloquear a cualquier jugador, y a partir de ahí
+            ninguno de los dos vuelve a aparecerle al otro.
+          </p>
+        </Seccion>
+
+        <Seccion titulo="3. Qué es obligatorio y qué es opcional">
           <p>
             El email y el nombre son obligatorios para crear una cuenta. El apodo, la foto/avatar, las
             posiciones y compartir tu ubicación son siempre opcionales.
           </p>
         </Seccion>
 
-        <Seccion titulo="3. Para qué usamos tus datos">
+        <Seccion titulo="4. Para qué usamos tus datos">
           <p>
             Únicamente para el funcionamiento de la app: mostrar partidos y grupos, calcular promedios y
             distancias, y (cuando esté disponible) avisarte por mail sobre novedades de tus partidos o grupos.
@@ -75,7 +95,7 @@ export default function Privacidad() {
           </p>
         </Seccion>
 
-        <Seccion titulo="4. Quién aloja tus datos">
+        <Seccion titulo="5. Quién aloja tus datos">
           <p>
             Fulbito Random funciona sobre dos proveedores de infraestructura:{' '}
             <strong>Supabase</strong> (base de datos y autenticación) y <strong>Vercel</strong> (hosting de la
@@ -85,7 +105,7 @@ export default function Privacidad() {
           </p>
         </Seccion>
 
-        <Seccion titulo="5. Tus derechos (Ley 25.326)">
+        <Seccion titulo="6. Tus derechos (Ley 25.326)">
           <p>
             De acuerdo a la Ley 25.326 de Protección de Datos Personales de Argentina, tenés derecho a acceder,
             rectificar, actualizar o solicitar la supresión de tus datos personales en cualquier momento.
@@ -102,7 +122,7 @@ export default function Privacidad() {
           </p>
         </Seccion>
 
-        <Seccion titulo="6. Cambios en esta política">
+        <Seccion titulo="7. Cambios en esta política">
           <p>
             Esta política puede actualizarse a medida que la app suma funciones que involucren nuevos datos
             (por ejemplo, notificaciones por mail). Los cambios importantes se van a avisar dentro de la app.
