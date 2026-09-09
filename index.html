@@ -16,6 +16,28 @@
       rel="stylesheet"
     />
     <title>Fulbito Random</title>
+
+    <!--
+      La vista previa que se ve al pegar un link en WhatsApp. Sin esto, un
+      link compartido llega como una URL pelada y nadie lo abre — que es
+      justo lo contrario de lo que necesita el link del partido.
+
+      Es una vista previa general: para que diga la cancha y el horario de
+      cada partido haría falta armar el HTML en un servidor, y la app no
+      tiene. WhatsApp no ejecuta JavaScript, así que no alcanza con ponerlo
+      desde la app una vez cargada.
+    -->
+    <meta name="description" content="Armá el partido, anotá a los tuyos y que cada uno valore a sus compañeros. Sin instalar nada." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Fulbito Random" />
+    <meta property="og:title" content="Fulbito Random" />
+    <meta property="og:description" content="Armá el partido, anotá a los tuyos y que cada uno valore a sus compañeros. Sin instalar nada." />
+    <meta property="og:image" content="/icon-512.png" />
+    <meta property="og:locale" content="es_AR" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Fulbito Random" />
+    <meta name="twitter:description" content="Armá el partido, anotá a los tuyos y que cada uno valore a sus compañeros. Sin instalar nada." />
+    <meta name="twitter:image" content="/icon-512.png" />
   </head>
   <body>
     <div id="root"></div>
