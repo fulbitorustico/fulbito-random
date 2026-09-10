@@ -625,8 +625,8 @@ export default function Perfil() {
             <button
               onClick={darmeDeBaja}
               disabled={confirmandoBaja}
-              className="tap glass flex-1 rounded-2xl px-4 py-3 text-sm font-semibold disabled:opacity-50"
-              style={{ color: 'var(--error)' }}
+              className="tap btn-2 flex-1 rounded-2xl px-4 py-3 text-sm font-semibold disabled:opacity-50"
+              style={{ color: 'var(--error)', borderColor: 'rgba(224,122,99,.45)' }}
             >
               {confirmandoBaja ? 'Borrando...' : 'Darme de baja'}
             </button>

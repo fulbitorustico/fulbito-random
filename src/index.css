@@ -78,6 +78,23 @@ body {
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
+/*
+  Botón secundario. Adentro de una tarjeta, un botón con fondo translúcido
+  tiene casi el mismo color que la tarjeta y no se lee como botón: al lado
+  del primario, que es color papel lleno, parece desactivado. El borde
+  propio es lo que lo hace existir.
+*/
+.btn-2 {
+  background: rgba(242, 239, 233, 0.06);
+  border: 1px solid rgba(242, 239, 233, 0.24);
+  color: var(--pitch-900);
+  transition: background 0.15s ease;
+}
+
+.btn-2:active {
+  background: rgba(242, 239, 233, 0.14);
+}
+
 .glass-strong {
   background: var(--glass-bg-strong);
   backdrop-filter: blur(28px) saturate(140%);

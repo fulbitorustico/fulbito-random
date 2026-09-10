@@ -496,8 +496,7 @@ export default function DetallePartido() {
                     setNota(partido.nota ?? '')
                     setEditandoNota(false)
                   }}
-                  className="tap glass flex-1 rounded-2xl px-4 py-2.5 text-sm font-semibold"
-                  style={{ color: 'var(--pitch-700)' }}
+                  className="tap btn-2 flex-1 rounded-2xl px-4 py-2.5 text-sm font-semibold"
                 >
                   Cancelar
                 </button>
@@ -838,8 +837,8 @@ export default function DetallePartido() {
             <button
               onClick={cancelarPartido}
               disabled={cancelando}
-              className="tap glass flex-1 rounded-2xl px-4 py-3 text-sm font-semibold disabled:opacity-50"
-              style={{ color: 'var(--error)' }}
+              className="tap btn-2 flex-1 rounded-2xl px-4 py-3 text-sm font-semibold disabled:opacity-50"
+              style={{ color: 'var(--error)', borderColor: 'rgba(224,122,99,.45)' }}
             >
               {cancelando ? 'Cancelando...' : 'Sí, cancelar'}
             </button>
@@ -880,8 +879,7 @@ export default function DetallePartido() {
           </div>
           <button
             onClick={() => setPasandoCapitania(false)}
-            className="tap mt-3 w-full rounded-2xl px-4 py-2.5 text-sm font-semibold"
-            style={{ background: 'rgba(242,239,233,.07)', color: 'var(--pitch-700)' }}
+            className="tap btn-2 mt-3 w-full rounded-2xl px-4 py-2.5 text-sm font-semibold"
           >
             Mejor me quedo
           </button>

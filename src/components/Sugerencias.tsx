@@ -107,8 +107,7 @@ export default function Sugerencias() {
                 <div className="mt-3 flex gap-2">
                   <button
                     onClick={cerrar}
-                    className="tap glass flex-1 rounded-2xl px-4 py-3 text-sm font-semibold"
-                    style={{ color: 'var(--pitch-700)' }}
+                    className="tap btn-2 flex-1 rounded-2xl px-4 py-3 text-sm font-semibold"
                   >
                     Ahora no
                   </button>

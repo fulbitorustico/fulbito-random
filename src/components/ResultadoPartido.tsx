@@ -154,8 +154,7 @@ export default function ResultadoPartido({
         {puedeCargar && (
           <button
             onClick={() => setEditando(true)}
-            className="tap mt-4 w-full rounded-2xl px-4 py-2.5 text-sm font-semibold"
-            style={{ background: 'rgba(242,239,233,.07)', color: 'var(--pitch-700)' }}
+            className="tap btn-2 mt-4 w-full rounded-2xl px-4 py-2.5 text-sm font-semibold"
           >
             {hayResultado ? 'Corregir el resultado' : 'Cargar el resultado'}
           </button>
@@ -258,8 +257,7 @@ export default function ResultadoPartido({
             setError(null)
             cargarGoles()
           }}
-          className="tap glass flex-1 rounded-2xl px-4 py-3 text-sm font-semibold"
-          style={{ color: 'var(--pitch-700)' }}
+          className="tap btn-2 flex-1 rounded-2xl px-4 py-3 text-sm font-semibold"
         >
           Cancelar
         </button>

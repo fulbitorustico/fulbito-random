@@ -131,8 +131,7 @@ export default function MisInvitaciones({ alResponder }: { alResponder: () => vo
               <button
                 onClick={() => responder(inv, false)}
                 disabled={respondiendo === inv.id}
-                className="tap flex-1 rounded-2xl px-4 py-2.5 text-sm font-semibold disabled:opacity-50"
-                style={{ background: 'rgba(242,239,233,.08)', color: 'var(--pitch-700)' }}
+                className="tap btn-2 flex-1 rounded-2xl px-4 py-2.5 text-sm font-semibold disabled:opacity-50"
               >
                 Ahora no
               </button>
