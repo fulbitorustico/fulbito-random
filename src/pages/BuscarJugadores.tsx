@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { compartirPartido } from '../lib/compartir'
+import PublicarmeEnBase from '../components/PublicarmeEnBase'
 import { useAuth } from '../context/AuthContext'
 import Avatar from '../components/Avatar'
 import Estrellas from '../components/Estrellas'
@@ -29,6 +31,7 @@ export default function BuscarJugadores() {
   // dentro de la pantalla y no con el cartel del navegador, que se puede
   // bloquear en el iPhone y deja el botón muerto sin avisar.
   const [confirmandoBloqueo, setConfirmandoBloqueo] = useState<string | null>(null)
+  const [linkCopiado, setLinkCopiado] = useState(false)
 
   const buscar = useCallback(
     async (coords: Coords | null, pos: string) => {
@@ -156,11 +159,45 @@ export default function BuscarJugadores() {
         </p>
       )}
 
+      {/*
+        La pantalla vacía era un cartel y nada más, justo en el momento en que
+        a la persona le falta un jugador. Ahora ofrece las dos únicas cosas
+        que sirven ahí: pasar el link a alguien de afuera, y publicarse para
+        que la próxima vez el buscador tenga a quién mostrar.
+      */}
       {!loading && !actual && (
-        <div className="glass mt-6 rounded-[24px] p-8 text-center text-sm" style={{ color: 'var(--pitch-300)' }}>
-          {disponibles.length === 0
-            ? 'Todavía no hay jugadores publicados en tu zona con ese puesto. Probá sin filtro o volvé en unos días.'
-            : 'Viste a todos los que había. Probá con otro puesto.'}
+        <div className="mt-6 flex flex-col gap-3">
+          <div className="glass rounded-[24px] p-6 text-center">
+            <p className="text-sm leading-relaxed" style={{ color: 'var(--pitch-700)' }}>
+              {disponibles.length === 0
+                ? 'Todavía no hay nadie publicado cerca tuyo. La app es nueva y la base se llena con cada uno que entra.'
+                : 'Viste a todos los que había con ese puesto. Probá sin filtro.'}
+            </p>
+
+            {partido && (
+              <>
+                <p className="mt-3 text-[13px] leading-relaxed" style={{ color: 'var(--pitch-300)' }}>
+                  Mientras tanto, pasale el link a alguien que sepas que juega. Se anota sin instalar nada, y queda
+                  disponible para la próxima vez que a alguien le falte uno.
+                </p>
+                <button
+                  onClick={async () => {
+                    const resultado = await compartirPartido(partido)
+                    if (resultado === 'copiado') {
+                      setLinkCopiado(true)
+                      setTimeout(() => setLinkCopiado(false), 2500)
+                    }
+                  }}
+                  className="tap mt-4 w-full rounded-2xl px-4 py-3.5 text-[15px] font-semibold"
+                  style={{ background: 'var(--paper)', color: 'var(--ink-900)' }}
+                >
+                  {linkCopiado ? 'Link copiado' : 'Pasar el link por WhatsApp'}
+                </button>
+              </>
+            )}
+          </div>
+
+          <PublicarmeEnBase />
         </div>
       )}
 

@@ -20,8 +20,8 @@ const PASOS = [
   },
   {
     n: '03',
-    titulo: 'Si falta uno, lo buscás',
-    texto: 'Entrás al buscador, filtrás por el puesto que te falta y lo invitás. Te contesta ahí mismo.',
+    titulo: 'Si falta uno, pasás el link',
+    texto: 'A quien sepas que juega. Se anota sin instalar nada. Y si hay alguien publicado cerca tuyo, lo invitás desde el buscador.',
   },
   {
     n: '04',
@@ -38,8 +38,8 @@ const FEATURES: { icono: NombreIcono; titulo: string; texto: string }[] = [
   },
   {
     icono: 'rayo',
-    titulo: 'Convocatoria abierta',
-    texto: 'No dependas de juntar a las diez personas del grupo por WhatsApp.',
+    titulo: 'La lista, en vivo',
+    texto: 'Quién está y cuántos faltan, sin contar mensajes hacia arriba en el grupo.',
   },
   {
     icono: 'estrella',
@@ -541,13 +541,14 @@ export default function Landing() {
               className="brand text-balance text-[30px] leading-[1.05] md:text-5xl"
               style={{ color: 'var(--pitch-900)' }}
             >
-              Nunca más un partido que se cae por faltar uno
+              Armá el fulbito sin contar mensajes
             </h1>
             <p
               className="mx-auto mt-4 max-w-xs text-[15px] md:mx-0"
               style={{ color: 'var(--pitch-700)', opacity: 0.8 }}
             >
-              Armá tu fulbito, completá el cupo con la comunidad y dejá de escribirle a diez personas por WhatsApp.
+              Pasás un link al grupo, cada uno se anota solo y ves en vivo cuántos faltan. Después del partido, cada
+              uno puntúa a sus compañeros.
             </p>
             <Link
               to="/login"

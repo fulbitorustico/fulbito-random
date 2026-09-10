@@ -8,6 +8,7 @@ import { registrarBaja, fetchBajasTardiasMap } from '../lib/bajas'
 import ReaccionesPartido from '../components/ReaccionesPartido'
 import ResultadoPartido from '../components/ResultadoPartido'
 import { linkComoLlegar } from '../lib/mapas'
+import { compartirPartido } from '../lib/compartir'
 import { mensajeDeError } from '../lib/errores'
 import { calcularEstadoPartido } from '../lib/geo'
 import {
@@ -239,30 +240,10 @@ export default function DetallePartido() {
 
   async function compartirLink() {
     if (!partido?.token) return
-    const url = `${window.location.origin}/p/${partido.token}`
-    const fecha = new Date(partido.fecha_hora).toLocaleString('es-AR', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
-    const mensaje = `Jugamos en ${partido.cancha}, ${fecha}. Anotate acá: ${url}`
-
-    if (navigator.share) {
-      try {
-        await navigator.share({ text: mensaje })
-        return
-      } catch {
-        // cancelado, seguimos al respaldo
-      }
-    }
-    try {
-      await navigator.clipboard.writeText(mensaje)
+    const resultado = await compartirPartido(partido)
+    if (resultado === 'copiado') {
       setLinkCopiado(true)
       setTimeout(() => setLinkCopiado(false), 2500)
-    } catch {
-      window.open(`https://wa.me/?text=${encodeURIComponent(mensaje)}`, '_blank')
     }
   }
 

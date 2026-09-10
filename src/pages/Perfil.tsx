@@ -280,6 +280,16 @@ export default function Perfil() {
         </div>
       )}
 
+      {/*
+        Publicarse es el lado de la oferta de todo esto: si nadie lo toca, el
+        buscador queda vacío para siempre por más gente que se registre.
+        Estaba al fondo del perfil, abajo de la card, la racha, el recap, los
+        objetivos y la evolución. No llegaba nadie.
+      */}
+      <div className="mt-4">
+        <PublicarmeEnBase />
+      </div>
+
       {goles > 0 && (
         <div className="mt-4 flex items-center gap-3 rounded-2xl px-4 py-3" style={{ background: 'rgba(242,239,233,.06)' }}>
           <Icono name="pelota" size={18} />
@@ -375,7 +385,6 @@ export default function Perfil() {
       <CartelLogro datos={datosObjetivos} />
 
       <div className="mt-4">
-        <PublicarmeEnBase />
       </div>
 
       <div className="mt-4">
