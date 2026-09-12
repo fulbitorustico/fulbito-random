@@ -31,6 +31,8 @@ Postgres valida el cuerpo de una función cuando la crea. Si una función lee un
 
 **Correlas en orden y no te saltees ninguna.** La `0012` falló porque la `0008` nunca se había corrido, y la columna que la `0012` necesitaba no existía. El error que devuelve la base en ese caso —"column X does not exist"— no dice cuál fue la migración que faltó: hay que ir a buscarla.
 
+**La consulta de confirmación no puede llamar a una función que exija permisos.** En el editor de Supabase, quien ejecuta es la base, no una persona con sesión: `auth.uid()` es nulo. Si el `select` final llama a algo como `panel_metricas()`, que corta con un error cuando quien pregunta no es el creador, **falla el script entero y se deshace también el cambio que sí estaba bien**. Pasó con la `0016`. Para verificar una función, leer su código con `pg_get_functiondef` en vez de ejecutarla.
+
 **El editor de Supabase corre todo en una transacción.** Si falla el último bloque, se deshacen también los anteriores. Es a favor: o entra todo o no entra nada. Pero cuando algo falla, no asumas que la mitad quedó aplicada — verificá.
 
 **El editor solo muestra el resultado del último bloque.** Por eso los scripts terminan en un solo `select` de confirmación, y por eso los de diagnóstico se escriben como **una sola consulta** con `union all` y una columna de sección.

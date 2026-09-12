@@ -184,5 +184,19 @@ end;
 $$;
 
 
--- Confirmación: tiene que devolver el ranking ya agrupado bien.
-select jsonb_pretty(panel_metricas() -> 'canchas_top') as canchas_top;
+-- Confirmación.
+--
+-- OJO: acá NO se puede llamar a panel_metricas(), porque la función corta
+-- si quien pregunta no es el creador — y en el editor de Supabase quien
+-- ejecuta es la base, no una persona con sesión. Llamarla hacía fallar el
+-- script entero y, como el editor corre todo en una transacción, deshacía
+-- también el arreglo. Se verifica leyendo el código de la función.
+select
+  case
+    when pg_get_functiondef(p.oid) like '%coalesce(c.nombre, initcap(lower(trim(p.cancha))))%'
+    then 'listo: el ranking ya agrupa por cancha y no por texto suelto'
+    else '*** NO se aplicó ***'
+  end as estado
+from pg_proc p
+join pg_namespace n on n.oid = p.pronamespace
+where n.nspname = 'public' and p.proname = 'panel_metricas';
