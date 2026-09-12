@@ -76,6 +76,16 @@ Para mandar una solicitud tienen que **haber jugado un partido juntos**, o la ot
 
 La amistad se pide y se acepta, no es unilateral. Y la solicitud aparece en las novedades del otro, en el mismo escalón que una invitación a jugar: es alguien esperando una respuesta.
 
+### La edad es opcional y no esconde a nadie por defecto
+
+Se guarda **solo el año de nacimiento**, nunca la fecha. Y filtrar por edad esconde a quien no la cargó — por eso el buscador lo avisa en pantalla: si no lo dijera, el que filtra creería que no hay nadie cuando en realidad hay gente sin el dato.
+
+Se guarda aparte del nombre, con su propio botón: el nombre tiene un tope de un solo cambio y no tiene por qué gastarse en corregir un año.
+
+La **franja horaria** no pide ningún dato nuevo: sale de la disponibilidad que cada uno ya eligió. Y al que no cargó disponibilidad no se lo esconde, porque eso significa "cualquier día".
+
+**Los amigos aparecen primero** en el buscador. Es lo único que le da sentido práctico a haberlos agregado.
+
 ### Avisar cuando algo se arregla
 
 Dos carteles distintos, y la diferencia es el punto:

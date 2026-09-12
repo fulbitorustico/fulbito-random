@@ -42,6 +42,8 @@ export default function Perfil() {
   const [racha, setRacha] = useState({ actual: 0, mejor: 0 })
   const [sancion, setSancion] = useState<SancionCapitan>(SIN_SANCION)
   const [goles, setGoles] = useState(0)
+  const [anio, setAnio] = useState(jugador?.anio_nacimiento?.toString() ?? '')
+  const [guardandoAnio, setGuardandoAnio] = useState(false)
   const [dandoDeBaja, setDandoDeBaja] = useState(false)
   const [confirmandoBaja, setConfirmandoBaja] = useState(false)
   const [errorBaja, setErrorBaja] = useState<string | null>(null)
@@ -86,6 +88,16 @@ export default function Perfil() {
       .rpc('reclutas_por_jugador', { p_jugador_id: jugador.id })
       .then(({ data }: { data: number | null }) => setReclutas(data ?? 0))
   }, [jugador])
+
+  async function guardarAnio() {
+    if (!jugador) return
+    const n = Number(anio)
+    if (!n || n < 1930 || n > 2015) return
+    setGuardandoAnio(true)
+    await supabase.from('jugadores').update({ anio_nacimiento: n }).eq('id', jugador.id)
+    setGuardandoAnio(false)
+    await refreshJugador()
+  }
 
   async function darmeDeBaja() {
     setConfirmandoBaja(true)
@@ -455,6 +467,47 @@ export default function Perfil() {
           </p>
         )}
       </form>
+      </Plegable>
+
+      {/*
+        La edad es opcional y se guarda sola, aparte del nombre: el nombre
+        tiene un tope de un cambio y la edad no tiene por qué gastarlo.
+        Sirve para que te encuentren cuando alguien busca por rango etario.
+      */}
+      <Plegable
+        titulo="Tu edad"
+        abiertoPorDefecto={!jugador.anio_nacimiento}
+        resumen={
+          jugador.anio_nacimiento
+            ? `${new Date().getFullYear() - jugador.anio_nacimiento} años`
+            : 'Sin cargar'
+        }
+      >
+        <p className="mb-2 text-[13px] leading-relaxed" style={{ color: 'var(--pitch-300)' }}>
+          Solo el año. No se muestra tu fecha de nacimiento: sirve para que te encuentren cuando alguien busca
+          jugadores de determinada edad.
+        </p>
+        <div className="flex gap-2">
+          <input
+            type="number"
+            inputMode="numeric"
+            min={1930}
+            max={2015}
+            placeholder="Año de nacimiento"
+            value={anio}
+            onChange={(e) => setAnio(e.target.value)}
+            className="flex-[2] rounded-2xl border-0 bg-white/5 px-4 py-3 text-[15px] outline-none ring-1 ring-white/10 focus:ring-2"
+            style={{ color: 'var(--pitch-900)' }}
+          />
+          <button
+            onClick={guardarAnio}
+            disabled={guardandoAnio || !anio || Number(anio) === jugador.anio_nacimiento}
+            className="tap flex-1 rounded-2xl px-4 py-3 text-sm font-semibold disabled:opacity-40"
+            style={{ background: 'var(--paper)', color: 'var(--ink-900)' }}
+          >
+            {guardandoAnio ? 'Guardando...' : 'Guardar'}
+          </button>
+        </div>
       </Plegable>
 
       <Plegable

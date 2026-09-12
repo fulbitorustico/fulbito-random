@@ -32,15 +32,21 @@ export default function BuscarJugadores() {
   // bloquear en el iPhone y deja el botón muerto sin avisar.
   const [confirmandoBloqueo, setConfirmandoBloqueo] = useState<string | null>(null)
   const [linkCopiado, setLinkCopiado] = useState(false)
+  const [franjas, setFranjas] = useState<string[]>([])
+  const [edadMin, setEdadMin] = useState('')
+  const [edadMax, setEdadMax] = useState('')
 
   const buscar = useCallback(
-    async (coords: Coords | null, pos: string) => {
+    async (coords: Coords | null, pos: string, franjasSel: string[] = [], min = '', max = '') => {
       setLoading(true)
       const { data } = await supabase.rpc('jugadores_disponibles', {
         p_lat: coords?.lat ?? null,
         p_lng: coords?.lng ?? null,
         p_km: RADIO_KM,
         p_posicion: pos || null,
+        p_franjas: franjasSel.length > 0 ? franjasSel : null,
+        p_edad_min: min ? Number(min) : null,
+        p_edad_max: max ? Number(max) : null,
       })
       setDisponibles(data ?? [])
       setIndice(0)
@@ -125,7 +131,7 @@ export default function BuscarJugadores() {
         <button
           onClick={() => {
             setPosicion('')
-            buscar(ubicacion, '')
+            buscar(ubicacion, '', franjas, edadMin, edadMax)
           }}
           className="tap shrink-0 rounded-full px-3.5 py-2 text-[13px] font-medium"
           style={{
@@ -140,7 +146,7 @@ export default function BuscarJugadores() {
             key={p}
             onClick={() => {
               setPosicion(p)
-              buscar(ubicacion, p)
+              buscar(ubicacion, p, franjas, edadMin, edadMax)
             }}
             className="tap shrink-0 rounded-full px-3.5 py-2 text-[13px] font-medium"
             style={{
@@ -152,6 +158,68 @@ export default function BuscarJugadores() {
           </button>
         ))}
       </div>
+
+      {/*
+        La franja sale de la disponibilidad que cada uno ya eligió: no hay
+        que pedirle nada nuevo a nadie. Al que no cargó disponibilidad no se
+        lo esconde — quiere decir "cualquier día".
+      */}
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        {[
+          ['manana', 'Mañana'],
+          ['tarde', 'Tarde'],
+          ['noche', 'Noche'],
+        ].map(([id, label]) => {
+          const activa = franjas.includes(id)
+          return (
+            <button
+              key={id}
+              onClick={() => {
+                const nuevas = activa ? franjas.filter((f) => f !== id) : [...franjas, id]
+                setFranjas(nuevas)
+                buscar(ubicacion, posicion, nuevas, edadMin, edadMax)
+              }}
+              className="tap shrink-0 rounded-full px-3.5 py-2 text-[13px] font-medium"
+              style={{
+                background: activa ? 'var(--paper)' : 'rgba(242,239,233,.07)',
+                color: activa ? 'var(--ink-900)' : 'var(--pitch-700)',
+              }}
+            >
+              {label}
+            </button>
+          )
+        })}
+
+        <span className="ml-1 text-[12px]" style={{ color: 'var(--pitch-300)' }}>
+          Edad
+        </span>
+        {(
+          [
+            [edadMin, setEdadMin, 'desde'],
+            [edadMax, setEdadMax, 'hasta'],
+          ] as const
+        ).map(([valor, set, ph]) => (
+          <input
+            key={ph}
+            type="number"
+            inputMode="numeric"
+            min={12}
+            max={90}
+            placeholder={ph}
+            value={valor}
+            onChange={(e) => set(e.target.value)}
+            onBlur={() => buscar(ubicacion, posicion, franjas, edadMin, edadMax)}
+            className="w-[72px] rounded-full border-0 bg-white/5 px-3 py-2 text-[13px] outline-none ring-1 ring-white/10 focus:ring-2"
+            style={{ color: 'var(--pitch-900)' }}
+          />
+        ))}
+      </div>
+
+      {(edadMin || edadMax) && (
+        <p className="mt-1.5 text-[11px] leading-relaxed" style={{ color: 'var(--pitch-300)' }}>
+          Filtrando por edad se esconde a quien todavía no la cargó.
+        </p>
+      )}
 
       {loading && (
         <p className="mt-6 text-sm" style={{ color: 'var(--pitch-300)' }}>

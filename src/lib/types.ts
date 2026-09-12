@@ -15,6 +15,7 @@ export interface Jugador {
   bio: string | null
   disponibilidad: string[] | null
   es_demo: boolean | null
+  anio_nacimiento: number | null
   es_admin: boolean | null
   created_at: string
 }
@@ -32,6 +33,8 @@ export interface JugadorDisponible {
   promedio: number | null
   cantidad: number
   distancia_km: number | null
+  edad: number | null
+  es_amigo: boolean
 }
 
 export type EstadoInvitacion = 'pendiente' | 'aceptada' | 'rechazada'
