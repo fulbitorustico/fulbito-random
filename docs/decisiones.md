@@ -174,6 +174,12 @@ Toda confirmación va **dentro de la pantalla**, en dos toques, como "pasar la c
 
 **Toda escritura que puede ser rechazada por permisos necesita `.select()`.** Un `update` o `delete` bloqueado por RLS **no devuelve error**: devuelve cero filas. Sin `.select()` para contarlas, un rechazo se ve exactamente igual que un éxito.
 
+**El reenvío de Vercel no debe tapar los 404 de verdad.** El `vercel.json` tenía `"source": "/(.*)"`, que atrapa todo: un archivo de código que ya no existe devolvía **la portada con código 200** en vez de 404. El navegador recibía HTML donde esperaba JavaScript y la app quedaba en blanco. Desde que las pantallas se cargan de a pedazos, cada despliegue podía romperle la app a quien la tuviera abierta. Ahora `/assets/` queda afuera del reenvío. **No volver a ampliarlo.**
+
+Como red de contención está `LimiteDeError`: si una pestaña vieja pide un pedazo que ya no existe, recarga sola una vez y, si vuelve a fallar, muestra un cartel que explica que hay una versión nueva. La recarga automática se hace **una sola vez** —con una marca en `sessionStorage`— porque si no es un bucle infinito y la persona nunca ve el cartel.
+
+**`/login` no existe para quien ya tiene sesión.** Las rutas de adentro de la app no lo incluyen, así que cae en el comodín y termina en la pantalla de partidos. Era el bug del botón "Ponela en tu celu": el link andaba bien, lo que mandaba a cualquier lado era el botón del final de la guía. Cualquier enlace a `/login` tiene que preguntar antes si hay sesión.
+
 **El service worker de la PWA sirve la versión vieja** después de cada deploy. Para verificar hay que desregistrarlo y limpiar caches, o usar pestaña nueva.
 
 **Los degradados SVG con id fijo se pisan entre instancias:** usar `useId()`.

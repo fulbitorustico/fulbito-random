@@ -16,6 +16,7 @@ import Perfil from './pages/Perfil'
 import Sugerencias from './components/Sugerencias'
 import AnotarDelLink from './components/AnotarDelLink'
 import AvisoNovedades from './components/AvisoNovedades'
+import LimiteDeError from './components/LimiteDeError'
 
 // Se bajan cuando hacen falta y no antes. La landing con su demo es la
 // pantalla más pesada de todas y el que ya tiene sesión no la ve nunca.
@@ -56,6 +57,8 @@ function Shell() {
       <div className="mx-auto max-w-lg px-4 pb-28 pt-4">
         <Suspense fallback={<Cargando />}>
         <Routes location={location} key={location.pathname}>
+          {/* La raíz explícita: antes caía en el comodín de abajo, en silencio. */}
+          <Route path="/" element={<Navigate to="/partidos" replace />} />
           <Route path="/partidos" element={<PageTransition><Partidos /></PageTransition>} />
           <Route path="/partidos/nuevo" element={<PageTransition><NuevoPartido /></PageTransition>} />
           <Route path="/partidos/:id" element={<PageTransition><DetallePartido /></PageTransition>} />
@@ -145,7 +148,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Router />
+        <LimiteDeError>
+          <Router />
+        </LimiteDeError>
       </AuthProvider>
     </BrowserRouter>
   )

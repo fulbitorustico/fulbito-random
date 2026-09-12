@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import Marca from '../components/Marca'
 import LogoFR from '../components/LogoFR'
 import Icono from '../components/Icono'
@@ -65,6 +66,7 @@ const PASOS: Record<Sistema, { titulo: string; texto: string }[]> = {
 }
 
 export default function Instalar() {
+  const { session } = useAuth()
   const [sistema, setSistema] = useState<Sistema>(detectarSistema)
   const pasos = PASOS[sistema]
 
@@ -148,11 +150,11 @@ export default function Instalar() {
         </div>
 
         <Link
-          to="/login"
+          to={session ? '/partidos' : '/login'}
           className="tap mt-8 block w-full rounded-2xl px-4 py-4 text-center text-[15px] font-semibold text-[color:var(--ink-900)]"
           style={{ background: 'var(--paper)' }}
         >
-          Listo, quiero entrar
+          {session ? 'Listo, volver a la app' : 'Listo, quiero entrar'}
         </Link>
       </div>
     </div>
