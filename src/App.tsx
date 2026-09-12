@@ -15,6 +15,7 @@ import GrupoDetalle from './pages/GrupoDetalle'
 import Perfil from './pages/Perfil'
 import Sugerencias from './components/Sugerencias'
 import AnotarDelLink from './components/AnotarDelLink'
+import AvisoNovedades from './components/AvisoNovedades'
 
 // Se bajan cuando hacen falta y no antes. La landing con su demo es la
 // pantalla más pesada de todas y el que ya tiene sesión no la ve nunca.
@@ -74,6 +75,7 @@ function Shell() {
         </Suspense>
       </div>
       <AnotarDelLink />
+      <AvisoNovedades />
       <Sugerencias />
       <BottomNav />
     </div>

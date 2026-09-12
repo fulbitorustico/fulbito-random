@@ -6,6 +6,7 @@ import CardJugador from '../components/CardJugador'
 import Objetivos from '../components/Objetivos'
 import Evolucion from '../components/Evolucion'
 import Icono from '../components/Icono'
+import BotonAmigo from '../components/BotonAmigo'
 import { fetchBajasTardiasMap } from '../lib/bajas'
 import { fetchSancionCapitan, SIN_SANCION, type SancionCapitan } from '../lib/sanciones'
 import { calcularRacha, textoRacha } from '../lib/racha'
@@ -157,6 +158,8 @@ export default function JugadorDetalle() {
           </p>
         )}
       </CardJugador>
+
+      <BotonAmigo jugadorId={id!} nombre={jugador.apodo || jugador.nombre} />
 
       <Evolucion jugadorId={id!} />
 

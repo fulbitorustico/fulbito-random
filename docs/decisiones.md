@@ -70,6 +70,23 @@ Los goles **no tocan el armado de equipos**. Están para que el que hizo tres lo
 
 "Partidos seguidos" no se puede calcular mientras los partidos que se repiten no estén enlazados entre sí: no hay forma de saber que el jueves de esta semana es el mismo partido que el de la anterior. La semana sí se puede contar hoy, y además es como la gente lo cuenta igual.
 
+### No se agrega como amigo a cualquiera
+
+Para mandar una solicitud tienen que **haber jugado un partido juntos**, o la otra persona tiene que estar **publicada como disponible**. Es la misma regla que ya rige para invitar, y hace que agregar desconocidos en masa no salga gratis. El bloqueo manda sobre todo: si alguno bloqueó al otro, no hay solicitud posible en ninguna dirección. Tope de 20 por día.
+
+La amistad se pide y se acepta, no es unilateral. Y la solicitud aparece en las novedades del otro, en el mismo escalón que una invitación a jugar: es alguien esperando una respuesta.
+
+### Avisar cuando algo se arregla
+
+Dos carteles distintos, y la diferencia es el punto:
+
+- **"Arreglamos lo que pediste"** le llega **solo a quien escribió esa sugerencia**, cuando el creador la marca como hecha. Es lo único que le devuelve algo a alguien que se tomó el trabajo de reportar un problema, y es lo que hace que vuelva a reportar. Por eso **no se puede tapar** en el feed.
+- **La novedad de la app** la ve todo el mundo. Existe para cuando se hacen cinco cosas juntas y no da mandar cinco carteles por separado.
+
+Los dos viven **48 horas** y se muestran **una sola vez por persona**. Lo que se guarda en el navegador es qué ids ya vio, no si lo cerró: así no reaparece en cada carga.
+
+Detalle que obliga al diseño: **`sugerencias` solo la puede leer quien tiene `es_admin`** — nadie ve las de los demás ni las propias. Por eso el aviso sale de `avisos_pendientes()`, una función `security definer`, y no de una consulta directa.
+
 ### El pedido de plata va en el pie, nunca en "¿cuánto sale?"
 
 Pedir una colaboración en la misma frase en la que decís que la app es gratis le mete una duda al que recién llega. En el pie de la landing y abajo del perfil lo lee el que ya la está usando y ya sabe si le sirve.

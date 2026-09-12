@@ -193,6 +193,10 @@ interface Sugerencia {
 export default function Panel() {
   const [m, setM] = useState<Metricas | null>(null)
   const [sugerencias, setSugerencias] = useState<Sugerencia[]>([])
+  const [tituloNovedad, setTituloNovedad] = useState('')
+  const [textoNovedad, setTextoNovedad] = useState('')
+  const [publicando, setPublicando] = useState(false)
+  const [publicada, setPublicada] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -211,8 +215,28 @@ export default function Panel() {
   }, [])
 
   async function marcar(id: string, estado: string) {
-    await supabase.from('sugerencias').update({ estado }).eq('id', id)
+    // La fecha es lo que dispara el cartel de "arreglamos lo que pediste"
+    // para quien la escribió, durante las 48 horas siguientes. Si se
+    // desmarca, se borra: no tiene sentido avisar de algo que se deshizo.
+    await supabase
+      .from('sugerencias')
+      .update({ estado, hecha_at: estado === 'hecha' ? new Date().toISOString() : null })
+      .eq('id', id)
     setSugerencias((prev) => prev.map((s) => (s.id === id ? { ...s, estado } : s)))
+  }
+
+  async function publicarNovedad() {
+    if (tituloNovedad.trim().length < 3 || textoNovedad.trim().length < 3) return
+    setPublicando(true)
+    const { error } = await supabase
+      .from('novedades_app')
+      .insert({ titulo: tituloNovedad.trim(), texto: textoNovedad.trim() })
+    setPublicando(false)
+    if (error) return
+    setTituloNovedad('')
+    setTextoNovedad('')
+    setPublicada(true)
+    setTimeout(() => setPublicada(false), 4000)
   }
 
   if (loading)
@@ -246,6 +270,39 @@ export default function Panel() {
       <p className="mb-5 text-[12px]" style={{ color: 'var(--pitch-300)' }}>
         Datos al {m.generado}. Todo agregado: no sale ningún nombre ni ningún mail.
       </p>
+
+      <Bloque titulo="Contar una novedad">
+        <p className="mb-3 text-[12px] leading-relaxed" style={{ color: 'var(--pitch-300)' }}>
+          Le aparece a todos al entrar, durante 48 horas, y una sola vez por persona. Es para cuando se hacen varias
+          cosas juntas: si arreglaste algo puntual que alguien pidió, marcá su sugerencia como <strong>hecha</strong> y
+          esa persona recibe su propio aviso.
+        </p>
+        <input
+          value={tituloNovedad}
+          onChange={(e) => setTituloNovedad(e.target.value)}
+          maxLength={80}
+          placeholder="Qué cambió, en pocas palabras"
+          className="w-full rounded-2xl border-0 bg-white/5 px-4 py-3 text-[15px] outline-none ring-1 ring-white/10 focus:ring-2"
+          style={{ color: 'var(--pitch-900)' }}
+        />
+        <textarea
+          value={textoNovedad}
+          onChange={(e) => setTextoNovedad(e.target.value)}
+          rows={3}
+          maxLength={800}
+          placeholder="Contalo como se lo contarías a un amigo en la cancha."
+          className="mt-2 w-full resize-none rounded-2xl border-0 bg-white/5 px-4 py-3 text-[15px] outline-none ring-1 ring-white/10 focus:ring-2"
+          style={{ color: 'var(--pitch-900)' }}
+        />
+        <button
+          onClick={publicarNovedad}
+          disabled={publicando || tituloNovedad.trim().length < 3 || textoNovedad.trim().length < 3}
+          className="tap mt-2 w-full rounded-2xl px-4 py-3 text-[15px] font-semibold disabled:opacity-40"
+          style={{ background: 'var(--paper)', color: 'var(--ink-900)' }}
+        >
+          {publicando ? 'Publicando...' : publicada ? 'Publicada' : 'Publicar para todos'}
+        </button>
+      </Bloque>
 
       {sugerencias.length > 0 && (
         <Bloque titulo={`Sugerencias (${sugerencias.filter((s) => s.estado === 'nueva').length} sin leer)`}>

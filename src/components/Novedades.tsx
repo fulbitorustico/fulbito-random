@@ -19,11 +19,13 @@ const ESTILO: Record<string, { color: string; fondo: string; icono: NombreIcono 
   notas: { color: 'var(--acc-green)', fondo: 'rgba(159,198,154,.16)', icono: 'estrella' },
   resultado: { color: 'var(--acc-green)', fondo: 'rgba(159,198,154,.16)', icono: 'pelota' },
   se_sumo: { color: 'var(--acc-blue)', fondo: 'rgba(157,204,218,.16)', icono: 'personas' },
+  amistad: { color: 'var(--acc-blue)', fondo: 'rgba(157,204,218,.16)', icono: 'personas' },
+  sugerencia_hecha: { color: 'var(--acc-green)', fondo: 'rgba(159,198,154,.16)', icono: 'check' },
 }
 
 // Lo que te vence no se puede tapar: si te dejo esconder "confirmá que venís",
 // el cartel deja de servir justo cuando más importa.
-const NO_SE_TAPAN = ['confirmar', 'valorar']
+const NO_SE_TAPAN = ['confirmar', 'valorar', 'sugerencia_hecha']
 
 const CLAVE_TAPADAS = 'fr_novedades_tapadas'
 const DURACION_TAPADA = 48 * 3_600_000
