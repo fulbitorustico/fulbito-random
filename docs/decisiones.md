@@ -97,6 +97,14 @@ Los dos viven **48 horas** y se muestran **una sola vez por persona**. Lo que se
 
 Detalle que obliga al diseño: **`sugerencias` solo la puede leer quien tiene `es_admin`** — nadie ve las de los demás ni las propias. Por eso el aviso sale de `avisos_pendientes()`, una función `security definer`, y no de una consulta directa.
 
+### No prometer lo que no se cumple
+
+Los mails de aviso **no le llegan a nadie** hoy: la Edge Function manda desde `onboarding@resend.dev`, el dominio de pruebas de Resend, que solo entrega a la casilla del dueño de la cuenta. Resend acepta el pedido y lo descarta — no falla, no avisa.
+
+Mientras eso siga así, la pantalla de avisos **lo dice**, en vez de mostrar interruptores que no hacen nada. La bandera está en `lib/correo.ts` con los dos pasos exactos para darla vuelta: dominio verificado en Resend, y `RESEND_FROM` cargada en los secretos de Supabase.
+
+Es la misma idea que hizo falta tres veces en este proyecto: **un rechazo silencioso es peor que un error.** Pasó con las políticas de la base, con el botón de cancelar y ahora con los mails.
+
 ### El pedido de plata va en el pie, nunca en "¿cuánto sale?"
 
 Pedir una colaboración en la misma frase en la que decís que la app es gratis le mete una duda al que recién llega. En el pie de la landing y abajo del perfil lo lee el que ya la está usando y ya sabe si le sirve.

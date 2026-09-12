@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import Icono from './Icono'
 import type { AvisosMail as Avisos } from '../lib/types'
+import { MAILS_A_TERCEROS_ANDANDO } from '../lib/correo'
 
 const OPCIONES: { id: keyof Avisos; label: string; detalle: string }[] = [
   { id: 'invitacion', label: 'Me invitaron a un partido', detalle: 'Alguien te busca para completar su cancha.' },
@@ -39,11 +40,27 @@ export default function AvisosMail() {
       <h2 className="flex items-center gap-2 text-sm font-semibold" style={{ color: 'var(--pitch-700)' }}>
         <Icono name="camara" size={15} /> Avisos por mail
       </h2>
-      <p className="mt-1 text-xs" style={{ color: 'var(--pitch-300)' }}>
-        {prendidos === 0
-          ? 'No te llega ningún mail. Todo lo vas a ver al abrir la app.'
-          : `Te llegan ${prendidos} de ${OPCIONES.length} tipos de aviso.`}
-      </p>
+      {/*
+        No prometemos lo que no cumplimos. Mientras el remitente sea el
+        dominio de pruebas de Resend, los mails no le llegan a nadie: se
+        aceptan y se descartan, sin error. Ver lib/correo.ts.
+      */}
+      {MAILS_A_TERCEROS_ANDANDO ? (
+        <p className="mt-1 text-xs" style={{ color: 'var(--pitch-300)' }}>
+          {prendidos === 0
+            ? 'No te llega ningún mail. Todo lo vas a ver al abrir la app.'
+            : `Te llegan ${prendidos} de ${OPCIONES.length} tipos de aviso.`}
+        </p>
+      ) : (
+        <div
+          className="mt-3 rounded-2xl px-4 py-3 text-[12.5px] leading-relaxed"
+          style={{ background: 'rgba(237,197,141,.14)', color: 'var(--pitch-700)' }}
+        >
+          <strong style={{ color: 'var(--gold-500)' }}>Los mails todavía no están andando.</strong> Nos falta el
+          dominio propio para poder mandarlos. Nada se pierde: todo esto te aparece igual al abrir la app, arriba de
+          la lista de partidos. Dejá elegido lo que quieras y te va a llegar cuando se prenda.
+        </div>
+      )}
 
       <div className="mt-4 flex flex-col gap-2">
         {OPCIONES.map((o) => {
